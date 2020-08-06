@@ -1,0 +1,19 @@
+width: 32
+height: 32
+number_of_agents: 10
+max_num_cities: 3
+grid_mode: False
+max_rails_between_cities: 2
+max_rails_in_city: 3
+malfunction_rate: 8000
+malfunction_min_duration: 15
+malfunction_max_duration: 50
+# speed ratio map: keys must be strings but will be converted to float later!
+speed_ratio_map:
+    '1.0': 0.25
+    '0.5': 0.25
+    '0.3333333': 0.25
+    '0.25': 0.25
+seed: 0
+regenerate_rail_on_reset: True
+regenerate_schedule_on_reset: True

@@ -1,10 +1,17 @@
-from flatland.evaluators.client import FlatlandRemoteClient
-from flatland.core.env_observation_builder import DummyObservationBuilder
-from my_observation_builder import CustomObservationBuilder
-import numpy as np
 import time
 
+import numpy as np
+from flatlander.env.rllib.flatland.observations.tree_obs import TreeObservation
+from flatlander.env.sb.flatland_gym_env import FlatlandGymEnv
+from stable_baselines import PPO2
+from stable_baselines.common.policies import MlpPolicy
+from stable_baselines.common.vec_env import DummyVecEnv
 
+from flatland.envs.rail_env import RailEnv
+from flatland.envs.rail_generators import sparse_rail_generator
+from flatland.envs.schedule_generators import sparse_schedule_generator
+from flatland.evaluators.client import FlatlandRemoteClient
+from flatlander.env.observations.default_observation_builder import CustomObservationBuilder
 
 #####################################################################
 # Instantiate a Remote Client
@@ -18,11 +25,48 @@ remote_client = FlatlandRemoteClient()
 # compute the necessary action for this step for all (or even some)
 # of the agents
 #####################################################################
-def my_controller(obs, number_of_agents):
-    _action = {}
-    for _idx in range(number_of_agents):
-        _action[_idx] = np.random.randint(0, 5)
-    return _action
+
+n_agents = 1
+x_dim = 25
+y_dim = 25
+n_cities = 4
+max_rails_between_cities = 2
+max_rails_in_city = 3
+seed = 42
+observation_tree_depth = 2
+
+observation = TreeObservation({'max_depth': observation_tree_depth, 'shortest_path_max_depth': 10})
+
+rail_env = RailEnv(
+    width=x_dim,
+    height=y_dim,
+    obs_builder_object=observation.builder(),
+    rail_generator=sparse_rail_generator(
+        max_num_cities=n_cities,
+        seed=seed,
+        grid_mode=False,
+        max_rails_between_cities=max_rails_between_cities,
+        max_rails_in_city=max_rails_in_city
+    ),
+    schedule_generator=sparse_schedule_generator(),
+    number_of_agents=n_agents,
+)
+
+
+def get_env():
+    gym_env = FlatlandGymEnv(
+        rail_env=rail_env,
+        observation_space=observation.observation_space(),
+        regenerate_rail_on_reset=True,
+        regenerate_schedule_on_reset=True
+    )
+    return gym_env
+
+
+env = DummyVecEnv([get_env])
+
+model = PPO2(MlpPolicy, env, verbose=1)
+model = model.load("./test_ppo.tar")
 
 #####################################################################
 # Instantiate your custom Observation Builder
@@ -61,8 +105,8 @@ while True:
     # over the observation of your choice.
     time_start = time.time()
     observation, info = remote_client.env_create(
-                    obs_builder_object=my_observation_builder
-                )
+        obs_builder_object=my_observation_builder
+    )
     env_creation_time = time.time() - time_start
     if not observation:
         #
@@ -71,7 +115,7 @@ while True:
         # evaluated on all the required evaluation environments,
         # and hence its safe to break out of the main evaluation loop
         break
-    
+
     print("Evaluation Number : {}".format(evaluation_number))
 
     #####################################################################
@@ -114,7 +158,11 @@ while True:
         # Compute the action for this step by using the previously 
         # defined controller
         time_start = time.time()
-        action = my_controller(observation, number_of_agents)
+        action_list = []
+        for i in range(number_of_agents):
+            act = model.step(observation[i])
+            action_list.append(act)
+
         time_taken = time.time() - time_start
         time_taken_by_controller.append(time_taken)
 
@@ -136,18 +184,19 @@ while True:
             # particular Env instantiation is complete, and we can break out 
             # of this loop, and move onto the next Env evaluation
             break
-    
+
     np_time_taken_by_controller = np.array(time_taken_by_controller)
     np_time_taken_per_step = np.array(time_taken_per_step)
-    print("="*100)
-    print("="*100)
+    print("=" * 100)
+    print("=" * 100)
     print("Evaluation Number : ", evaluation_number)
     print("Current Env Path : ", remote_client.current_env_path)
     print("Env Creation Time : ", env_creation_time)
     print("Number of Steps : ", steps)
-    print("Mean/Std of Time taken by Controller : ", np_time_taken_by_controller.mean(), np_time_taken_by_controller.std())
+    print("Mean/Std of Time taken by Controller : ", np_time_taken_by_controller.mean(),
+          np_time_taken_by_controller.std())
     print("Mean/Std of Time per Step : ", np_time_taken_per_step.mean(), np_time_taken_per_step.std())
-    print("="*100)
+    print("=" * 100)
 
 print("Evaluation of all environments complete...")
 ########################################################################

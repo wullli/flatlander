@@ -1,0 +1,35 @@
+flatland-sparse-small-tree-fc-dlock-apex:
+    run: APEX
+    env: flatland_sparse
+    stop:
+        timesteps_total: 100000000  # 1e8
+    checkpoint_freq: 10
+    checkpoint_at_end: True
+    keep_checkpoints_num: 5
+    checkpoint_score_attr: episode_reward_mean
+    config:
+        num_workers: 15
+        num_envs_per_worker: 5
+        num_gpus: 1
+
+        env_config:
+            observation: tree
+            observation_config:
+                max_depth: 2
+                shortest_path_max_depth: 30
+
+            generator: sparse_rail_generator
+            generator_config: small_v0
+
+            resolve_deadlocks: True
+            deadlock_reward: -1000
+
+            wandb:
+                project: flatland
+                entity: masterscrat
+                tags: ["small_v0", "tree_obs_dlock", "apex"] # TODO should be set programmatically
+
+        model:
+            fcnet_activation: relu
+            fcnet_hiddens: [256, 256]
+            vf_share_layers: True  # False

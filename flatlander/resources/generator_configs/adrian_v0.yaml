@@ -1,0 +1,13 @@
+# ADRIAN_V0
+# config shared by Adrian, without malfunctions
+width: 30
+height: 30
+number_of_agents: 5
+max_num_cities: 40
+max_rails_between_cities: 2
+max_rails_in_city: 8
+grid_mode: False
+
+seed: 0
+regenerate_rail_on_reset: True
+regenerate_schedule_on_reset: True

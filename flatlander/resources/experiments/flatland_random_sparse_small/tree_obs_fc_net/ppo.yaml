@@ -1,0 +1,47 @@
+flatland-random-sparse-small-tree-fc-ppo:
+  run: PPO
+  env: flatland_random_sparse_small
+  stop:
+    timesteps_total: 10000000  # 1e7
+  checkpoint_freq: 10
+  checkpoint_at_end: True
+  keep_checkpoints_num: 5
+  checkpoint_score_attr: episode_reward_mean
+  config:
+    clip_rewards: True
+    clip_param: 0.1
+    vf_clip_param: 500.0
+    entropy_coeff: 0.01
+    # effective batch_size: train_batch_size * num_agents_in_each_environment [5, 10]
+    # see https://github.com/ray-project/ray/issues/4628
+    train_batch_size: 1000  # 5000
+    rollout_fragment_length: 50  # 100
+    sgd_minibatch_size: 100  # 500
+    num_sgd_iter: 10
+    num_workers: 7
+    num_envs_per_worker: 5
+    batch_mode: truncate_episodes
+    observation_filter: NoFilter
+    vf_share_layers: True
+    vf_loss_coeff: 0.5
+    num_gpus: 1
+
+    env_config:
+      min_seed: 1002
+      max_seed: 213783
+      min_test_seed: 0
+      max_test_seed: 100
+      # After how many episodes the level should be regenerated:
+      reset_env_freq: 1
+      observation: tree
+      observation_config:
+        max_depth: 2
+        shortest_path_max_depth: 30
+      regenerate_rail_on_reset: True
+      regenerate_schedule_on_reset: True
+      render: False
+
+    model:
+      fcnet_activation: relu
+      fcnet_hiddens: [256, 256]
+      vf_share_layers: True  # False

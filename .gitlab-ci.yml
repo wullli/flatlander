@@ -1,0 +1,12 @@
+stages:
+  - test
+
+test:
+  stage: test
+  image: continuumio/miniconda
+  script:
+    - conda init bash
+    - source ~/.bashrc
+    - conda env create -f environment-cpu.yml
+    - conda activate flatland-baseline-cpu-env
+    - bash test.sh

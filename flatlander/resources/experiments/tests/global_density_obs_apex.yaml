@@ -1,0 +1,39 @@
+flatland-sparse-small-density-cnn-apex:
+    run: APEX
+    env: flatland_sparse
+    stop:
+        timesteps_total: 500
+    checkpoint_freq: 10
+    checkpoint_at_end: True
+    keep_checkpoints_num: 5
+    checkpoint_score_attr: episode_reward_mean
+    config:
+        num_workers: 2
+        num_envs_per_worker: 5
+        num_gpus: 0
+
+        hiddens: []
+        dueling: False
+
+        env_config:
+            observation: density
+            observation_config:
+                width: 25
+                height: 25
+                max_t: 10
+                encoding: exp_decay
+
+            generator: sparse_rail_generator
+            generator_config: small_v0
+
+            wandb:
+                project: flatland
+                entity: masterscrat
+                tags: ["small_v0", "density_obs", "apex"] # TODO should be set programmatically
+
+        model:
+            custom_model: global_dens_obs_model
+            custom_options:
+                architecture: impala
+                architecture_options:
+                    residual_layers: [[16, 2], [32, 4]]

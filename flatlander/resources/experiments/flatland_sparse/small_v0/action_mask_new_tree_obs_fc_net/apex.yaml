@@ -1,0 +1,43 @@
+flatland-sparse-small-action-mask-tree-fc-apex:
+    run: APEX
+    env: flatland_sparse
+    stop:
+        timesteps_total: 100000000  # 1e8
+    checkpoint_freq: 10
+    checkpoint_at_end: True
+    # keep_checkpoints_num: 5
+    checkpoint_score_attr: episode_reward_mean
+    config:
+        num_workers: 15
+        num_envs_per_worker: 5
+        num_gpus: 1
+
+        hiddens: []
+        dueling: False
+
+        env_config:
+            skip_no_choice_cells: True
+            available_actions_obs: True
+
+            observation: new_tree
+            observation_config:
+                max_depth: 2
+                shortest_path_max_depth: 30
+
+            generator: sparse_rail_generator
+            generator_config: small_v0
+
+            wandb:
+                project: flatland
+                entity: masterscrat
+                tags: ["small_v0", "new_tree_obs", "apex", "skip_no_choice_cells",
+                       "action_mask"] # TODO should be set programmatically
+
+        model:
+            custom_model: fully_connected_model
+            custom_options:
+                layers: [256, 256]
+                activation: relu
+                layer_norm: False
+                vf_share_layers: True  # False
+                mask_unavailable_actions: True

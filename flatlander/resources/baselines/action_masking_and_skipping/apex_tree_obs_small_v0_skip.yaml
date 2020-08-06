@@ -1,0 +1,36 @@
+apex-tree-obs-small-v0-skip:
+    run: APEX
+    env: flatland_sparse
+    stop:
+        timesteps_total: 15000000  # 1.5e7
+    checkpoint_at_end: True
+    checkpoint_score_attr: episode_reward_mean
+    num_samples: 3
+    config:
+        num_workers: 15
+        num_envs_per_worker: 5
+        num_gpus: 0
+        gamma: 0.99
+
+        env_config:
+            observation: tree
+            observation_config:
+                max_depth: 2
+                shortest_path_max_depth: 30
+
+            generator: sparse_rail_generator
+            generator_config: small_v0
+
+            skip_no_choice_cells: True
+            accumulate_skipped_rewards: True
+            discounting: 0.99  # TODO set automatically, should be equal to gamma
+
+            wandb:
+                project: flatland
+                entity: masterscrat
+                tags: ["small_v0", "tree_obs", "apex", "skip"] # TODO should be set programmatically
+
+        model:
+            fcnet_activation: relu
+            fcnet_hiddens: [256, 256]
+            vf_share_layers: True  # False
