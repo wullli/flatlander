@@ -7,6 +7,6 @@ test:
   script:
     - conda init bash
     - source ~/.bashrc
-    - conda env create -f environment-cpu.yml
-    - conda activate flatland-baseline-cpu-env
-    - bash test.sh
+    - conda env create -f environment.yml
+    - conda activate flatland-rl
+    - bash flatlander/test/test.sh
