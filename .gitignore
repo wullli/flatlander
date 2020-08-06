@@ -125,3 +125,5 @@ dmypy.json
 
 scratch/test-envs/
 scratch/
+**/.idea
+**/.ipynb_checkpoints
