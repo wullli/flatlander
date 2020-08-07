@@ -4,6 +4,8 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - musl-dev
+  - linux-headers
   - tk=8.6.8
   - cairo=1.16.0
   - cairocffi=1.1.0
