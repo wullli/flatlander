@@ -1,3 +1,7 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f10be0b54a3a3d6d01a8c59e5dfcec6ac910f14adb1b70d3809a8a2666a5b6d1
-size 142
+{
+  "challenge_id": "neurips-2020-flatland-challenge",
+  "grader_id": "neurips-2020-flatland-challenge",
+  "debug": true,
+  "tags": ["RL"]
+}
+
