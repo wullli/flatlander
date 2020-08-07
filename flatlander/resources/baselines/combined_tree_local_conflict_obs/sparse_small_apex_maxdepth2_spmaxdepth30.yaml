@@ -9,7 +9,7 @@ flatland-sparse-small-combined-obs-tree-local-conflict-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 13
+        num_workers: 4
         num_envs_per_worker: 5
         num_gpus: 0
 
@@ -34,7 +34,7 @@ flatland-sparse-small-combined-obs-tree-local-conflict-apex:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "tree_and_local_conflict", "apex"] # TODO should be set programmatically
 
         model:

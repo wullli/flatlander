@@ -11,7 +11,7 @@ flatland-random-sparse-small-tree-fc-apex-il-loss:
         input:
             "/tmp/flatland-out": 0.75
             sampler: 0.25
-        num_workers: 10
+        num_workers: 4
         num_envs_per_worker: 1
         num_gpus: 0
 
@@ -27,7 +27,7 @@ flatland-random-sparse-small-tree-fc-apex-il-loss:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "tree_obs", "APEX_IL_Loss"] # TODO should be set programmatically
 
         model:

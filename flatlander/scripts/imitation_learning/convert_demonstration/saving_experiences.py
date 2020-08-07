@@ -44,7 +44,7 @@ def main(args):
             assert False, "unhandled option"
 
     batch_builder = SampleBatchBuilder()  # or MultiAgentSampleBatchBuilder
-    writer = JsonWriter("./")
+    writer = JsonWriter("./out/")
 
     #  Setting these 2 parameters to True can slow down training
     visuals = False

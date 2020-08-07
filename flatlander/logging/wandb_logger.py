@@ -161,9 +161,8 @@ class WandbLogger(tune.logger.Logger):
 
 
 # each logger has to run in a separate process
-def wandb_process(queue, config):
-    run = wandb.init(project="flatland",
-                     reinit=True, **config.get("env_config", {}).get("wandb", {}))
+def wandb_process(queue, config) -> None:
+    run = wandb.init(reinit=True, **config.get("env_config", {}).get("wandb", {}))
 
     if config:
         for k in config.keys():

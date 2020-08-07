@@ -7,26 +7,26 @@
 #time python ./trainImitate.py -f experiments/tests/MARWIL.yaml
 
 echo "===================="
-echo "GLOBAL OBS"
+echo "TEST GLOBAL OBS"
 echo "===================="
-time python ./train.py -f experiments/tests/global_obs_ppo.yaml
+time python3 ./flatlander/scripts/experiment.py -f ./flatlander/resources/experiments/tests/global_obs_ppo.yaml
 
 echo "===================="
-echo "GLOBAL DENSITY OBS"
+echo "TEST GLOBAL DENSITY OBS"
 echo "===================="
-time python ./train.py -f experiments/tests/global_density_obs_apex.yaml
+time python3 ./flatlander/scripts/experiment.py -f ./flatlander/resources/experiments/tests/global_density_obs_apex.yaml
 
 echo "===================="
-echo "LOCAL CONFLICT OBS"
+echo "TEST LOCAL CONFLICT OBS"
 echo "===================="
-time python ./train.py -f experiments/tests/local_conflict_obs_apex.yaml
+time python3 ./flatlander/scripts/experiment.py -f ./flatlander/resources/experiments/tests/local_conflict_obs_apex.yaml
 
 echo "===================="
 echo "TREE OBS"
 echo "===================="
-time python ./train.py -f experiments/tests/tree_obs_apex.yaml
+time python3 ./flatlander/scripts/experiment.py -f ./flatlander/resources/experiments/tests/tree_obs_apex.yaml
 
 echo "===================="
-echo "COMBINED OBS (TREE + LOCAL CONFLICT)"
+echo "TEST COMBINED OBS (TREE + LOCAL CONFLICT)"
 echo "===================="
-time python ./train.py -f experiments/tests/combined_obs_apex.yaml
+time python3 ./flatlander/scripts/experiment.py -f ./flatlander/resources/experiments/tests/combined_obs_apex.yaml

@@ -18,7 +18,7 @@ flatland-random-sparse-small-global-conv-ppo:
     rollout_fragment_length: 50  # 100
     sgd_minibatch_size: 100  # 500
     num_sgd_iter: 10
-    num_workers: 7
+    num_workers: 4
     num_envs_per_worker: 5
     batch_mode: truncate_episodes
     observation_filter: NoFilter

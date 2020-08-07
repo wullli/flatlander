@@ -17,7 +17,7 @@ flatland-sparse-small-action-mask-tree-fc-ppo:
         rollout_fragment_length: 50  # 100
         sgd_minibatch_size: 100  # 500
         num_sgd_iter: 10
-        num_workers: 15
+        num_workers: 4
         num_envs_per_worker: 5
         batch_mode: truncate_episodes
         observation_filter: NoFilter
@@ -39,7 +39,7 @@ flatland-sparse-small-action-mask-tree-fc-ppo:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "new_tree_obs", "ppo", "skip_no_choice_cells",
                        "action_mask"] # TODO should be set programmatically
 

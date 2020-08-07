@@ -3,10 +3,13 @@ import tensorflow as tf
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 
 from flatland.core.grid import grid4
-from models.common.models import NatureCNN, ImpalaCNN
+from flatlander.models.common.models import NatureCNN, ImpalaCNN
 
 
 class GlobalObsModel(TFModelV2):
+    def import_from_h5(self, h5_file):
+        pass
+
     def __init__(self, obs_space, action_space, num_outputs, model_config, name):
         super().__init__(obs_space, action_space, num_outputs, model_config, name)
         assert isinstance(action_space, gym.spaces.Discrete), \

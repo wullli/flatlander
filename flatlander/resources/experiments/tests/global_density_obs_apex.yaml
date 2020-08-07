@@ -28,7 +28,7 @@ flatland-sparse-small-density-cnn-apex:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "density_obs", "apex"] # TODO should be set programmatically
 
         model:

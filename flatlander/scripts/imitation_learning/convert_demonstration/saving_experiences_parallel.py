@@ -36,10 +36,10 @@ parser.add_argument("--globalobs", default=False, action="store_true")
 # change below line in method malfunction_from_file in the file flatland.env.malfunction_generators.py
 # mean_malfunction_rate = 1/oMPD.malfunction_rate
 
-extract = True
+extract = False
 
 if extract:
-    env_path = "env-100-999.tgz"
+    env_path = 'expert-demonstrations.tgz'
     env_names = env_path.split(".")[0]
 
     if not os.path.isdir(env_names):
@@ -64,7 +64,7 @@ parallel = True
 
 if parallel:
     batch_builder = SampleBatchBuilder()  # or MultiAgentSampleBatchBuilder
-    writer = JsonWriter(path="./", max_file_size=1024 * 1024 * 1024)
+    writer = JsonWriter(path="./out", max_file_size=1024 * 1024 * 1024)
 
 '''
 A 2-d array matrix on-hot encoded similar to tf.one_hot function
@@ -116,7 +116,7 @@ def preprocess_obs(obs):
 
 
 def generate_experiences(trials, start=0, tree_depth=2, max_depth=30, obs_type="tree", batch_builder=None, writer=None):
-    env_file = f"env-100-999/env/Level_{trials}.pkl"
+    env_file = f"envs-100-999/envs/Level_{trials}.pkl"
 
     # env_file = f"../env_configs/test-env-small/Test_0/Level_{trials}.mpk"
     pad_name = False
@@ -129,7 +129,7 @@ def generate_experiences(trials, start=0, tree_depth=2, max_depth=30, obs_type="
     # env_file = f"./{env_names}/env/Level_{trials}.pkl"
 
     # file = f"../env_configs/actions-small/Test_0/Level_{trials}.mpk"
-    file = f"env-100-999/actions/env/Level_{trials}.json"
+    file = f"envs-100-999/actions/envs/Level_{trials}.json"
     # file = f"./{env_names}/actions/env/Level_{trials}.json"
 
     if not os.path.isfile(env_file) or not os.path.isfile(file):
@@ -376,7 +376,7 @@ def main():
 
         generate_experiences_trial = partial(generate_experiences, start=start, tree_depth=tree_depth,
                                              max_depth=max_depth, obs_type=obs_type, batch_builder=SampleBatchBuilder(),
-                                             writer=JsonWriter(path="./", max_file_size=1024 * 1024 * 1024))
+                                             writer=JsonWriter(path="/", max_file_size=1024 * 1024 * 1024))
 
         for trial in all_trials:
             df_cur = generate_experiences_trial(trial)

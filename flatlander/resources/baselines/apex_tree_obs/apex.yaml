@@ -23,7 +23,7 @@ flatland-sparse-small-tree-fc-apex:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "tree_obs", "apex"]
 
         model:

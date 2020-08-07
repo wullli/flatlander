@@ -8,7 +8,7 @@ flatland-sparse-small-action-mask-tree-fc-apex:
     # keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     config:
-        num_workers: 15
+        num_workers: 4
         num_envs_per_worker: 5
         num_gpus: 1
 
@@ -29,7 +29,7 @@ flatland-sparse-small-action-mask-tree-fc-apex:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "new_tree_obs", "apex", "skip_no_choice_cells",
                        "action_mask"] # TODO should be set programmatically
 

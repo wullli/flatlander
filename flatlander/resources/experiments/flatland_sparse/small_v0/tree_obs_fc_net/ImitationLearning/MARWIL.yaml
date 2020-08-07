@@ -33,7 +33,7 @@ flatland-random-sparse-small-tree-marwil-fc-ppo:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "tree_obs", "MARWIL"] # TODO should be set programmatically
 
         model:

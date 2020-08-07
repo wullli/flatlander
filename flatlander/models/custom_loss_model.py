@@ -11,7 +11,15 @@ tf = try_import_tf()
 
 
 class CustomLossModel(TFModelV2):
-    """Custom model that adds an imitation loss on top of the policy loss."""
+    """
+    Custom model that adds an imitation loss on top of the policy loss.
+    """
+
+    def import_from_h5(self, h5_file):
+        pass
+
+    def value_function(self):
+        pass
 
     def __init__(self, obs_space, action_space, num_outputs, model_config,
                  name):

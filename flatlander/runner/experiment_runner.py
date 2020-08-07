@@ -10,12 +10,15 @@ from ray.rllib.utils import try_import_tf, try_import_torch
 from ray.tune import run_experiments
 from ray.tune.logger import TBXLogger
 from ray.tune.resources import resources_to_json
+import ray.tune.result as ray_results
 from ray.tune.tune import _make_scheduler
 from ray.tune.utils import merge_dicts
 
 from flatlander.env import get_eval_config
 from flatlander.utils.loader import load_envs, load_models
 from flatlander.logging.wandb_logger import WandbLogger
+
+ray_results.DEFAULT_RESULTS_DIR = os.path.join(os.getcwd(), "..", "resources/results")
 
 
 class ExperimentRunner:
@@ -87,16 +90,18 @@ class ExperimentRunner:
                 }
             }
 
-        for exp in experiments.values() and arg_parser is not None:
-            if not exp.get("run"):
-                arg_parser.error("the following arguments are required: --run")
-            if not exp.get("env") and not exp.get("config", {}).get("env"):
-                arg_parser.error("the following arguments are required: --env")
+            if arg_parser is not None:
+                for exp in experiments.values():
+                    if not exp.get("run"):
+                        arg_parser.error("the following arguments are required: --run")
+                    if not exp.get("env") and not exp.get("config", {}).get("env"):
+                        arg_parser.error("the following arguments are required: --env")
 
         return experiments
 
     def apply_args(self, run_args, experiments: dict):
         verbose = 1
+        webui_host = "localhost"
         for exp in experiments.values():
             if run_args.eager:
                 exp["config"]["eager"] = True
@@ -118,7 +123,7 @@ class ExperimentRunner:
                 exp['config']['callbacks'] = {
                     'on_episode_end': self.on_episode_end,
                 }
-            return experiments, verbose
+            return experiments, verbose, webui_host
 
     @staticmethod
     def evaluate(exp):
@@ -156,7 +161,7 @@ class ExperimentRunner:
                         exp["config"]["input"] = str(input_file)
 
             if args is not None:
-                exps, verbose = self.apply_args(exps)
+                experiments, verbose, webui_host = self.apply_args(run_args=args, experiments=experiments)
 
                 if args.eval:
                     self.evaluate(exp)

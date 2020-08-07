@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from argparse import ArgumentParser
-
 from flatlander.runner.experiment_runner import ExperimentRunner
 from flatlander.utils.argparser import create_parser
-
+from argparse import ArgumentParser
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == "__main__":
     runner = ExperimentRunner()

@@ -128,7 +128,7 @@ def create_test_env(fnParams, nTest, sDir):
         os.remove(sfName)
     env.save(sfName)
 
-    sys.stdout.write(".")
+    sys.stdout.write("")
     sys.stdout.flush()
 
     return env

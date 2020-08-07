@@ -18,7 +18,7 @@ flatland-random-sparse-small-tree-fc-marwil-il:
         rollout_fragment_length: 50  # 100
         batch_mode: truncate_episodes
         observation_filter: NoFilter
-        num_workers: 10
+        num_workers: 4
         num_envs_per_worker: 1
         num_gpus: 0
 
@@ -34,7 +34,7 @@ flatland-random-sparse-small-tree-fc-marwil-il:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "tree_obs", "MARWIL"] # TODO should be set programmatically
 
         model:

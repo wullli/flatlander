@@ -32,7 +32,7 @@ flatland-sparse-small-action-mask-tree-fc-apex:
             generator_config: small_v0
 
             wandb:
-                project: neurips2020-flatland-baselines
+                project: flatland
                 entity: nilabha2007
                 tags: ["small_v0", "new_tree_obs", "apex", "skip_no_choice_cells",
                        "action_mask"] # TODO should be set programmatically

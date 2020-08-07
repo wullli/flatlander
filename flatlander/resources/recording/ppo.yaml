@@ -43,7 +43,7 @@ flatland-render-test:
             generator_config: small_v0
 
             wandb:
-                project: neurips2020-flatland-baselines
+                project: flatland
                 entity: nilabha2007
                 tags: ["small_v0", "tree_obs"] # TODO should be set programmatically
                 # monitor_gym: True # Wandb video doesn't seem to work

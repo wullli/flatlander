@@ -32,7 +32,7 @@ flatland-random-sparse-small-global-marwil-fc-ppo:
             generator_config: small_v0
 
             wandb:
-                project: neurips2020-flatland-baselines
+                project: flatland
                 entity: nilabha2007
                 tags: ["small_v0", "global_obs", "MARWIL"] # TODO should be set programmatically
 

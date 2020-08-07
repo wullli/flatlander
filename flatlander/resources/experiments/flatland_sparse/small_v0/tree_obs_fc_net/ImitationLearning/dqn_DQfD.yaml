@@ -27,7 +27,7 @@ flatland-random-sparse-small-tree-fc-ppo:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "tree_obs", "DQN_DQfD"] # TODO should be set programmatically
 
         model:

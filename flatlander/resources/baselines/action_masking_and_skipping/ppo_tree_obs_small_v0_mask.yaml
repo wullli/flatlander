@@ -7,7 +7,7 @@ sparse-mask-ppo-tree-obs-small-v0:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 15
+        num_workers: 4
         num_envs_per_worker: 5
         num_gpus: 0
         gamma: 0.99
@@ -36,7 +36,7 @@ sparse-mask-ppo-tree-obs-small-v0:
 
             wandb:
                 project: flatland
-                entity: masterscrat
+                entity: wullli
                 tags: ["small_v0", "tree_obs", "ppo", "mask"] # TODO should be set programmatically
 
         model:
