@@ -3,7 +3,7 @@ evaluation_num_workers: 2
 evaluation_interval: 3
 # Run 1 episode each time evaluation runs.
 evaluation_num_episodes: 2
-# Override the env config for evaluation.
+# Override the envs config for evaluation.
 evaluation_config:
    explore: False
    env_config:

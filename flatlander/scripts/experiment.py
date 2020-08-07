@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/envs python
 
 from flatlander.runner.experiment_runner import ExperimentRunner
 from flatlander.utils.argparser import create_parser

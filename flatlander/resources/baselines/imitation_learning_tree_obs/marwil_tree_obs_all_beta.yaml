@@ -47,7 +47,7 @@ flatland-random-sparse-small-tree-fc-marwil-il:
         evaluation_interval: 50
         # Run 1 episode each time evaluation runs.
         evaluation_num_episodes: 50
-        # Override the env config for evaluation.
+        # Override the envs config for evaluation.
         evaluation_config:
            explore: False
            env_config:

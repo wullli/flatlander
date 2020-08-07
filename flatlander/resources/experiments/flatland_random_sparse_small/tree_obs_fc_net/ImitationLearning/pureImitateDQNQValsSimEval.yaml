@@ -48,7 +48,7 @@ flatland-random-sparse-small-tree-dqn-pure-imitate-fc-ppo:
         evaluation_interval: 10
         # Run 1 episode each time evaluation runs.
         evaluation_num_episodes: 1
-        # Override the env config for evaluation.
+        # Override the envs config for evaluation.
         evaluation_config:
             explore: False
             input_evaluation: [simulation]

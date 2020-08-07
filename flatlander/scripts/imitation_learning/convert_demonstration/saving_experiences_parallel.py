@@ -33,7 +33,7 @@ parser.add_argument("--globalobs", default=False, action="store_true")
 
 ## Legacy Code for the correct expert actions
 
-# change below line in method malfunction_from_file in the file flatland.env.malfunction_generators.py
+# change below line in method malfunction_from_file in the file flatland.envs.malfunction_generators.py
 # mean_malfunction_rate = 1/oMPD.malfunction_rate
 
 extract = False
@@ -118,7 +118,7 @@ def preprocess_obs(obs):
 def generate_experiences(trials, start=0, tree_depth=2, max_depth=30, obs_type="tree", batch_builder=None, writer=None):
     env_file = f"envs-100-999/envs/Level_{trials}.pkl"
 
-    # env_file = f"../env_configs/test-env-small/Test_0/Level_{trials}.mpk"
+    # env_file = f"../env_configs/test-envs-small/Test_0/Level_{trials}.mpk"
     pad_name = False
 
     if pad_name:
@@ -126,11 +126,11 @@ def generate_experiences(trials, start=0, tree_depth=2, max_depth=30, obs_type="
         _str_trial = str(trials)
         trials = str(0) * (total_size - len(_str_trial)) + _str_trial
 
-    # env_file = f"./{env_names}/env/Level_{trials}.pkl"
+    # env_file = f"./{env_names}/envs/Level_{trials}.pkl"
 
     # file = f"../env_configs/actions-small/Test_0/Level_{trials}.mpk"
     file = f"envs-100-999/actions/envs/Level_{trials}.json"
-    # file = f"./{env_names}/actions/env/Level_{trials}.json"
+    # file = f"./{env_names}/actions/envs/Level_{trials}.json"
 
     if not os.path.isfile(env_file) or not os.path.isfile(file):
         print("Missing file!", env_file, file)
@@ -211,7 +211,7 @@ def generate_experiences(trials, start=0, tree_depth=2, max_depth=30, obs_type="
     # Reset score and done
     score = 0
     agent_action_buffer = np.zeros(n_agents)
-    # prev_action = np.zeros_like(env.action_space.sample())
+    # prev_action = np.zeros_like(envs.action_space.sample())
     prev_reward = np.zeros(n_agents)
     for step in range(max_steps):
         for a in range(n_agents):
@@ -267,7 +267,7 @@ def generate_experiences(trials, start=0, tree_depth=2, max_depth=30, obs_type="
             agent_action_buffer[a] = action_dict[a]
             prev_reward[a] = all_rewards[a]
 
-            score += all_rewards[a]  # / env.get_num_agents()
+            score += all_rewards[a]  # / envs.get_num_agents()
 
         if visuals:
             env_renderer.render_env(

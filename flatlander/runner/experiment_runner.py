@@ -14,7 +14,7 @@ import ray.tune.result as ray_results
 from ray.tune.tune import _make_scheduler
 from ray.tune.utils import merge_dicts
 
-from flatlander.env import get_eval_config
+from flatlander.envs import get_eval_config
 from flatlander.utils.loader import load_envs, load_models
 from flatlander.logging.wandb_logger import WandbLogger
 
@@ -94,8 +94,8 @@ class ExperimentRunner:
                 for exp in experiments.values():
                     if not exp.get("run"):
                         arg_parser.error("the following arguments are required: --run")
-                    if not exp.get("env") and not exp.get("config", {}).get("env"):
-                        arg_parser.error("the following arguments are required: --env")
+                    if not exp.get("envs") and not exp.get("config", {}).get("envs"):
+                        arg_parser.error("the following arguments are required: --envs")
 
         return experiments
 
@@ -137,7 +137,7 @@ class ExperimentRunner:
             exp['config']['evaluation_config']['env_config'] = exp['config'].get('env_config')
             eval_env_config = exp['config']['evaluation_config'].get('env_config')
             if eval_seed and eval_env_config:
-                # We override the env seed from the evaluation config
+                # We override the envs seed from the evaluation config
                 eval_env_config['seed'] = eval_seed
 
             # Remove any wandb related configs

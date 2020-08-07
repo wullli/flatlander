@@ -5,7 +5,7 @@ from ray.tune.result import DEFAULT_RESULTS_DIR
 
 EXAMPLE_USAGE = """
 Training example:
-    python ./experiment.py --run DQN --env CartPole-v0 --no-log-flatland-stats
+    python ./experiment.py --run DQN --envs CartPole-v0 --no-log-flatland-stats
 
 Training with Config:
     python ./experiment.py -f experiments/flatland_random_sparse_small/global_obs/ppo.yaml
@@ -112,7 +112,7 @@ def create_parser(parser_creator=None):
         default=False,
         help="Whether to expose on network (binding on all network interfaces).")
     parser.add_argument(
-        "--env", default=None, type=str, help="The gym environment to use.")
+        "--envs", default=None, type=str, help="The gym environment to use.")
     parser.add_argument(
         "--queue-trials",
         action="store_true",

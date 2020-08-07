@@ -27,7 +27,7 @@ imitate = True
 
 ## Legacy Code for the correct expert actions
 
-# change below line in method malfunction_from_file in the file flatland.env.malfunction_generators.py
+# change below line in method malfunction_from_file in the file flatland.envs.malfunction_generators.py
 # mean_malfunction_rate = 1/oMPD.malfunction_rate
 
 def main(args):
@@ -67,7 +67,7 @@ def main(args):
     for trials in range(trial_start, n_trials + 1):
 
         env_file = f"envs-100-999/envs/Level_{trials}.pkl"
-        # env_file = f"../env_configs/test-env-small/Test_0/Level_{trials}.mpk"
+        # env_file = f"../env_configs/test-envs-small/Test_0/Level_{trials}.mpk"
 
         # file = f"../env_configs/actions-small/Test_0/Level_{trials}.mpk"
         file = f"envs-100-999/actions/envs/Level_{trials}.json"
@@ -142,7 +142,7 @@ def main(args):
         # Reset score and done
         score = 0
         agent_action_buffer = np.zeros(n_agents)
-        # prev_action = np.zeros_like(env.action_space.sample())
+        # prev_action = np.zeros_like(envs.action_space.sample())
         prev_reward = np.zeros(n_agents)
         for step in range(max_steps):
             for a in range(n_agents):
@@ -195,7 +195,7 @@ def main(args):
                 agent_action_buffer[a] = action_dict[a]
                 prev_reward[a] = all_rewards[a]
 
-                score += all_rewards[a]  # / env.get_num_agents()
+                score += all_rewards[a]  # / envs.get_num_agents()
 
             if visuals:
                 env_renderer.render_env(

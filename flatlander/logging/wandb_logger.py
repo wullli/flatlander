@@ -52,7 +52,7 @@ class WandbLogger(tune.logger.Logger):
     def reset_state(self):
         # Holds list of uploaded/moved files so that we dont upload them again
         self._upload_files = {}
-        # Holds information of env state and put them in an unique file name
+        # Holds information of envs state and put them in an unique file name
         # and maps it to the original video file
         self._file_map = {}
         self._save_folder = None
@@ -119,10 +119,10 @@ class WandbLogger(tune.logger.Logger):
             if not self._file_map.get(_key):
                 # Allocate steps, iteration, completion rate to the earliest case
                 # when the video file was first created. Discard recent file names
-                # TODO: Cannot match exact env details on which video was created
-                # and hence defaulting to the env details from when the video was first created
-                # To help identify we must record the video file with the env iteration or/and steps etc.
-                # Using the env details when the video was created may be useful when recording video during evaluation
+                # TODO: Cannot match exact envs details on which video was created
+                # and hence defaulting to the envs details from when the video was first created
+                # To help identify we must record the video file with the envs iteration or/and steps etc.
+                # Using the envs details when the video was created may be useful when recording video during evaluation
                 # where we are more interested in the current training state
                 self._file_map[_key] = _video_file_name
 

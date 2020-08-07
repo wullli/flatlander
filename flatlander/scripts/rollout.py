@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/envs python
 
 import argparse
 import collections
@@ -25,19 +25,19 @@ logger = logging.getLogger(__name__)
 
 EXAMPLE_USAGE = """
 Example Usage:
-    python rollout.py /Users/flaurent/Sites/flatland/flatland-checkpoints/checkpoint_940/checkpoint-940 --run APEX --no-render --episodes 1000 --env 'flatland_random_sparse_small' --config '{"env_config": {"test": "true", "min_seed": 1002, "max_seed": 213783, "min_test_seed": 0, "max_test_seed": 100, "reset_env_freq": "1", "regenerate_rail_on_reset": "True", "regenerate_schedule_on_reset": "True", "observation": "tree", "observation_config": {"max_depth": 2, "shortest_path_max_depth": 30}}, "model": {"fcnet_activation": "relu", "fcnet_hiddens": [256, 256], "vf_share_layers": "True"}}' 
+    python rollout.py /Users/flaurent/Sites/flatland/flatland-checkpoints/checkpoint_940/checkpoint-940 --run APEX --no-render --episodes 1000 --envs 'flatland_random_sparse_small' --config '{"env_config": {"test": "true", "min_seed": 1002, "max_seed": 213783, "min_test_seed": 0, "max_test_seed": 100, "reset_env_freq": "1", "regenerate_rail_on_reset": "True", "regenerate_schedule_on_reset": "True", "observation": "tree", "observation_config": {"max_depth": 2, "shortest_path_max_depth": 30}}, "model": {"fcnet_activation": "relu", "fcnet_hiddens": [256, 256], "vf_share_layers": "True"}}' 
 """
 
 """
 # Testing in flatland_random_sparse_small:
-python rollout.py /Users/flaurent/Sites/flatland/flatland-checkpoints/checkpoint_940/checkpoint-940 --run APEX --no-render --episodes 1000 --env 'flatland_random_sparse_small' --config '{"env_config": {"test": "true", "min_seed": 1002, "max_seed": 213783, "min_test_seed": 0, "max_test_seed": 100, "reset_env_freq": "1", "regenerate_rail_on_reset": "True", "regenerate_schedule_on_reset": "True", "observation": "tree", "observation_config": {"max_depth": 2, "shortest_path_max_depth": 30}}, "model": {"fcnet_activation": "relu", "fcnet_hiddens": [256, 256], "vf_share_layers": "True"}}' 
+python rollout.py /Users/flaurent/Sites/flatland/flatland-checkpoints/checkpoint_940/checkpoint-940 --run APEX --no-render --episodes 1000 --envs 'flatland_random_sparse_small' --config '{"env_config": {"test": "true", "min_seed": 1002, "max_seed": 213783, "min_test_seed": 0, "max_test_seed": 100, "reset_env_freq": "1", "regenerate_rail_on_reset": "True", "regenerate_schedule_on_reset": "True", "observation": "tree", "observation_config": {"max_depth": 2, "shortest_path_max_depth": 30}}, "model": {"fcnet_activation": "relu", "fcnet_hiddens": [256, 256], "vf_share_layers": "True"}}' 
 
 # Testing in flatland_sparse:
-python rollout.py /Users/flaurent/Sites/flatland/flatland-checkpoints/checkpoint_940/checkpoint-940 --run APEX --no-render --episodes 1000 --env 'flatland_sparse' --config '{"env_config": {"test": "true", "generator": "sparse_rail_generator", "generator_config": "small_v0", "observation": "tree", "observation_config": {"max_depth": 2, "shortest_path_max_depth": 30}}, "model": {"fcnet_activation": "relu", "fcnet_hiddens": [256, 256], "vf_share_layers": "True"}}' 
+python rollout.py /Users/flaurent/Sites/flatland/flatland-checkpoints/checkpoint_940/checkpoint-940 --run APEX --no-render --episodes 1000 --envs 'flatland_sparse' --config '{"env_config": {"test": "true", "generator": "sparse_rail_generator", "generator_config": "small_v0", "observation": "tree", "observation_config": {"max_depth": 2, "shortest_path_max_depth": 30}}, "model": {"fcnet_activation": "relu", "fcnet_hiddens": [256, 256], "vf_share_layers": "True"}}' 
 """
 
 # Register all necessary assets in tune registries
-load_envs(os.path.join(os.getcwd(), ".."))  # Load env
+load_envs(os.path.join(os.getcwd(), ".."))  # Load envs
 load_models(os.path.join(os.getcwd(), ".."))  # Load models
 
 
@@ -184,7 +184,7 @@ def create_parser(parser_creator=None):
              "user-defined trainable function or class registered in the "
              "tune registry.")
     required_named.add_argument(
-        "--env", type=str, help="The gym environment to use.")
+        "--envs", type=str, help="The gym environment to use.")
     parser.add_argument(
         "--no-render",
         default=False,
@@ -204,7 +204,7 @@ def create_parser(parser_creator=None):
         "--config",
         default="{}",
         type=json.loads,
-        help="Algorithm-specific configuration (e.g. env, hyperparams). "
+        help="Algorithm-specific configuration (e.g. envs, hyperparams). "
              "Surpresses loading of configuration from checkpoint.")
     parser.add_argument(
         "--episodes",
@@ -251,9 +251,9 @@ def run(args, parser):
         config["num_workers"] = min(2, config["num_workers"])
     config = merge_dicts(config, args.config)
     if not args.env:
-        if not config.get("env"):
-            parser.error("the following arguments are required: --env")
-        args.env = config.get("env")
+        if not config.get("envs"):
+            parser.error("the following arguments are required: --envs")
+        args.env = config.get("envs")
 
     ray.init()
 

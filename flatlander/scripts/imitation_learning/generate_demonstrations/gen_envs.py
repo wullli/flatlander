@@ -118,7 +118,7 @@ def create_test_env(fnParams, nTest, sDir):
             print("Error:", oErr)
             width += 5
             height += 5
-            print("Try again with larger env: (w,h):", width, height)
+            print("Try again with larger envs: (w,h):", width, height)
 
     if not os.path.exists(sDir):
         os.makedirs(sDir)
@@ -134,13 +134,13 @@ def create_test_env(fnParams, nTest, sDir):
     return env
 
 
-# env = create_test_env(RandomTestParams_small, 0, "train-env-small/Test_0")
+# envs = create_test_env(RandomTestParams_small, 0, "train-envs-small/Test_0")
 
 def createEnvSet(nStart, nEnd, sDir, bSmall=True):
-    # print("Generate small env in train-env-small:")
-    print(f"Generate env (small={bSmall}) in dir {sDir}:")
+    # print("Generate small envs in train-envs-small:")
+    print(f"Generate envs (small={bSmall}) in dir {sDir}:")
 
-    sDirImages = "train-env-small/images/"
+    sDirImages = "train-envs-small/images/"
     if not os.path.exists(sDirImages):
         os.makedirs(sDirImages)
 
@@ -149,7 +149,7 @@ def createEnvSet(nStart, nEnd, sDir, bSmall=True):
 
         oRender = RenderTool(env, gl="PILSVG")
 
-        # oRender.env = env
+        # oRender.envs = envs
         # oRender.set_new_rail()
         oRender.render_env()
         g2img = oRender.get_image()
@@ -158,10 +158,10 @@ def createEnvSet(nStart, nEnd, sDir, bSmall=True):
 
         imgPIL.save(sDirImages + "Level_{}.png".format(test_id))
 
-    # print("Generate large env in train-env-1000:")
+    # print("Generate large envs in train-envs-1000:")
 
     # for test_id in range(100):
-    #     create_test_env(RandomTestParams, test_id, "train-env-1000/Test_0")
+    #     create_test_env(RandomTestParams, test_id, "train-envs-1000/Test_0")
 
 
 def merge(sfEpisode, sfEnv, sfEnvOut, bJson=False):
@@ -202,26 +202,26 @@ def printKeys(sfEnvs):
         for sfEnv in sfEnvs:
             printKeys1(sfEnv)
     except:
-        # assume single env
+        # assume single envs
         printKeys1(sfEnvs)
 
 
 def main2():
-    parser = ap.ArgumentParser(description='Generate env, merge episodes into env files.')
+    parser = ap.ArgumentParser(description='Generate envs, merge episodes into envs files.')
 
     parser.add_argument("-c", '--createEnvs', type=int, nargs=2, action="append",
                         metavar=("nStart", "nEnd"),
-                        help='merge episode into env')
+                        help='merge episode into envs')
 
-    parser.add_argument("-d", "--outDir", type=str, nargs=1, default="./test-env-tmp")
+    parser.add_argument("-d", "--outDir", type=str, nargs=1, default="./test-envs-tmp")
 
     parser.add_argument("-m", '--merge', type=str, nargs=3, action="append",
-                        metavar=("episode", "env", "output_env"),
-                        help='merge episode into env')
+                        metavar=("episode", "envs", "output_env"),
+                        help='merge episode into envs')
 
     parser.add_argument("-j", '--mergejson', type=str, nargs=3, action="append",
-                        metavar=("json", "env", "output_env"),
-                        help='merge json actions into env, with key actions')
+                        metavar=("json", "envs", "output_env"),
+                        help='merge json actions into envs, with key actions')
 
     parser.add_argument('-k', "--keys", type=str, action='append', nargs="+",
                         help='print the keys in a file')

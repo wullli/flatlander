@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/envs python
 import glob
 import importlib.machinery
 import os
@@ -26,7 +26,7 @@ def load_class_from_file(_file_path):
     This imposes an opinionated directory structure on the
     users, which looks something like :
 
-    - env/
+    - envs/
         - my_env_1.py
         - my_env_2.py
         ....
@@ -60,7 +60,7 @@ def load_class_from_file(_file_path):
 def load_envs(local_dir="."):
     """
     This function takes a path to a local directory
-    and looks for an `env` folder, and imports
+    and looks for an `envs` folder, and imports
     all the available files in there.
 
     Determine the filename, env_name and class_name
@@ -74,7 +74,7 @@ def load_envs(local_dir="."):
     """
     load_count = 0
     for _file_path in glob.glob(os.path.join(
-            local_dir, "..", "env", "*.py")):
+            local_dir, "..", "envs", "*.py")):
         if "__init__" in _file_path:
             continue
         env_name, class_name, _class = load_class_from_file(_file_path)
