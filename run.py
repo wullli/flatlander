@@ -5,6 +5,7 @@ import time
 
 import numpy as np
 
+import flatlander.env
 from flatland.evaluators.client import FlatlandRemoteClient
 from flatlander.env.observations.default_observation_builder import CustomObservationBuilder
 
