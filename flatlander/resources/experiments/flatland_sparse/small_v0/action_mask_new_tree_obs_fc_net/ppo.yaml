@@ -23,7 +23,7 @@ flatland-sparse-small-action-mask-tree-fc-ppo:
         observation_filter: NoFilter
         vf_share_layers: True
         vf_loss_coeff: 0.05
-        num_gpus: 0
+        num_gpus: 1
 
         env_config:
             skip_no_choice_cells: True

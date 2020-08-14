@@ -10,7 +10,7 @@ flatland-sparse-small-tree-fc-apex:
     config:
         num_workers: 3
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
         env_config:
             observation: tree

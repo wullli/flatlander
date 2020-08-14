@@ -1,4 +1,4 @@
-#!/usr/bin/envs python
+#!/usr/bin/env python
 from flatlander.runner.experiment_runner import ExperimentRunner
 
 import glob

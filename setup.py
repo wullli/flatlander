@@ -7,4 +7,7 @@ setup(
    author='Pascal Wullschleger',
    author_email='pascal.wullschleger@hslu.ch',
    packages=['flatlander'],
+   entry_points={
+      "console_scripts": ["flatlander = flatlander.scripts.__main__:main"]
+   }
 )

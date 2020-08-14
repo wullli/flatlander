@@ -9,7 +9,7 @@ apex-tree-obs-small-v0:
     config:
         num_workers: 4
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
         env_config:
             observation: tree

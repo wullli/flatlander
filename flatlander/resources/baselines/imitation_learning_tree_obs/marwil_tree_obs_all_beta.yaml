@@ -20,7 +20,7 @@ flatland-random-sparse-small-tree-fc-marwil-il:
         observation_filter: NoFilter
         num_workers: 4
         num_envs_per_worker: 1
-        num_gpus: 0
+        num_gpus: 1
 
         env_config:
             observation: tree
