@@ -30,19 +30,35 @@ class FlatlanderCLI(object):
 
     @staticmethod
     def baselines():
+        # pass -d if daemon mode desired
+        name = "fl_baselines"
+        cmd_prefix = 'docker run --name ' + str(name)
+        if "-d" in sys.argv[2:]:
+            cmd_prefix += ' -d'
+
         repo_dir = Path(os.path.dirname(__file__)).parent.parent
         data_dir = repo_dir.parent / "flatland-challenge-data/expert_data"
-        cmd = 'docker run -v ' + str(data_dir) + ':/tmp/flatland-out -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login 319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
-              'python3 /src/flatlander/scripts/baselines.py ' \
-              + " ".join(sys.argv[2:]) + ' "'
+        cmd = cmd_prefix + ' -v ' + str(data_dir) + ':/tmp/flatland-out -v ' + str(
+            repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login ' \
+                        '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
+                        'python3 /src/flatlander/scripts/baselines.py ' \
+              + " ".join(filter(lambda arg: arg != "-d", sys.argv[2:])) + ' "'
         os.system(cmd)
 
     @staticmethod
     def experiment():
+        # pass -d if daemon mode desired
         repo_dir = Path(os.path.dirname(__file__)).parent.parent
-        cmd = 'docker run -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login 319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
-              'python3 /src/flatlander/scripts/experiment.py ' \
-              + " ".join(sys.argv[2:]) + ' "'
+        name = "fl_experiment"
+        cmd_prefix = 'docker run --name ' + str(name)
+        if "-d" in sys.argv[2:]:
+            cmd_prefix += ' -d'
+
+        cmd = cmd_prefix + ' -v ' + str(
+            repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login ' \
+                        '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
+                        'python3 /src/flatlander/scripts/experiment.py ' \
+              + " ".join(filter(lambda arg: arg != "-d", sys.argv[2:])) + ' "'
         os.system(cmd)
 
     @staticmethod
@@ -60,9 +76,18 @@ class FlatlanderCLI(object):
     def load_image():
         parser = argparse.ArgumentParser(description='Flatlander CLI interface')
         parser.add_argument('-i', '--input', help='input tar file', required=True)
-
         args = parser.parse_args(sys.argv[2:])
         os.system('docker load -i ' + args.input)
+
+    @staticmethod
+    def logs():
+        parser = argparse.ArgumentParser(description='Flatlander CLI interface')
+        parser.add_argument('-t', '--type', help='if experiment or baselines run',
+                            default="experiment",
+                            choices=["experiment", "baselines"])
+        args = parser.parse_args(sys.argv[2:])
+
+        os.system('docker logs fl_' + args.type)
 
 
 def main():
