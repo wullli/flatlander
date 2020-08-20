@@ -33,32 +33,45 @@ class FlatlanderCLI(object):
         # pass -d if daemon mode desired
         name = "fl_baselines"
         cmd_prefix = 'docker run --name ' + str(name)
+
         if "-d" in sys.argv[2:]:
             cmd_prefix += ' -d'
 
+        if "-g" in sys.argv[2:]:
+            cmd_prefix += ' --gpus all'
+
         repo_dir = Path(os.path.dirname(__file__)).parent.parent
         data_dir = repo_dir.parent / "flatland-challenge-data/expert_data"
-        cmd = cmd_prefix + ' -v ' + str(data_dir) + ':/tmp/flatland-out -v ' + str(
-            repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login ' \
-                        '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
-                        'python3 /src/flatlander/scripts/baselines.py ' \
-              + " ".join(filter(lambda arg: arg != "-d", sys.argv[2:])) + ' "'
+        out_dir = repo_dir.parent / "flatland-challenge-data/out"
+        cmd = cmd_prefix \
+              + ' -v ' + str(data_dir) + ':/tmp/flatland-out ' \
+              + ' -v ' + str(out_dir) + ':/root/ray_results ' \
+              + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login ' \
+                                         '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
+                                         'python3 /src/flatlander/scripts/baselines.py ' \
+              + " ".join(filter(lambda arg: arg != "-d" and arg != "-g", sys.argv[2:])) + ' "'
         os.system(cmd)
 
     @staticmethod
     def experiment():
         # pass -d if daemon mode desired
         repo_dir = Path(os.path.dirname(__file__)).parent.parent
+        out_dir = repo_dir.parent / "flatland-challenge-data/out"
         name = "fl_experiment"
         cmd_prefix = 'docker run --name ' + str(name)
+
         if "-d" in sys.argv[2:]:
             cmd_prefix += ' -d'
 
-        cmd = cmd_prefix + ' -v ' + str(
-            repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login ' \
-                        '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
-                        'python3 /src/flatlander/scripts/experiment.py ' \
-              + " ".join(filter(lambda arg: arg != "-d", sys.argv[2:])) + ' "'
+        if "-g" in sys.argv[2:]:
+            cmd_prefix += ' --gpus all'
+
+        cmd = cmd_prefix \
+              + ' -v ' + str(out_dir) + ':/root/ray_results ' \
+              + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login ' \
+                                         '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
+                                         'python3 /src/flatlander/scripts/experiment.py ' \
+              + " ".join(filter(lambda arg: arg != "-d" and arg != "-g", sys.argv[2:])) + ' "'
         os.system(cmd)
 
     @staticmethod

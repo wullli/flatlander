@@ -17,7 +17,7 @@ flatland-random-sparse-small-tree-dqn-pure-imitate-fc-ppo:
         # see https://github.com/ray-project/ray/issues/4628
         train_batch_size: 1000  # 5000
         rollout_fragment_length: 50  # 100
-        num_workers: 1
+        num_workers: 14
         num_envs_per_worker: 1
         batch_mode: truncate_episodes
         observation_filter: NoFilter
