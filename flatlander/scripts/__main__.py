@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+from pathlib import Path
 
 
 class FlatlanderCLI(object):
@@ -29,15 +30,17 @@ class FlatlanderCLI(object):
 
     @staticmethod
     def baselines():
-        cmd = 'docker run -it flatlander-docker "wandb login 319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
-              'python3 /home/tcwullsc/flatlander/scripts/baselines.py ' \
+        repo_dir = Path(os.path.dirname(__file__)).parent.parent
+        cmd = 'docker run -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login 319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
+              'python3 /src/flatlander/scripts/baselines.py ' \
               + " ".join(sys.argv[2:]) + ' "'
         os.system(cmd)
 
     @staticmethod
     def experiment():
-        cmd = 'docker run -it flatlander-docker "wandb login 319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
-              'python3 /home/tcwullsc/flatlander/scripts/experiment.py ' \
+        repo_dir = Path(os.path.dirname(__file__)).parent.parent
+        cmd = 'docker run -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login 319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
+              'python3 /src/flatlander/scripts/experiment.py ' \
               + " ".join(sys.argv[2:]) + ' "'
         os.system(cmd)
 
