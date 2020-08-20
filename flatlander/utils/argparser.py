@@ -8,7 +8,7 @@ Training example:
     python ./experiment.py --run DQN --envs CartPole-v0 --no-log-flatland-stats
 
 Training with Config:
-    python ./experiment.py -f experiments/flatland_random_sparse_small/global_obs/ppo.yaml
+    python ./experiment.py -f experiments/flatland_random_sparse_small/global_obs/sac.yaml
 
 
 Note that -f overrides all other trial-specific command-line options.

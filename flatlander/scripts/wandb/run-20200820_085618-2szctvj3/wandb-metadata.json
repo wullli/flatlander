@@ -1,0 +1,26 @@
+{
+    "root": "/home/pascal/Devel/vm1/flatland-challenge",
+    "program": "/home/pascal/Devel/vm1/flatland-challenge/flatlander/scripts/experiment.py",
+    "git": {
+        "remote": "git@gitlab.enterpriselab.ch:pwullsch/flatland-challenge.git",
+        "commit": "bae6a31867ae6be550b47af15514816fd66de2f6"
+    },
+    "email": "pascal.wullschleger@hslu.ch",
+    "startedAt": "2020-08-20T08:56:18.727259",
+    "host": "abiz-pascal",
+    "username": "pascal",
+    "executable": "/home/pascal/miniconda3/envs/flatland-rl/bin/python",
+    "os": "Linux-5.4.0-42-generic-x86_64-with-debian-bullseye-sid",
+    "python": "3.6.8",
+    "cpu_count": 8,
+    "args": [
+        "-f",
+        "../resources/experiments/flatland_variable/ppo.yaml"
+    ],
+    "state": "killed",
+    "jobType": null,
+    "mode": "dryrun",
+    "project": "flatland",
+    "heartbeatAt": "2020-08-20T08:57:34.348892",
+    "exitcode": 255
+}

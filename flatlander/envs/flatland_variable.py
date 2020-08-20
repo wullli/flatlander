@@ -17,6 +17,7 @@ from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, Skip
 from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as RailEnv
 import numpy as np
 
+
 class FlatlandVariable(FlatlandBase):
 
     def __init__(self, env_config) -> None:

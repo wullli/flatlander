@@ -10,7 +10,7 @@ flatland-random-sparse-small-tree-fc-ppo:
     config:
         num_workers: 2
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 2
 
         env_config:
             observation: tree

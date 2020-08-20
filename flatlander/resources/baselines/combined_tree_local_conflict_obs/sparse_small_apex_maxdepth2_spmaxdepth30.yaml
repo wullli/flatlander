@@ -11,7 +11,7 @@ flatland-sparse-small-combined-obs-tree-local-conflict-apex:
     config:
         num_workers: 4
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 2
 
         env_config:
             observation: combined
