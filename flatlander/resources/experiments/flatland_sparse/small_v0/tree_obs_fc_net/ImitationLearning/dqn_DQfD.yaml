@@ -12,7 +12,7 @@ flatland-random-sparse-small-tree-fc-ppo:
             "/tmp/flatland-out": 0.25
             sampler: 0.75
         input_evaluation: [is, wis]
-        num_workers: 14
+        num_workers: 13
         num_envs_per_worker: 1
         num_gpus: 2
 

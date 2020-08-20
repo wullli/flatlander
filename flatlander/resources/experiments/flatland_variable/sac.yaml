@@ -9,7 +9,7 @@ flatland-random-sparse-small-tree-fc-ppo:
     checkpoint_score_attr: episode_reward_mean
     config:
         num_gpus: 2
-        num_workers: 14
+        num_workers: 13
 
         env_config:
             observation: tree

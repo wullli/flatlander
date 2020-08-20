@@ -79,8 +79,7 @@ np.ndarray, np.ndarray, np.ndarray):
     return data, distance, agent_data
 
 
-def split_tree_into_feature_groups(tree: TreeObsForRailEnv.Node, max_tree_depth: int) -> (
-np.ndarray, np.ndarray, np.ndarray):
+def split_tree_into_feature_groups(tree: TreeObsForRailEnv.Node, max_tree_depth: int) -> (np.ndarray, np.ndarray, np.ndarray):
     """
     This function splits the tree into three difference arrays of values
     """
