@@ -52,6 +52,14 @@ class FlatlanderCLI(object):
         cmd = os.path.join(os.path.dirname(__file__), "build.sh")
         os.system(cmd)
 
+    @staticmethod
+    def load_image():
+        parser = argparse.ArgumentParser(description='Flatlander CLI interface')
+        parser.add_argument('-i', '--input', help='input tar file', required=True)
+
+        args = parser.parse_args(sys.argv[2:])
+        os.system('docker load -i ' + args.input)
+
 
 def main():
     FlatlanderCLI()

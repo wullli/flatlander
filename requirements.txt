@@ -1,7 +1,7 @@
-numpy~=1.17.0
-setuptools~=41.0.1
-gym~=0.14.0
-humps~=0.2.2
-pyyaml~=5.3.1
-ray~=0.8.5
+numpy
+setuptools
+gym
+pyhumps
+pyyaml
+ray<
 flatland
