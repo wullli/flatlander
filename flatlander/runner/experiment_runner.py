@@ -26,8 +26,8 @@ class ExperimentRunner:
     def __init__(self):
         self.tf = try_import_tf()
         self.torch, _ = try_import_torch()
-        load_envs(os.getcwd())
-        load_models(os.getcwd())
+        load_envs(os.path.dirname(__file__))
+        load_models(os.path.dirname(__file__))
 
     @staticmethod
     def on_episode_end(info):

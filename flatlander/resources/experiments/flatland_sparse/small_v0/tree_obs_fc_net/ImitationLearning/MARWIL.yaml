@@ -20,7 +20,7 @@ flatland-random-sparse-small-tree-marwil-fc-ppo:
         num_envs_per_worker: 1
         batch_mode: truncate_episodes
         observation_filter: NoFilter
-        num_gpus: 1
+        num_gpus: 0
 
         env_config:
             observation: tree

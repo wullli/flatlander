@@ -25,7 +25,7 @@ flatland-render-test:
         observation_filter: NoFilter
         vf_share_layers: True
         vf_loss_coeff: 0.5
-        num_gpus: 1
+        num_gpus: 0
 
         env_config:
             observation: new_tree

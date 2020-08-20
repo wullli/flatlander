@@ -31,7 +31,8 @@ class FlatlanderCLI(object):
     @staticmethod
     def baselines():
         repo_dir = Path(os.path.dirname(__file__)).parent.parent
-        cmd = 'docker run -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login 319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
+        data_dir = repo_dir.parent / "flatland-challenge-data/expert_data"
+        cmd = 'docker run -v ' + str(data_dir) + ':/tmp/flatland-out -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login 319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
               'python3 /src/flatlander/scripts/baselines.py ' \
               + " ".join(sys.argv[2:]) + ' "'
         os.system(cmd)
