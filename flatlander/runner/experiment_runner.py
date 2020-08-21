@@ -17,7 +17,6 @@ from ray.tune.utils import merge_dicts
 from flatlander.envs import get_eval_config
 from flatlander.utils.loader import load_envs, load_models
 from flatlander.logging.wandb_logger import WandbLogger
-from pyglet.gl import *
 ray_results.DEFAULT_RESULTS_DIR = os.path.join(os.getcwd(), "..", "..", "..", "flatland-challenge-data/results")
 
 
