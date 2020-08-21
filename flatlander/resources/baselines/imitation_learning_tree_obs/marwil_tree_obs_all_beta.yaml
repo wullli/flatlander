@@ -19,7 +19,7 @@ flatland-random-sparse-small-tree-fc-marwil-il:
         batch_mode: truncate_episodes
         observation_filter: NoFilter
         num_workers: 5
-        num_envs_per_worker: 2
+        num_envs_per_worker: 1
         num_gpus: 2
 
         env_config:

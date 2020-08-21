@@ -9,7 +9,7 @@ flatland-sparse-small-sortest_path-fc-apex:
     checkpoint_score_attr: episode_reward_mean
     config:
         num_workers: 5
-        num_envs_per_worker: 2
+        num_envs_per_worker: 1
         num_gpus: 2
 
         env_config:
