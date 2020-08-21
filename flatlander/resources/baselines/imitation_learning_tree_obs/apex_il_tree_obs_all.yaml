@@ -9,7 +9,7 @@ flatland-random-sparse-small-tree-fc-apex-il-loss:
     checkpoint_score_attr: episode_reward_mean
     config:
         input:
-            "/home/tcwullsc/flatland/flatland-challenge-data/expert_data": 0.75
+            "/tmp/flatland-out": 0.75
             sampler: 0.25
         num_workers: 6
         num_envs_per_worker: 1
@@ -36,7 +36,7 @@ flatland-random-sparse-small-tree-fc-apex-il-loss:
             fcnet_hiddens: [256, 256]
             vf_share_layers: True  # False
             custom_options:
-                input_files: /home/tcwullsc/flatland/flatland-challenge-data/expert_data
+                input_files: /tmp/flatland-out
                 expert_size: 1
                 loss:
                    grid_search: [dqfd,ce,kl] # ce (cross entropy), kl (kl divergence)
