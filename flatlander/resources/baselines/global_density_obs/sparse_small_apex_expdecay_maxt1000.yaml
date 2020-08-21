@@ -39,7 +39,7 @@ flatland-sparse-small-density-cnn-apex:
                 architecture_options:
                     residual_layers: [[16, 2], [32, 4]]
 
-        evaluation_num_workers: 1
+        evaluation_num_workers: 2
         evaluation_interval: 100
         evaluation_num_episodes: 100
         evaluation_config:

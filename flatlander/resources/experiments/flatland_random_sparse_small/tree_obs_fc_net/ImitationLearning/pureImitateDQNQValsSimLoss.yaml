@@ -50,7 +50,7 @@ flatland-random-sparse-small-tree-dqn-pure-imitate-loss-fc-ppo:
             # fcnet_hiddens: [256, 256]
             # vf_share_layers: True  # False
 
-        # evaluation_num_workers: 1
+        # evaluation_num_workers: 2
         # # Enable evaluation, once per training iteration.
         # evaluation_interval: 25
         # # Run 1 episode each time evaluation runs.

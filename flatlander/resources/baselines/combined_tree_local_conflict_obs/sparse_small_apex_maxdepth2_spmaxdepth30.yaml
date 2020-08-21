@@ -42,7 +42,7 @@ flatland-sparse-small-combined-obs-tree-local-conflict-apex:
             fcnet_hiddens: [256, 256]
             vf_share_layers: True
 
-        evaluation_num_workers: 1
+        evaluation_num_workers: 2
         evaluation_interval: 100
         evaluation_num_episodes: 100
         evaluation_config:
