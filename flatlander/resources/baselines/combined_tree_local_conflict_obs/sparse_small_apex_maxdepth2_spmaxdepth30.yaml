@@ -9,7 +9,7 @@ flatland-sparse-small-combined-obs-tree-local-conflict-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 6
+        num_workers: 5
         num_envs_per_worker: 1
         num_gpus: 2
 

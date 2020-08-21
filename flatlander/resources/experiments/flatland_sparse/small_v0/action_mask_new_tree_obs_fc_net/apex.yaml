@@ -8,7 +8,7 @@ flatland-sparse-small-action-mask-tree-fc-apex:
     # keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     config:
-        num_workers: 6
+        num_workers: 5
         num_envs_per_worker: 5
         num_gpus: 2
 
