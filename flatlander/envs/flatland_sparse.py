@@ -4,7 +4,7 @@ from pprint import pprint
 import gym
 
 from flatland.envs.malfunction_generators import malfunction_from_params, no_malfunction_generator
-from flatland.envs.rail_generators import sparse_rail_generator
+from flatland.envs.rail_generators import sparse_rail_generator, RailGenerator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatlander.envs import get_generator_config
 from flatlander.envs.flatland_base import FlatlandBase
@@ -69,7 +69,7 @@ class FlatlandSparse(FlatlandBase):
     def action_space(self) -> gym.spaces.Space:
         return self._env.action_space
 
-    def _launch(self):
+    def get_rail_generator(self):
         rail_generator = sparse_rail_generator(
             seed=self._config['seed'],
             max_num_cities=self._config['max_num_cities'],
@@ -77,6 +77,10 @@ class FlatlandSparse(FlatlandBase):
             max_rails_between_cities=self._config['max_rails_between_cities'],
             max_rails_in_city=self._config['max_rails_in_city']
         )
+        return rail_generator
+
+    def _launch(self):
+        rail_generator = self.get_rail_generator()
 
         malfunction_generator = no_malfunction_generator()
         if {'malfunction_rate', 'malfunction_min_duration', 'malfunction_max_duration'} <= self._config.keys():

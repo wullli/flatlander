@@ -30,10 +30,7 @@ def random_sparse_env_small(random_seed, max_width, max_height, observation_buil
                                            max_rails_in_city=max_rails_in_cities)
 
     # new version:
-    # stochastic_data = MalfunctionParameters(malfunction_rate, malfunction_min_duration, malfunction_max_duration)
-
-    stochastic_data = {'malfunction_rate': malfunction_rate, 'min_duration': malfunction_min_duration,
-                       'max_duration': malfunction_max_duration}
+    stochastic_data = MalfunctionParameters(malfunction_rate, malfunction_min_duration, malfunction_max_duration)
 
     schedule_generator = sparse_schedule_generator({1.: 0.25, 1. / 2.: 0.25, 1. / 3.: 0.25, 1. / 4.: 0.25})
 

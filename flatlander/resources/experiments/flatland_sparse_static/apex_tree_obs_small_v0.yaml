@@ -1,12 +1,11 @@
-flatland-random-sparse-small-tree-fc-ppo:
+apex-tree-obs-small-v0:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 100000000  # 1e8
-    checkpoint_freq: 10
+        timesteps_total: 1000000
     checkpoint_at_end: True
-    keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
+    num_samples: 3
     config:
         num_workers: 7
         num_envs_per_worker: 5
@@ -19,12 +18,12 @@ flatland-random-sparse-small-tree-fc-ppo:
                 shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
-            generator_config: small_stoch_v0
+            generator_config: small_v0
 
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_stoch_v0", "tree_obs", "apex"] # TODO should be set programmatically
+                tags: ["small_v0", "tree_obs", "apex"]
 
         model:
             fcnet_activation: relu

@@ -11,7 +11,7 @@ flatland-random-sparse-small-tree-fc-apex-il-loss:
         input:
             "/home/tcwullsc/flatland/flatland-challenge-data/expert_data": 0.75
             sampler: 0.25
-        num_workers: 13
+        num_workers: 7
         num_envs_per_worker: 1
         num_gpus: 2
 
@@ -42,7 +42,7 @@ flatland-random-sparse-small-tree-fc-apex-il-loss:
                    grid_search: [dqfd,ce,kl] # ce (cross entropy), kl (kl divergence)
                 lambda1: 1
                 lambda2: 1
-        evaluation_num_workers: 2
+        evaluation_num_workers: 1
         # Enable evaluation, once per training iteration.
         evaluation_interval: 50
         # Run 1 episode each time evaluation runs.

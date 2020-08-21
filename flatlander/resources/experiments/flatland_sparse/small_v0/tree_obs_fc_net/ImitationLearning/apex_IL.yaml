@@ -10,7 +10,7 @@ flatland-random-sparse-small-tree-fc-ppo:
     config:
         input: /tmp/flatland-out
         input_evaluation: [is, wis, simulation]
-        num_workers: 13
+        num_workers: 7
         num_envs_per_worker: 1
         num_gpus: 2
 

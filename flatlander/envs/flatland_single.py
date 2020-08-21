@@ -47,7 +47,7 @@ class FlatlandSingle(gym.Env):
         if env_config.get('available_actions_obs', False):
             self._env = AvailableActionsWrapper(self._env)
 
-    def _launch(self):
+    def get_rail_generator(self):
         rail_generator = sparse_rail_generator(
             seed=self._config['seed'],
             max_num_cities=self._config['max_num_cities'],
@@ -55,6 +55,10 @@ class FlatlandSingle(gym.Env):
             max_rails_between_cities=self._config['max_rails_between_cities'],
             max_rails_in_city=self._config['max_rails_in_city']
         )
+        return rail_generator
+
+    def _launch(self):
+        rail_generator = self.get_rail_generator()
 
         malfunction_generator = no_malfunction_generator()
         if {'malfunction_rate', 'min_duration', 'max_duration'} <= self._config.keys():

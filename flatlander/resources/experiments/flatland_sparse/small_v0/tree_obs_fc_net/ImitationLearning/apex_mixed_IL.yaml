@@ -11,7 +11,7 @@ flatland-random-sparse-small-tree-fc-ppo:
         input:
             "/tmp/flatland-out": 0.25
             sampler: 0.75
-        num_workers: 13
+        num_workers: 7
         num_envs_per_worker: 1
         num_gpus: 2
 

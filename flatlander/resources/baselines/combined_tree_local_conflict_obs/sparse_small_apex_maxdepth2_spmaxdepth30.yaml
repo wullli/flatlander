@@ -9,7 +9,7 @@ flatland-sparse-small-combined-obs-tree-local-conflict-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 13
+        num_workers: 7
         num_envs_per_worker: 5
         num_gpus: 2
 
@@ -42,7 +42,7 @@ flatland-sparse-small-combined-obs-tree-local-conflict-apex:
             fcnet_hiddens: [256, 256]
             vf_share_layers: True
 
-        evaluation_num_workers: 2
+        evaluation_num_workers: 1
         evaluation_interval: 100
         evaluation_num_episodes: 100
         evaluation_config:

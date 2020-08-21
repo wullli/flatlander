@@ -1,0 +1,25 @@
+{
+    "root": "/home/pascal/Devel/vm1/flatland-challenge",
+    "program": "/home/pascal/Devel/vm1/flatland-challenge/flatlander/scripts/experiment.py",
+    "git": {
+        "remote": "git@gitlab.enterpriselab.ch:pwullsch/flatland-challenge.git",
+        "commit": "d0663448ae8d1cb973b5626d74064438a43acc7d"
+    },
+    "email": "pascal.wullschleger@hslu.ch",
+    "startedAt": "2020-08-21T07:14:28.124177",
+    "host": "abiz-pascal",
+    "username": "pascal",
+    "executable": "/home/pascal/miniconda3/envs/flatland-rl/bin/python",
+    "os": "Linux-5.4.0-42-generic-x86_64-with-debian-bullseye-sid",
+    "python": "3.6.8",
+    "cpu_count": 8,
+    "args": [
+        "-f",
+        "../resources/experiments/flatland_sparse/small_v0/tree_obs_fc_net/apex.yaml"
+    ],
+    "state": "running",
+    "jobType": null,
+    "mode": "dryrun",
+    "project": "flatland",
+    "heartbeatAt": "2020-08-21T09:48:17.726671"
+}
