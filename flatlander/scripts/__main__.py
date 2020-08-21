@@ -68,11 +68,10 @@ class FlatlanderCLI(object):
 
         cmd = cmd_prefix \
               + ' -v ' + str(out_dir) + ':/root/ray_results ' \
-              + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login ' \
+              + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c \'pip install -e /src && wandb login ' \
                                          '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
-                                         'xvfb-run -a -s "-screen 0 1400x900x24 +extension RANDR" -- ' \
-                                         'python3 /src/flatlander/scripts/experiment.py ' \
-              + " ".join(filter(lambda arg: arg != "-d" and arg != "-g", sys.argv[2:])) + ' "'
+                                         'xvfb-run -a -s "-screen 0 1400x900x24 +extension RANDR" -- python3 /src/flatlander/scripts/experiment.py ' \
+              + " ".join(filter(lambda arg: arg != "-d" and arg != "-g", sys.argv[2:])) + ' \''
         os.system(cmd)
 
     @staticmethod
