@@ -2,7 +2,7 @@ flatland-sparse-small-action-mask-tree-fc-apex:
     run: APEX
     env: flatland_sparse_static
     stop:
-        training_iteration: 6  # 1e8
+        training_iteration: 2  # 1e8
     checkpoint_freq: 10
     checkpoint_at_end: True
     # keep_checkpoints_num: 5
@@ -10,7 +10,7 @@ flatland-sparse-small-action-mask-tree-fc-apex:
     config:
         num_workers: 5
         num_envs_per_worker: 2
-        num_gpus: 2
+        num_gpus: 0
 
         hiddens: []
         dueling: False
