@@ -10,7 +10,7 @@ flatland-random-sparse-small-tree-fc-ppo:
     config:
         lr: 0.0 # random agent!
 
-        num_workers: 7
+        num_workers: 6
         num_envs_per_worker: 2
         num_gpus: 2
 

@@ -11,7 +11,7 @@ flatland-random-sparse-small-tree-fc-apex-il-loss:
         input:
             "/home/tcwullsc/flatland/flatland-challenge-data/expert_data": 0.75
             sampler: 0.25
-        num_workers: 7
+        num_workers: 6
         num_envs_per_worker: 1
         num_gpus: 2
 

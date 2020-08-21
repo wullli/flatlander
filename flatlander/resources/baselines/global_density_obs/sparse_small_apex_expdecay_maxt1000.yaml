@@ -9,8 +9,8 @@ flatland-sparse-small-density-cnn-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 7
-        num_envs_per_worker: 5
+        num_workers: 6
+        num_envs_per_worker: 1
         num_gpus: 2
 
         hiddens: []
