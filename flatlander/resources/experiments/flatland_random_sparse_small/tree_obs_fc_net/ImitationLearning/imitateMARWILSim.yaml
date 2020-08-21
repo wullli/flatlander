@@ -17,7 +17,7 @@ flatland-random-sparse-small-tree-marwil-fc-ppo:
         train_batch_size: 1000  # 5000
         rollout_fragment_length: 50  # 100
         num_workers: 5
-        num_envs_per_worker: 1
+        num_envs_per_worker: 5
         batch_mode: truncate_episodes
         observation_filter: NoFilter
         num_gpus: 2

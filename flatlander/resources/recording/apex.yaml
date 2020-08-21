@@ -1,6 +1,6 @@
 flatland-sparse-small-action-mask-tree-fc-apex:
     run: APEX
-    env: flatland_sparse
+    env: flatland_sparse_static
     stop:
         training_iteration: 6  # 1e8
     checkpoint_freq: 10
@@ -9,7 +9,7 @@ flatland-sparse-small-action-mask-tree-fc-apex:
     checkpoint_score_attr: episode_reward_mean
     config:
         num_workers: 5
-        num_envs_per_worker: 1
+        num_envs_per_worker: 5
         num_gpus: 2
 
         hiddens: []
@@ -33,7 +33,7 @@ flatland-sparse-small-action-mask-tree-fc-apex:
 
             wandb:
                 project: flatland
-                entity: nilabha2007
+                entity: wullli
                 tags: ["small_v0", "new_tree_obs", "apex", "skip_no_choice_cells",
                        "action_mask"] # TODO should be set programmatically
 

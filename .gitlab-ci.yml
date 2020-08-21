@@ -1,12 +1,13 @@
-stages:
-  - test
+image: gitlab.enterpriselab.ch:4567/abiz-lab/gitlab-ci-agents/docker:stable
 
-test:
-  stage: test
-  image: continuumio/miniconda
+services:
+  - docker:dind
+
+stages:
+  - build
+
+build:
+  stage: build
   script:
-    - conda init bash
-    - source ~/.bashrc
-    - conda env create -f environment.yml
-    - conda activate flatland-rl
-    - bash flatlander/test/test.sh
+    - docker build -t fl -f gpu/Dockerfile .
+

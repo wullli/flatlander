@@ -10,7 +10,7 @@ flatland-sparse-small-density-cnn-apex:
     num_samples: 3
     config:
         num_workers: 5
-        num_envs_per_worker: 1
+        num_envs_per_worker: 5
         num_gpus: 2
 
         hiddens: []

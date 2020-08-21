@@ -1,6 +1,6 @@
 flatland-render-test:
     run: PPO
-    env: flatland_sparse
+    env: flatland_sparse_static
     stop:
         training_iteration: 6
         # timesteps_total: 5000  # 1e7
@@ -20,7 +20,7 @@ flatland-render-test:
         sgd_minibatch_size: 100  # 500
         num_sgd_iter: 10
         num_workers: 5
-        num_envs_per_worker: 1
+        num_envs_per_worker: 5
         batch_mode: truncate_episodes
         observation_filter: NoFilter
         vf_share_layers: True
@@ -44,7 +44,7 @@ flatland-render-test:
 
             wandb:
                 project: flatland
-                entity: nilabha2007
+                entity: wullli
                 tags: ["small_v0", "tree_obs"] # TODO should be set programmatically
                 # monitor_gym: True # Wandb video doesn't seem to work
 

@@ -1,6 +1,6 @@
 apex-tree-obs-small-v0:
     run: APEX
-    env: flatland_sparse
+    env: flatland_sparse_static
     stop:
         timesteps_total: 1000000
     checkpoint_at_end: True
@@ -8,8 +8,8 @@ apex-tree-obs-small-v0:
     num_samples: 3
     config:
         num_workers: 5
-        num_envs_per_worker: 1
-        num_gpus: 2
+        num_envs_per_worker: 5
+        num_gpus: 0
 
         env_config:
             observation: tree
