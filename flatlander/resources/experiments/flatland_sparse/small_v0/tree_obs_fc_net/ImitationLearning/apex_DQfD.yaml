@@ -12,7 +12,7 @@ flatland-random-sparse-small-tree-fc-apex-il:
             "/tmp/flatland-out": 0.25
             sampler: 0.75
         num_workers: 5
-        num_envs_per_worker: 5
+        num_envs_per_worker: 2
         num_gpus: 2
 
         env_config:
