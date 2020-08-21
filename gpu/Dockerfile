@@ -6,7 +6,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 RUN apt-get update
-RUN apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y wget python-opengl && rm -rf /var/lib/apt/lists/*
 
 RUN wget \
     https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \

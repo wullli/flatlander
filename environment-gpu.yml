@@ -180,4 +180,5 @@ dependencies:
     - xarray==0.12.3
     - yarl==1.5.1
     - zipp==0.5.2
+    - pyglet
 
