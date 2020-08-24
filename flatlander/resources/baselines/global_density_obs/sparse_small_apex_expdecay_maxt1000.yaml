@@ -12,6 +12,7 @@ flatland-sparse-small-density-cnn-apex:
         num_workers: 5
         num_envs_per_worker: 5
         num_gpus: 2
+        buffer_size: 500000
 
         hiddens: []
         dueling: False

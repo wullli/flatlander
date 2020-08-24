@@ -10,6 +10,7 @@ apex-tree-obs-small-v0:
         num_workers: 5
         num_envs_per_worker: 5
         num_gpus: 2
+        buffer_size: 500000
 
         env_config:
             observation: tree
