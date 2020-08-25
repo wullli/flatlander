@@ -21,6 +21,7 @@ RUN wget \
     && rm -f Miniconda3-latest-Linux-x86_64.sh
 
 ENV PATH="/root/miniconda3/bin:${PATH}"
+ENV CUDA_VISIBLE_DEVICES=1
 
 COPY ./environment-gpu.yml /src/environment-gpu.yml
 RUN ls /src
