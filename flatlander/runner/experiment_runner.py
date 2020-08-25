@@ -17,6 +17,7 @@ from ray.tune.utils import merge_dicts
 from flatlander.envs import get_eval_config
 from flatlander.utils.loader import load_envs, load_models
 from flatlander.logging.wandb_logger import WandbLogger
+
 ray_results.DEFAULT_RESULTS_DIR = os.path.join(os.getcwd(), "..", "..", "..", "flatland-challenge-data/results")
 
 
@@ -185,14 +186,14 @@ class ExperimentRunner:
             n_cpu = multiprocessing.cpu_count()
             print("--- NUM_CPUS AVAILABLE: ", n_cpu)
             ray.init(
-		webui_host=webui_host,
                 local_mode=False,
                 address=args.ray_address,
                 object_store_memory=args.ray_object_store_memory,
                 memory=args.ray_memory,
                 redis_max_memory=args.ray_redis_max_memory,
                 num_cpus=args.ray_num_cpus if args.ray_num_cpus is not None else n_cpu,
-                num_gpus=args.ray_num_gpus)
+                num_gpus=args.ray_num_gpus,
+                webui_host=webui_host)
 
         run_experiments(
             experiments,
