@@ -185,7 +185,8 @@ class ExperimentRunner:
             n_cpu = multiprocessing.cpu_count()
             print("--- NUM_CPUS AVAILABLE: ", n_cpu)
             ray.init(
-                local_mode=True,
+		webui_host=webui_host,
+                local_mode=False,
                 address=args.ray_address,
                 object_store_memory=args.ray_object_store_memory,
                 memory=args.ray_memory,

@@ -33,4 +33,6 @@ ENV CONDA_PREFIX /root/miniconda3/envs/flatland-rl
 
 SHELL ["/bin/bash", "-c"]
 
+EXPOSE 8265
+
 CMD conda --version && nvidia-smi
