@@ -101,7 +101,7 @@ class ExperimentRunner:
 
     def apply_args(self, run_args, experiments: dict):
         verbose = 1
-        webui_host = '127.0.0.1:8266'
+        webui_host = '127.0.0.1'
         for exp in experiments.values():
             if run_args.eager:
                 exp["config"]["eager"] = True
@@ -118,7 +118,7 @@ class ExperimentRunner:
                     raise ValueError("Must enable --eager to enable tracing.")
                 exp["config"]["eager_tracing"] = True
             if run_args.bind_all:
-                webui_host = "0.0.0.0:8266"
+                webui_host = "0.0.0.0"
             if run_args.log_flatland_stats:
                 exp['config']['callbacks'] = {
                     'on_episode_end': self.on_episode_end,
@@ -193,7 +193,7 @@ class ExperimentRunner:
                 redis_max_memory=args.ray_redis_max_memory,
                 num_cpus=args.ray_num_cpus if args.ray_num_cpus is not None else n_cpu,
                 num_gpus=args.ray_num_gpus,
-                webui_host=webui_host)
+                include_webui=True)
 
         run_experiments(
             experiments,
