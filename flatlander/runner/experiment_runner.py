@@ -193,7 +193,7 @@ class ExperimentRunner:
                 redis_max_memory=args.ray_redis_max_memory,
                 num_cpus=args.ray_num_cpus if args.ray_num_cpus is not None else n_cpu,
                 num_gpus=args.ray_num_gpus,
-                include_webui=True)
+                webui_host=webui_host)
 
         run_experiments(
             experiments,
