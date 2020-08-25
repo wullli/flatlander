@@ -101,7 +101,7 @@ class ExperimentRunner:
 
     def apply_args(self, run_args, experiments: dict):
         verbose = 1
-        webui_host = "localhost"
+        webui_host = '127.0.0.1'
         for exp in experiments.values():
             if run_args.eager:
                 exp["config"]["eager"] = True
