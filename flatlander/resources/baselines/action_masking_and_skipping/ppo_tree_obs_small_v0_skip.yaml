@@ -9,7 +9,7 @@ ppo-tree-obs-small-v0-skip:
     config:
         num_workers: 5
         num_envs_per_worker: 5
-        num_gpus: 2
+        num_gpus: 1
         gamma: 0.99
 
         clip_rewards: False
