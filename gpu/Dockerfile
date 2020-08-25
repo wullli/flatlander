@@ -6,7 +6,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 RUN apt-get update
-RUN apt-get install -y wget \
+RUN apt-get install -y wget rsync \
     xorg-dev \
     libglu1-mesa libgl1-mesa-dev \
     xvfb \
