@@ -7,10 +7,9 @@ apex-tree-obs-small-v0:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 5
-        num_envs_per_worker: 5
+        num_workers: 7
+        num_envs_per_worker: 1
         num_gpus: 1
-        buffer_size: 500000
 
         env_config:
             observation: tree
