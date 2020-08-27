@@ -202,3 +202,5 @@ class ExperimentRunner:
             resume=args.resume,
             verbose=verbose,
             concurrent=True)
+
+        ray.shutdown()

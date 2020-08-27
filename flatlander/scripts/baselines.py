@@ -13,8 +13,10 @@ if __name__ == "__main__":
     runner = ExperimentRunner()
     experiments_files = glob.glob(os.path.join(os.path.dirname(__file__), "..", "resources",
                                                 "baselines", "**/*.yaml"))
+    experiments = {}
     print("RUNNING BASELINE EXPERIMENTS: ", "\n".join(experiments_files))
     for baseline_yaml in experiments_files:
         args.config_file = baseline_yaml
-        exps = runner.get_experiments(args)
-        runner.run(experiments=exps, args=args)
+        exp = runner.get_experiments(args)
+        experiments = dict(list(experiments.items()) + list(exp.items()))
+    runner.run(experiments=experiments, args=args)
