@@ -184,7 +184,12 @@ class ExperimentRunner:
         else:
             import multiprocessing
             n_cpu = multiprocessing.cpu_count()
+            import tensorflow as tf
+            n_gpu = len(tf.config.experimental.list_physical_devices('GPU'))
             print("--- NUM_CPUS AVAILABLE: ", n_cpu)
+            print("--- NUM_GPUS AVAILABLE: ", n_gpu)
+            print("--- NUM_CPUS ARGS: ", args.ray_num_cpus)
+            print("--- NUM_GPUS ARGS: ", args.ray_num_gpus)
             ray.init(
                 local_mode=False,
                 address=args.ray_address,
@@ -192,7 +197,7 @@ class ExperimentRunner:
                 memory=args.ray_memory,
                 redis_max_memory=args.ray_redis_max_memory,
                 num_cpus=args.ray_num_cpus if args.ray_num_cpus is not None else n_cpu,
-                num_gpus=args.ray_num_gpus,
+                num_gpus=args.ray_num_gpus if args.ray_num_gpus is not None else n_gpu,
                 webui_host=webui_host)
 
         run_experiments(
