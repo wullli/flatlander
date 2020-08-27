@@ -186,10 +186,10 @@ class ExperimentRunner:
             n_cpu = multiprocessing.cpu_count()
             import tensorflow as tf
             n_gpu = len(tf.config.experimental.list_physical_devices('GPU'))
-            print("--- NUM_CPUS AVAILABLE: ", n_cpu)
-            print("--- NUM_GPUS AVAILABLE: ", n_gpu)
-            print("--- NUM_CPUS ARGS: ", args.ray_num_cpus)
-            print("--- NUM_GPUS ARGS: ", args.ray_num_gpus)
+            print("NUM_CPUS AVAILABLE: ", n_cpu)
+            print("NUM_GPUS AVAILABLE: ", n_gpu)
+            print("NUM_CPUS ARGS: ", args.ray_num_cpus)
+            print("NUM_GPUS ARGS: ", args.ray_num_gpus)
             ray.init(
                 local_mode=False,
                 address=args.ray_address,
