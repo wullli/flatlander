@@ -1,5 +1,5 @@
 # FROM continuumio/miniconda:latest
-FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
+FROM tensorflow/tensorflow:2.1.0-gpu-py3
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LC_ALL=C.UTF-8
