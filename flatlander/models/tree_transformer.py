@@ -23,7 +23,6 @@ class TreeTransformer(TFModelV2):
         self.positional_encoding_dim = self.action_space.n * (self._tree_depth + 1)
         self._policy_target = tf.cast(np.zeros(shape=(100, self.action_space.n)), tf.float32)
         self._baseline = tf.expand_dims([0], 0)
-        self._input_shape = (None, self.obs_space.shape[0])
 
         num_heads = int(self.positional_encoding_dim / (self._tree_depth + 1))
 

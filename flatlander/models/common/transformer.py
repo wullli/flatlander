@@ -8,7 +8,7 @@ class Transformer(tf.keras.Model):
     def __init__(self, num_layers, d_model, num_heads, dense_neurons, n_features,
                  n_actions, rate=0.1):
         super(Transformer, self).__init__()
-        
+
         self.encoder = Encoder(num_layers, d_model, num_heads, dense_neurons, n_features, rate)
         self.policy = tf.keras.layers.Dense(n_actions, activation=tf.keras.activations.linear)
         self.value = tf.keras.layers.Dense(1)
@@ -46,7 +46,6 @@ class Encoder(TransformerLayer):
         self.dropout = tf.keras.layers.Dropout(rate)
 
     def call(self, x, training, mask, positional_encoding):
-
         x = self.dense(x)
 
         x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
@@ -83,6 +82,3 @@ class EncoderLayer(TransformerLayer):
         out2 = self.layernorm2(out1 + ffn_output)  # (batch_size, input_seq_len, d_model)
 
         return out2
-
-
-
