@@ -87,3 +87,5 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         output = tf.matmul(attention_weights, v)  # (..., seq_len_q, depth_v)
 
         return output, attention_weights
+
+

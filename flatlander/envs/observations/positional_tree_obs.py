@@ -33,9 +33,9 @@ class PositionalTreeObservation(Observation):
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        return gym.spaces.Tuple((gym.spaces.Box(low=-1, high=1, shape=(self._builder.max_nr_nodes,
-                                                                      self._builder.observation_dim,)),
-                                 gym.spaces.Box(low=0, high=1,
+        return gym.spaces.Tuple((gym.spaces.Box(low=-np.inf, high=np.inf, shape=(self._builder.max_nr_nodes,
+                                                                                 self._builder.observation_dim,)),
+                                 gym.spaces.Box(low=-np.inf, high=np.inf,
                                                 shape=(self._builder.max_nr_nodes,
                                                        self._builder.positional_encoding_len))))
 
@@ -74,10 +74,11 @@ class PositionalTreeObsRLLibWrapper(ObservationBuilder):
         encodings = []
         node_observations = []
         self.dfs(root, -1, [], encodings, node_observations)
-        padded_encodings = np.full(shape=(self.max_nr_nodes, self.positional_encoding_len,), fill_value=-np.inf)
-        padded_observations = np.full(shape=(self.max_nr_nodes, self.observation_dim,), fill_value=-np.inf)
+        padded_encodings = np.zeros(shape=(self.max_nr_nodes, self.positional_encoding_len,))
+        padded_observations = np.zeros(shape=(self.max_nr_nodes, self.observation_dim,))
         padded_observations[:len(node_observations), :] = np.array(node_observations)
         padded_encodings[:len(encodings), :] = np.array(encodings)
+        return padded_observations, padded_encodings
 
     def _build_tree(self, node: TreeObsForRailEnv.Node) -> GenericNode:
         new_children = []
