@@ -48,15 +48,15 @@ sparse-mask-ppo-tree-obs-small-v0:
                 mask_unavailable_actions: True
 
         evaluation_num_workers: 2
-            evaluation_interval: 100
-            evaluation_num_episodes: 100
-            evaluation_config:
-                explore: False
-                env_config:
-                    observation: tree
-                    observation_config:
-                        max_depth: 2
-                        shortest_path_max_depth: 30
-                    regenerate_rail_on_reset: True
-                    regenerate_schedule_on_reset: True
-                    render: False
+        evaluation_interval: 100
+        evaluation_num_episodes: 100
+        evaluation_config:
+            explore: False
+            env_config:
+                observation: tree
+                observation_config:
+                    max_depth: 2
+                    shortest_path_max_depth: 30
+                regenerate_rail_on_reset: True
+                regenerate_schedule_on_reset: True
+                render: False
