@@ -35,7 +35,7 @@ flatland-sparse-small-combined-obs-tree-local-conflict-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_and_local_conflict", "apex"] # TODO should be set programmatically
+                tags: ["small_v0", "tree_and_local_conflict", "apex", "baseline"] # TODO should be set programmatically
 
         model:
             fcnet_activation: relu

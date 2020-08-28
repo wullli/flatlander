@@ -24,7 +24,7 @@ flatland-sparse-small-tree-fc-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex"]
+                tags: ["small_v0", "tree_obs", "apex", "baseline"]
 
         model:
             fcnet_activation: relu
