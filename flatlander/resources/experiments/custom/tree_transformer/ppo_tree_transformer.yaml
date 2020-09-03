@@ -24,13 +24,13 @@ flatland-sparse-tree-transformer-ppo:
         num_sgd_iter: 10
         batch_mode: truncate_episodes
         observation_filter: NoFilter
-        vf_share_layers: True
+        vf_share_layers: False
         vf_loss_coeff: 0.5
 
         env_config:
             observation: positional_tree
             observation_config:
-                max_depth: 3
+                max_depth: 2
                 shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
@@ -46,7 +46,7 @@ flatland-sparse-tree-transformer-ppo:
             custom_options:
                 mask_unavailable_actions: false
                 n_features_per_node: 11
-                tree_depth: 3
+                tree_depth: 2
 
         evaluation_num_workers: 2
         evaluation_interval: 100
@@ -56,8 +56,8 @@ flatland-sparse-tree-transformer-ppo:
             env_config:
                 observation: positional_tree
                 observation_config:
-                    max_depth: 3
-                    shortest_path_max_depth: 10
+                    max_depth: 2
+                    shortest_path_max_depth: 30
                 regenerate_rail_on_reset: True
                 regenerate_schedule_on_reset: True
                 render: False

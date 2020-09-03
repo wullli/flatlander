@@ -1,0 +1,28 @@
+{
+    "root": "/home/pascal/Devel/MSE/vm1/flatland-challenge",
+    "program": "/home/pascal/Devel/MSE/vm1/flatland-challenge/flatlander/scripts/experiment.py",
+    "git": {
+        "remote": "git@gitlab.enterpriselab.ch:pwullsch/flatland-challenge.git",
+        "commit": "07db45c3788d6a27d0ffec9731d81bb45bc12a37"
+    },
+    "email": "pascal.wullschleger@hslu.ch",
+    "startedAt": "2020-09-03T04:48:06.633004",
+    "host": "obelix",
+    "username": "pascal",
+    "executable": "/home/pascal/miniconda3/envs/flatland-rl/bin/python",
+    "os": "Linux-5.4.0-45-generic-x86_64-with-debian-bullseye-sid",
+    "python": "3.6.8",
+    "gpu": "GeForce GTX 1070",
+    "gpu_count": 1,
+    "cpu_count": 8,
+    "args": [
+        "-f",
+        "../resources/experiments/custom/sac/sac_tree_obs_small_v0.yaml"
+    ],
+    "state": "killed",
+    "jobType": null,
+    "mode": "run",
+    "project": "flatland",
+    "heartbeatAt": "2020-09-03T05:04:28.125303",
+    "exitcode": 255
+}

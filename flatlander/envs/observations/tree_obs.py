@@ -32,7 +32,6 @@ class TreeObservation(Observation):
             nr_nodes += np.power(4, i)
         return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(num_features_per_node * nr_nodes,))
 
-
 def _split_node_into_feature_groups(node: TreeObsForRailEnv.Node) -> (np.ndarray, np.ndarray, np.ndarray):
     data = np.zeros(6)
     distance = np.zeros(1)
