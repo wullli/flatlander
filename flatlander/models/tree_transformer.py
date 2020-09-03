@@ -11,7 +11,6 @@ class TreeTransformer(TFModelV2):
         pass
 
     def __init__(self, obs_space, action_space, num_outputs, model_config, name):
-        import tensorflow as tf
         super().__init__(obs_space, action_space, num_outputs, model_config, name)
         assert isinstance(action_space, gym.spaces.Discrete), \
             "Currently, only 'gym.spaces.Discrete' action spaces are supported."
@@ -29,44 +28,51 @@ class TreeTransformer(TFModelV2):
         self.transformer = Transformer(num_layers=2,
                                        d_model=self.positional_encoding_dim,
                                        num_heads=num_heads,
-                                       dense_neurons=128,
-                                       n_features=self._n_features_per_node,
+                                       dense_neurons=512,
                                        n_actions=self.action_space.n)
 
         inp = tf.random.uniform((100, 21, self._n_features_per_node),
                                 dtype=tf.float32, minval=-1, maxval=1)
-        p, v = self.transformer.call(inp, self._policy_target,
+        _, _ = self.transformer.call(inp,
                                      train_mode=False,
-                                     enc_padding_mask=None,
-                                     look_ahead_mask=None,
                                      positional_encoding=tf.cast(
                                          tf.expand_dims(np.zeros((21, self.positional_encoding_dim)), 0),
                                          dtype=tf.float32))
         self.register_variables(self.transformer.variables)
 
     def forward(self, input_dict, state, seq_lens):
-        obs: tf.Tensor = input_dict['obs']
+        """
+        To debug use breakpoint with: tf.reduce_any(tf.math.is_inf(padded_obs_seq)).numpy()
+        """
+        obs: [tf.Tensor, tf.Tensor] = input_dict['obs']
         is_training = False
         if 'is_training' in input_dict.keys():
             is_training = input_dict['is_training']
 
-        batch_size = tf.shape(obs[0])[0]
+        padded_obs_seq = tf.cast(obs[0], dtype=tf.float32)
+        padded_enc_seq = tf.cast(obs[1], dtype=tf.float32)
 
-        dummy_target = tf.cast(tf.zeros(shape=(batch_size, self.action_space.n)), tf.float32)
-        z = self.infer(tf.cast(obs[0], tf.float32),
-                       tf.cast(obs[1], tf.float32),
-                       dummy_target,
+        z = self.infer(padded_obs_seq,
+                       padded_enc_seq,
                        is_training)
 
         return z, state
 
-    def infer(self, x, positional_encoding: np.ndarray, dummy_target, is_training) -> tf.Tensor:
-        policy_target, value_target = self.transformer(x, dummy_target, train_mode=is_training,
-                                                       enc_padding_mask=None,
-                                                       look_ahead_mask=None,
+    def infer(self, x, positional_encoding: np.ndarray, is_training) -> tf.Tensor:
+        x = tf.cast(x, tf.float32)
+        positional_encoding = tf.cast(positional_encoding, tf.float32)
+        policy_target, value_target = self.transformer(x, train_mode=is_training,
                                                        positional_encoding=positional_encoding)
         self._baseline = tf.reshape(value_target, [-1])
         return policy_target
+
+    @staticmethod
+    def strip_single(sample):
+        feature_dim = tf.shape(sample)[1]
+        filled = tf.fill(dims=(1, feature_dim), value=-np.inf)
+        comp = tf.not_equal(sample, filled)
+        mask = tf.math.reduce_all(comp, axis=1)
+        return sample[mask]
 
     def variables(self, **kwargs):
         return self.transformer.variables

@@ -92,6 +92,10 @@ def create_parser(parser_creator=None):
         action="store_true",
         help="Whether to attempt to enable TF eager execution.")
     parser.add_argument(
+        "--local",
+        action="store_true",
+        help="Whether to attempt to enable local execution.")
+    parser.add_argument(
         "--trace",
         action="store_true",
         help="Whether to attempt to enable tracing for eager mode.")

@@ -2,6 +2,7 @@ from typing import Optional, List
 
 import gym
 import numpy as np
+from flatland.envs.rail_env import RailEnvActions
 
 from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.envs.observations import TreeObsForRailEnv
@@ -12,9 +13,19 @@ from flatlander.envs.utils.const import NUMBER_ACTIONS
 
 
 class GenericNode:
-    def __init__(self, obs_vector: np.ndarray = None, children: list = None):
+    def __init__(self, obs_vector: np.ndarray = None, children: list = None, name: str=""):
         self.obs_vector: np.ndarray = obs_vector
         self.children: List[GenericNode] = children
+        self.name = name
+
+    def __str__(self, level=0):
+        ret = "\t"*level+repr(self.name)+"\n"
+        for child in self.children:
+            ret += child.__str__(level+1)
+        return ret
+
+    def __repr__(self):
+        return '<tree node representation>'
 
 
 @register_obs("positional_tree")
@@ -70,23 +81,23 @@ class PositionalTreeObsRLLibWrapper(ObservationBuilder):
         return self._build_pairs(obs)
 
     def _build_pairs(self, obs_node: TreeObsForRailEnv.Node):
-        root = self._build_tree(obs_node)
+        root = self._build_tree(obs_node, fork_key="root")
         encodings = []
         node_observations = []
         self.dfs(root, -1, [], encodings, node_observations)
-        padded_encodings = np.zeros(shape=(self.max_nr_nodes, self.positional_encoding_len,))
-        padded_observations = np.zeros(shape=(self.max_nr_nodes, self.observation_dim,))
+        padded_encodings = np.full(shape=(self.max_nr_nodes, self.positional_encoding_len,), fill_value=0.)
+        padded_observations = np.full(shape=(self.max_nr_nodes, self.observation_dim,), fill_value=-np.inf)
         padded_observations[:len(node_observations), :] = np.array(node_observations)
         padded_encodings[:len(encodings), :] = np.array(encodings)
         return padded_observations, padded_encodings
 
-    def _build_tree(self, node: TreeObsForRailEnv.Node) -> GenericNode:
+    def _build_tree(self, node: TreeObsForRailEnv.Node, fork_key: str) -> GenericNode:
         new_children = []
         ordered_children = sorted(node.childs.items())
-        for _, child in ordered_children:
+        for key, child in ordered_children:
             if child != -np.inf:
-                new_children.append(self._build_tree(child))
-        return GenericNode(self._get_node_feature_vector(node), children=new_children)
+                new_children.append(self._build_tree(child, key))
+        return GenericNode(self._get_node_feature_vector(node), children=new_children, name=fork_key)
 
     def get_many(self, handles: Optional[List[int]] = None):
         result = {k: self._build_pairs(o)
@@ -146,10 +157,12 @@ class PositionalTreeObsRLLibWrapper(ObservationBuilder):
         node_encoding = np.zeros(NUMBER_ACTIONS)
         if node_pos != -1:
             node_encoding[node_pos] = 1
-        ancestry.extend(node_encoding)
+            ancestry.extend(node_encoding)
 
-        for i, child in enumerate(node.children):
-            self.dfs(child, i, ancestry, encodings, node_observations)
+        for action in RailEnvActions:
+            filtered = list(filter(lambda c: c.name == RailEnvActions.to_char(action.value), node.children))
+            if len(filtered) == 1:
+                self.dfs(filtered[0], action.value, ancestry, encodings, node_observations)
 
         positional_encoding = np.zeros(self.positional_encoding_len)
         positional_encoding[:len(ancestry)] = np.array(ancestry)

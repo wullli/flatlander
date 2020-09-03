@@ -8,8 +8,8 @@ flatland-sparse-tree-transformer-ppo:
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     config:
-        num_workers: 5
-        num_envs_per_worker: 5
+        num_workers: 7
+        num_envs_per_worker: 1
         num_gpus: 1
 
         clip_rewards: True
@@ -30,7 +30,7 @@ flatland-sparse-tree-transformer-ppo:
         env_config:
             observation: positional_tree
             observation_config:
-                max_depth: 2
+                max_depth: 3
                 shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
@@ -46,18 +46,5 @@ flatland-sparse-tree-transformer-ppo:
             custom_options:
                 mask_unavailable_actions: false
                 n_features_per_node: 11
-                tree_depth: 2
+                tree_depth: 3
 
-        evaluation_num_workers: 2
-        evaluation_interval: 100
-        evaluation_num_episodes: 100
-        evaluation_config:
-            explore: False
-            env_config:
-                observation: positional_tree
-                observation_config:
-                    max_depth: 2
-                    shortest_path_max_depth: 30
-                regenerate_rail_on_reset: True
-                regenerate_schedule_on_reset: True
-                render: False

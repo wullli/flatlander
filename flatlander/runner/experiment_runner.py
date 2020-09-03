@@ -191,7 +191,7 @@ class ExperimentRunner:
             print("NUM_CPUS ARGS: ", args.ray_num_cpus)
             print("NUM_GPUS ARGS: ", args.ray_num_gpus)
             ray.init(
-                local_mode=False,
+                local_mode=True if args.local else False,
                 address=args.ray_address,
                 object_store_memory=args.ray_object_store_memory,
                 memory=args.ray_memory,
