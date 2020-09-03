@@ -32,9 +32,8 @@ class FlatlanderCLI(object):
     def baselines():
         # pass -d if daemon mode desired
         name = "fl_baselines"
-        cmd_prefix = 'docker run -p 8265:8265 ' \
-                     '--log-opt max-size=10m --log-opt max-file=5' \
-                     '--shm-size 200000000000 --name ' + str(name)
+        cmd_prefix = 'docker run -p 8265:8265 --log-opt max-size=10m --log-opt max-file=5 --shm-size 200000000000 ' \
+                     '--name ' + str(name)
 
         if "-d" in sys.argv[2:]:
             cmd_prefix += ' -d'
@@ -59,9 +58,8 @@ class FlatlanderCLI(object):
         repo_dir = Path(os.path.dirname(__file__)).parent.parent
         out_dir = repo_dir.parent / "flatland-challenge-data/out"
         name = "fl_experiment"
-        cmd_prefix = 'docker run -p 8265:8265 ' \
-                     '--log-opt max-size=1m --log-opt max-file=5' \
-                     '--shm-size 200000000000 --name ' + str(name)
+        cmd_prefix = 'docker run -p 8265:8265 --log-opt max-size=1m --log-opt max-file=5 --shm-size 200000000000 ' \
+                     '--name ' + str(name)
 
         if "-d" in sys.argv[2:]:
             cmd_prefix += ' -d'

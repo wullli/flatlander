@@ -1,5 +1,5 @@
-sac-tree-obs-small-v0:
-    run: SAC
+maddpg-tree-obs-small-v0:
+    run: contrib/MADDPG
     env: flatland_sparse
     stop:
         timesteps_total: 15000000  # 1.5e7
@@ -25,7 +25,7 @@ sac-tree-obs-small-v0:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "sac", "custom"] # TODO should be set programmatically
+                tags: ["small_v0", "tree_obs", "maddpg", "custom"] # TODO should be set programmatically
 
         model:
             fcnet_activation: relu

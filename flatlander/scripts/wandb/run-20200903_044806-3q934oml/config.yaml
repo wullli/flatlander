@@ -73,7 +73,7 @@ env_config:
       - tree_obs
       - ppo
       - baseline
-    yaml_config: ../resources/experiments/custom/sac/sac_tree_obs_small_v0.yaml
+    yaml_config: ../resources/experiments/custom/sac/maddpg_tree_obs_small_v0.yaml
 evaluation_config:
   desc: null
   value:
