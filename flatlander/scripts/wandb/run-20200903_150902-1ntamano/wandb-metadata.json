@@ -20,9 +20,10 @@
         "../resources/experiments/custom/tree_transformer/ppo_tree_transformer.yaml",
         "--local"
     ],
-    "state": "running",
+    "state": "killed",
     "jobType": null,
     "mode": "run",
     "project": "flatland",
-    "heartbeatAt": "2020-09-03T15:10:07.593235"
+    "heartbeatAt": "2020-09-03T15:19:39.064239",
+    "exitcode": 255
 }

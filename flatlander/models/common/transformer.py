@@ -11,14 +11,14 @@ class Transformer(tf.keras.Model):
 
         self.encoder = Encoder(num_layers, d_model, num_heads, dense_neurons, rate)
 
-        self.pd1 = tf.keras.layers.Dense(256, activation="relu")
-        self.pd2 = tf.keras.layers.Dense(256, activation="relu")
+        self.pd1 = tf.keras.layers.Dense(512, activation="relu")
+        self.pd2 = tf.keras.layers.Dense(512, activation="relu")
         self.policy = tf.keras.layers.Dense(n_actions)
 
         self.pos_encoding = PositionalEncoding(d_model=d_model)
 
-        self.vd1 = tf.keras.layers.Dense(256, activation="relu")
-        self.vd2 = tf.keras.layers.Dense(256, activation="relu")
+        self.vd1 = tf.keras.layers.Dense(512, activation="relu")
+        self.vd2 = tf.keras.layers.Dense(512, activation="relu")
         self.value = tf.keras.layers.Dense(1)
 
     def call(self, input, train_mode, positional_encoding):
@@ -70,8 +70,8 @@ class Encoder(TransformerLayer):
 
         self.d_model = d_model
         self.num_layers = num_layers
-        self.dense1 = tf.keras.layers.Dense(4 * d_model, activation='relu')
-        self.dense2 = tf.keras.layers.Dense(2 * d_model, activation='relu')
+        self.dense1 = tf.keras.layers.Dense(256, activation='relu')
+        self.dense2 = tf.keras.layers.Dense(128, activation='relu')
         self.dense3 = tf.keras.layers.Dense(d_model, activation='relu')
 
         self.enc_layers = [EncoderLayer(d_model, num_heads, dense_neurons, rate)
