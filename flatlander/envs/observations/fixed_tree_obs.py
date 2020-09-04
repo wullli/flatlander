@@ -12,8 +12,8 @@ from flatlander.envs.observations.utils import norm_obs_clip
 from flatlander.envs.utils.const import NUMBER_ACTIONS
 
 
-@register_obs("positional_tree")
-class PositionalTreeObservation(Observation):
+@register_obs("fixed_tree")
+class FixedTreeObservation(Observation):
 
     def __init__(self, config) -> None:
         super().__init__(config)
@@ -74,14 +74,6 @@ class PositionalTreeObsRLLibWrapper(ObservationBuilder):
         padded_observations[:len(node_observations), :] = np.array(node_observations)
         padded_encodings[:len(encodings), :] = np.array(encodings)
         return padded_observations, padded_encodings
-
-    def _build_tree(self, node: TreeObsForRailEnv.Node, fork_key: str) -> GenericNode:
-        new_children = []
-        ordered_children = sorted(node.childs.items())
-        for key, child in ordered_children:
-            if child != -np.inf:
-                new_children.append(self._build_tree(child, key))
-        return GenericNode(self._get_node_feature_vector(node), children=new_children, name=fork_key)
 
     def get_many(self, handles: Optional[List[int]] = None):
         result = {k: self._build_pairs(o)

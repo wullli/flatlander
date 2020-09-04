@@ -38,7 +38,7 @@ class TreeTransformer(TFModelV2):
                                      train_mode=False,
                                      positional_encoding=tf.cast(
                                          tf.expand_dims(np.zeros((21, self.positional_encoding_dim)), 0),
-                                         dtype=tf.float32), encoder_mask=np.zeros(21))
+                                         dtype=tf.float32), encoder_mask=np.zeros((100, 1, 1, 21)))
         self.register_variables(self.transformer.variables)
 
     def forward(self, input_dict, state, seq_lens):
@@ -57,6 +57,8 @@ class TreeTransformer(TFModelV2):
         inf = tf.fill(dims=(1, 1, tf.shape(padded_obs_seq)[2]), value=-np.inf)
         encoder_mask = tf.not_equal(padded_obs_seq, inf)
         encoder_mask = tf.cast(tf.math.reduce_all(encoder_mask, axis=2), tf.float32)
+        obs_shape = tf.shape(padded_obs_seq)
+        encoder_mask = tf.reshape(encoder_mask, (obs_shape[0], 1, 1, obs_shape[1]))
 
         z = self.infer(padded_obs_seq,
                        padded_enc_seq,
@@ -73,14 +75,6 @@ class TreeTransformer(TFModelV2):
                                                        encoder_mask=encoder_mask)
         self._baseline = tf.reshape(value_target, [-1])
         return policy_target
-
-    @staticmethod
-    def strip_single(sample):
-        feature_dim = tf.shape(sample)[1]
-        filled = tf.fill(dims=(1, feature_dim), value=-np.inf)
-        comp = tf.not_equal(sample, filled)
-        mask = tf.math.reduce_all(comp, axis=1)
-        return sample[mask]
 
     def variables(self, **kwargs):
         return self.transformer.variables
