@@ -1,4 +1,4 @@
-flatland-sparse-tree-transformer-ppo:
+flatland-sparse-positional-tree-transformer-ppo:
     run: PPO
     env: flatland_sparse
     stop:
@@ -7,6 +7,7 @@ flatland-sparse-tree-transformer-ppo:
     checkpoint_at_end: True
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
+    num_samples: 1
     config:
         num_workers: 7
         num_envs_per_worker: 5
@@ -20,6 +21,7 @@ flatland-sparse-tree-transformer-ppo:
         num_sgd_iter: 10
         batch_mode: complete_episodes
         vf_share_layers: False
+        vf_clip_param: 500
 
         env_config:
             observation: positional_tree
@@ -38,7 +40,18 @@ flatland-sparse-tree-transformer-ppo:
         model:
             custom_model: positional_tree_transformer
             custom_options:
-                mask_unavailable_actions: False
                 n_features_per_node: 11
                 tree_depth: 3
+                transformer:
+                    embedding_layers:
+                        - 128
+                        - 128
+                    policy_layers:
+                        - 512
+                        - 512
+                    value_layers:
+                        - 512
+                        - 512
+                    encoder_layer_neurons: 512
+                    num_encoder_layers: 2
 

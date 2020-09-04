@@ -3,10 +3,10 @@
     "program": "/home/pascal/Devel/MSE/vm1/flatland-challenge/flatlander/scripts/experiment.py",
     "git": {
         "remote": "git@gitlab.enterpriselab.ch:pwullsch/flatland-challenge.git",
-        "commit": "dce9525db15e831b8a74cdbe99a67ed157807c50"
+        "commit": "70067732ef11515b46afe00b3684b3430e9f8ea3"
     },
     "email": "pascal.wullschleger@hslu.ch",
-    "startedAt": "2020-09-04T15:09:39.418931",
+    "startedAt": "2020-09-04T15:11:17.889879",
     "host": "obelix",
     "username": "pascal",
     "executable": "/home/pascal/miniconda3/envs/flatland-rl/bin/python",
@@ -17,14 +17,12 @@
     "cpu_count": 8,
     "args": [
         "-f",
-        "../resources/experiments/custom/tree_transformer/ppo_fixed_tree_transformer.yaml",
-        "--local",
-        "--eager"
+        "../resources/experiments/custom/tree_transformer/ppo_fixed_tree_transformer.yaml"
     ],
     "state": "killed",
     "jobType": null,
     "mode": "run",
     "project": "flatland",
-    "heartbeatAt": "2020-09-04T15:10:10.121136",
+    "heartbeatAt": "2020-09-04T15:13:06.735490",
     "exitcode": 255
 }
