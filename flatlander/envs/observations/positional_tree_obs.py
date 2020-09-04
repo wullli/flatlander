@@ -76,7 +76,7 @@ class PositionalTreeObsRLLibWrapper(ObservationBuilder):
         node_observations = np.array(node_observations)
         padded_encodings = np.full(shape=(self.max_nr_nodes, self.positional_encoding_len,), fill_value=0.)
         padded_observations = np.full(shape=(self.max_nr_nodes, self.observation_dim,),
-                                      fill_value=-100)
+                                      fill_value=-1000.)
         padded_encodings[:len(encodings), :] = np.array(encodings)
         padded_observations[:len(node_observations), :] = np.array(node_observations)
         return padded_observations, padded_encodings
