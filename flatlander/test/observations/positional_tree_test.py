@@ -81,11 +81,11 @@ class PositionalTreeObservationTest(unittest.TestCase):
     def test_pos_encoding_root(self):
         obs_tuple = self.obs.builder().get(handle=0)
         pos_encodings = obs_tuple[1]
-        print("encoded", pos_encodings[6])
+        print("encoded", pos_encodings[5])
 
         correct_encoding = np.zeros(self.obs._builder.positional_encoding_len)
         print("correct", correct_encoding)
-        npt.assert_equal(pos_encodings[6], correct_encoding)
+        npt.assert_equal(pos_encodings[5], correct_encoding)
 
     def test_pos_encoding_leaf(self):
         obs_tuple = self.obs.builder().get(handle=0)
@@ -94,7 +94,7 @@ class PositionalTreeObservationTest(unittest.TestCase):
 
         correct_encoding = np.zeros(self.obs._builder.positional_encoding_len)
         correct_encoding[0+1] = 1
-        correct_encoding[5+3] = 1
+        correct_encoding[4+3] = 1
         print("correct", correct_encoding)
         npt.assert_equal(pos_encodings[0], correct_encoding)
 
@@ -103,5 +103,5 @@ class PositionalTreeObservationTest(unittest.TestCase):
         pos_encodings = obs_tuple[1]
         print("encoded", pos_encodings[0])
 
-        mask = pos_encodings[8:] == -np.inf
+        mask = pos_encodings[7:] == 0
         self.assertTrue(np.all(mask))

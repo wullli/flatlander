@@ -8,12 +8,10 @@ flatland-sparse-tree-transformer-ppo:
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     config:
-        num_workers: 1
-        num_envs_per_worker: 1
-        num_gpus: 0
+        num_workers: 7
+        num_envs_per_worker: 5
+        num_gpus: 1
 
-        clip_rewards: True
-        clip_param: 0.1
         # effective batch_size: train_batch_size * num_agents_in_each_environment [5, 10]
         # see https://github.com/ray-project/ray/issues/4628
         train_batch_size: 1000  # 5000
@@ -21,7 +19,7 @@ flatland-sparse-tree-transformer-ppo:
         sgd_minibatch_size: 100  # 500
         num_sgd_iter: 10
         batch_mode: complete_episodes
-        vf_share_layers: True
+        vf_share_layers: False
 
         env_config:
             observation: positional_tree
@@ -35,12 +33,12 @@ flatland-sparse-tree-transformer-ppo:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["ppo", "small_v0", "tree-transformer", "custom"]
+                tags: ["ppo", "small_v0", "positional", "tree", "transformer", "custom"]
 
         model:
-            custom_model: tree_transformer
+            custom_model: positional_tree_transformer
             custom_options:
-                mask_unavailable_actions: false
+                mask_unavailable_actions: False
                 n_features_per_node: 11
                 tree_depth: 3
 

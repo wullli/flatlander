@@ -7,13 +7,13 @@ _wandb:
   desc: null
   value:
     cli_version: 0.9.2
-    framework: tensorflow
+    framework: torch
     is_jupyter_run: false
     is_kaggle_kernel: false
     python_version: 3.6.8
 batch_mode:
   desc: null
-  value: truncate_episodes
+  value: complete_episodes
 clip_actions:
   desc: null
   value: true
@@ -22,7 +22,7 @@ clip_param:
   value: 0.3
 clip_rewards:
   desc: null
-  value: false
+  value: null
 collect_metrics_timeout:
   desc: null
   value: 180
@@ -43,7 +43,7 @@ eager_tracing:
   value: false
 entropy_coeff:
   desc: null
-  value: 0.01
+  value: 0.0
 entropy_coeff_schedule:
   desc: null
   value: null
@@ -57,8 +57,8 @@ env_config:
     generator_config: small_v0
     observation: positional_tree
     observation_config:
-      max_depth: 2
-      shortest_path_max_depth: 10
+      max_depth: 3
+      shortest_path_max_depth: 30
     wandb:
       entity: wullli
       project: flatland
@@ -67,28 +67,19 @@ env_config:
       - small_v0
       - tree-transformer
       - custom
-    yaml_config: ../resources/experiments/flatland_sparse/small_v0/tree_transformer/ppo_pos_tree_transformer.yaml
+    yaml_config: ../resources/experiments/custom/tree_transformer/ppo_pos_tree_transformer.yaml
 evaluation_config:
   desc: null
-  value:
-    env_config:
-      observation: positional_tree
-      observation_config:
-        max_depth: 2
-        shortest_path_max_depth: 10
-      regenerate_rail_on_reset: true
-      regenerate_schedule_on_reset: true
-      render: false
-    explore: false
+  value: {}
 evaluation_interval:
   desc: null
-  value: 100
+  value: null
 evaluation_num_episodes:
   desc: null
-  value: 100
+  value: 10
 evaluation_num_workers:
   desc: null
-  value: 2
+  value: 0
 exploration_config:
   desc: null
   value:
@@ -169,11 +160,11 @@ model:
     conv_activation: relu
     conv_filters: null
     custom_action_dist: null
-    custom_model: tree_transformer
+    custom_model: positional_tree_transformer
     custom_options:
       mask_unavailable_actions: false
       n_features_per_node: 11
-      tree_depth: 2
+      tree_depth: 3
     custom_preprocessor: null
     dim: 84
     fcnet_activation: tanh
@@ -220,16 +211,16 @@ num_envs_per_worker:
   value: 5
 num_gpus:
   desc: null
-  value: 1
+  value: 0
 num_gpus_per_worker:
   desc: null
   value: 0
 num_sgd_iter:
   desc: null
-  value: 30
+  value: 10
 num_workers:
   desc: null
-  value: 5
+  value: 3
 object_store_memory:
   desc: null
   value: 0
@@ -326,10 +317,10 @@ use_pytorch:
   value: false
 vf_clip_param:
   desc: null
-  value: 500.0
+  value: 10.0
 vf_loss_coeff:
   desc: null
-  value: 1.0
+  value: 0.1
 vf_share_layers:
   desc: null
   value: false

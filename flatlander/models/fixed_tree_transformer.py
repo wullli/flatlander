@@ -1,3 +1,5 @@
+import logging
+
 import gym
 import numpy as np
 import tensorflow as tf
@@ -6,7 +8,7 @@ from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from flatlander.models.common.transformer import Transformer
 
 
-class TreeTransformer(TFModelV2):
+class FixedTreeTransformer(TFModelV2):
     def import_from_h5(self, h5_file):
         pass
 
@@ -19,12 +21,18 @@ class TreeTransformer(TFModelV2):
         self._mask_unavailable_actions = self._options.get("mask_unavailable_actions", False)
         self._n_features_per_node = self._options.get("n_features_per_node", 11)
         self._tree_depth = self._options.get("tree_depth", 2)
-        self.positional_encoding_dim = self.action_space.n * (self._tree_depth + 1)
-        self._policy_target = tf.cast(np.zeros(shape=(100, self.action_space.n)), tf.float32)
+        self.positional_encoding_dim = (self.action_space.n - 1) * self._tree_depth
         self._baseline = tf.expand_dims([0], 0)
         self._inf = tf.expand_dims(tf.convert_to_tensor([-np.inf]), 0)
+        self._nan = tf.expand_dims(tf.convert_to_tensor([np.nan]), 0)
 
-        num_heads = int(self.positional_encoding_dim / (self._tree_depth + 1))
+        self._padded_obs_seq = None
+        self._padded_enc_seq = None
+        self._z = None
+
+        self._logger = logging.getLogger("")
+
+        num_heads = int(self.positional_encoding_dim / self._tree_depth)
 
         self.transformer = Transformer(num_layers=2,
                                        d_model=self.positional_encoding_dim,
@@ -45,29 +53,27 @@ class TreeTransformer(TFModelV2):
         """
         To debug use breakpoint with: tf.reduce_any(tf.math.is_inf(padded_obs_seq)).numpy()
         """
-        obs: [tf.Tensor, tf.Tensor] = input_dict['obs']
+        obs: tf.Tensor = input_dict['obs']
         is_training = False
         if 'is_training' in input_dict.keys():
             is_training = input_dict['is_training']
 
-        padded_obs_seq = tf.cast(obs[0], dtype=tf.float32)
-        padded_enc_seq = tf.cast(obs[1], dtype=tf.float32)
+        self._padded_obs_seq = tf.cast(obs, dtype=tf.float32)
 
         # ignore unavailable values
-        inf = tf.fill(dims=(1, 1, tf.shape(padded_obs_seq)[2]), value=-np.inf)
-        encoder_mask = tf.not_equal(padded_obs_seq, inf)
+        inf = tf.fill(dims=(1, 1, tf.shape(self._padded_obs_seq)[2]), value=-np.inf)
+        encoder_mask = tf.not_equal(self._padded_obs_seq, inf)
         encoder_mask = tf.cast(tf.math.reduce_all(encoder_mask, axis=2), tf.float32)
-        obs_shape = tf.shape(padded_obs_seq)
+        obs_shape = tf.shape(self._padded_obs_seq)
         encoder_mask = tf.reshape(encoder_mask, (obs_shape[0], 1, 1, obs_shape[1]))
 
-        z = self.infer(padded_obs_seq,
-                       padded_enc_seq,
-                       is_training,
-                       encoder_mask)
+        self._z = self.infer(self._padded_obs_seq,
+                             is_training,
+                             encoder_mask)
 
-        return z, state
+        return self._z, state
 
-    def infer(self, x, positional_encoding: np.ndarray, is_training, encoder_mask) -> tf.Tensor:
+    def infer(self, x, positional_encoding: np.ndarray = None, is_training=False, encoder_mask=None) -> tf.Tensor:
         x = tf.cast(x, tf.float32)
         positional_encoding = tf.cast(positional_encoding, tf.float32)
         policy_target, value_target = self.transformer(x, train_mode=is_training,
@@ -76,8 +82,16 @@ class TreeTransformer(TFModelV2):
         self._baseline = tf.reshape(value_target, [-1])
         return policy_target
 
+    def _traceback(self):
+        print("policy_out:", self._z.numpy())
+        print("obs_seq:", self._padded_obs_seq)
+        print("enc_seq", self._padded_enc_seq)
+
     def variables(self, **kwargs):
         return self.transformer.variables
 
     def value_function(self):
         return self._baseline
+
+    def __del__(self):
+        self._traceback()

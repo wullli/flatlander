@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 import tensorflow as tf
 
-from flatlander.models.tree_transformer import TreeTransformer
+from flatlander.models.positional_tree_transformer import TreeTransformer
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 

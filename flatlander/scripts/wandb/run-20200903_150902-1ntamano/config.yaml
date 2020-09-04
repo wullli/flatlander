@@ -67,7 +67,7 @@ env_config:
       - small_v0
       - tree-transformer
       - custom
-    yaml_config: ../resources/experiments/custom/tree_transformer/ppo_tree_transformer.yaml
+    yaml_config: ../resources/experiments/custom/tree_transformer/ppo_pos_tree_transformer.yaml
 evaluation_config:
   desc: null
   value: {}
