@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 
+from flatlander.envs.observations.positional_tree_obs import PositionalTreeObservation
 from flatlander.models.common.transformer import Transformer
 
 
@@ -38,8 +39,13 @@ class PositionalTreeTransformer(TFModelV2):
                                        d_model=self.positional_encoding_dim,
                                        num_heads=num_heads,
                                        dense_neurons=512,
-                                       n_actions=self.action_space.n)
+                                       n_actions=self.action_space.n,
+                                       use_positional_encoding=True)
 
+        self._test_transformer()
+        self.register_variables(self.transformer.variables)
+
+    def _test_transformer(self):
         inp = tf.random.uniform((100, 21, self._n_features_per_node),
                                 dtype=tf.float32, minval=-1, maxval=1)
         _, _ = self.transformer.call(inp,
@@ -47,7 +53,6 @@ class PositionalTreeTransformer(TFModelV2):
                                      positional_encoding=tf.cast(
                                          tf.expand_dims(np.zeros((21, self.positional_encoding_dim)), 0),
                                          dtype=tf.float32), encoder_mask=np.zeros((100, 1, 1, 21)))
-        self.register_variables(self.transformer.variables)
 
     def forward(self, input_dict, state, seq_lens):
         """
@@ -62,7 +67,7 @@ class PositionalTreeTransformer(TFModelV2):
         self._padded_enc_seq = tf.cast(obs[1], dtype=tf.float32)
 
         # ignore unavailable values
-        inf = tf.fill(dims=(1, 1, tf.shape(self._padded_obs_seq)[2]), value=-np.inf)
+        inf = tf.fill(dims=(1, 1, tf.shape(self._padded_obs_seq)[2]), value=PositionalTreeObservation.PAD_VALUE)
         encoder_mask = tf.not_equal(self._padded_obs_seq, inf)
         encoder_mask = tf.cast(tf.math.reduce_all(encoder_mask, axis=2), tf.float32)
         obs_shape = tf.shape(self._padded_obs_seq)

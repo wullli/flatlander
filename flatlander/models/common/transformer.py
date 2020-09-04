@@ -6,23 +6,26 @@ from flatlander.models.common.attention import MultiHeadAttention
 class Transformer(tf.keras.Model):
 
     def __init__(self, num_layers, d_model, num_heads, dense_neurons,
-                 n_actions, rate=0.1):
+                 n_actions, rate=0.1, use_positional_encoding=True):
         super(Transformer, self).__init__()
+        self.use_positional_encoding = use_positional_encoding
 
-        self.encoder = Encoder(num_layers, d_model, num_heads, dense_neurons, rate)
+        self.encoder = Encoder(num_layers, d_model, num_heads, dense_neurons, rate, use_positional_encoding)
 
         self.pd1 = tf.keras.layers.Dense(512, activation="relu")
         self.pd2 = tf.keras.layers.Dense(512, activation="relu")
         self.policy = tf.keras.layers.Dense(n_actions)
 
-        self.pos_encoding = PositionalEncoding(d_model=d_model)
+        if use_positional_encoding:
+            self.pos_encoding = PositionalEncoding(d_model=d_model)
 
         self.vd1 = tf.keras.layers.Dense(512, activation="relu")
         self.vd2 = tf.keras.layers.Dense(512, activation="relu")
         self.value = tf.keras.layers.Dense(1)
 
-    def call(self, input, train_mode, positional_encoding, encoder_mask):
-        positional_encoding = self.pos_encoding(positional_encoding)
+    def call(self, input, train_mode, encoder_mask, positional_encoding=None):
+        if self.use_positional_encoding:
+            positional_encoding = self.pos_encoding(positional_encoding)
         enc_output = self.encoder(input, train_mode, positional_encoding, encoder_mask=encoder_mask)
         avg_encoder = tf.reduce_mean(enc_output, axis=1)
 
@@ -65,8 +68,9 @@ class TransformerLayer(tf.keras.layers.Layer):
 
 
 class Encoder(TransformerLayer):
-    def __init__(self, num_layers, d_model, num_heads, dense_neurons, rate=0.25):
+    def __init__(self, num_layers, d_model, num_heads, dense_neurons, rate=0.25, use_positional_encoding=True):
         super(Encoder, self).__init__()
+        self.use_positional_encoding = use_positional_encoding
 
         self.d_model = d_model
         self.num_layers = num_layers
@@ -85,7 +89,9 @@ class Encoder(TransformerLayer):
         x = self.dense3(x)
 
         x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
-        x += positional_encoding
+
+        if self.use_positional_encoding:
+            x += positional_encoding
 
         x = self.dropout(x, training=training)
 

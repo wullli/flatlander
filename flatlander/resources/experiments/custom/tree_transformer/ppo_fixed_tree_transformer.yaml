@@ -1,0 +1,44 @@
+flatland-sparse-tree-transformer-ppo:
+    run: PPO
+    env: flatland_sparse
+    stop:
+        timesteps_total: 10000000  # 1e7
+    checkpoint_freq: 10
+    checkpoint_at_end: True
+    keep_checkpoints_num: 5
+    checkpoint_score_attr: episode_reward_mean
+    config:
+        num_workers: 1
+        num_envs_per_worker: 1
+        num_gpus: 0
+
+        # effective batch_size: train_batch_size * num_agents_in_each_environment [5, 10]
+        # see https://github.com/ray-project/ray/issues/4628
+        train_batch_size: 1000  # 5000
+        rollout_fragment_length: 50  # 100
+        sgd_minibatch_size: 100  # 500
+        num_sgd_iter: 10
+        batch_mode: complete_episodes
+        vf_share_layers: False
+
+        env_config:
+            observation: fixed_tree
+            observation_config:
+                max_depth: 3
+                shortest_path_max_depth: 30
+
+            generator: sparse_rail_generator
+            generator_config: small_v0
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["ppo", "small_v0", "positional", "tree", "transformer", "custom"]
+
+        model:
+            custom_model: fixed_tree_transformer
+            custom_options:
+                mask_unavailable_actions: False
+                n_features_per_node: 11
+                tree_depth: 3
+

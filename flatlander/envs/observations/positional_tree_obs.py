@@ -13,10 +13,11 @@ from flatlander.envs.observations.utils import norm_obs_clip
 
 @register_obs("positional_tree")
 class PositionalTreeObservation(Observation):
+    PAD_VALUE = -1000.
 
     def __init__(self, config) -> None:
         super().__init__(config)
-        self._builder = PositionalTreeObsRLLibWrapper(
+        self._builder = PositionalTreeObsWrapper(
             TreeObsForRailEnv(
                 max_depth=config['max_depth'],
                 predictor=ShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
@@ -34,7 +35,7 @@ class PositionalTreeObservation(Observation):
                                                        self._builder.positional_encoding_len))))
 
 
-class PositionalTreeObsRLLibWrapper(ObservationBuilder):
+class PositionalTreeObsWrapper(ObservationBuilder):
 
     def __init__(self, tree_obs_builder: TreeObsForRailEnv):
         super().__init__()
@@ -76,7 +77,7 @@ class PositionalTreeObsRLLibWrapper(ObservationBuilder):
         node_observations = np.array(node_observations)
         padded_encodings = np.full(shape=(self.max_nr_nodes, self.positional_encoding_len,), fill_value=0.)
         padded_observations = np.full(shape=(self.max_nr_nodes, self.observation_dim,),
-                                      fill_value=-1000.)
+                                      fill_value=PositionalTreeObservation.PAD_VALUE)
         padded_encodings[:len(encodings), :] = np.array(encodings)
         padded_observations[:len(node_observations), :] = np.array(node_observations)
         return padded_observations, padded_encodings
@@ -123,7 +124,6 @@ class PositionalTreeObsRLLibWrapper(ObservationBuilder):
             node_observations: list):
         """
         Depth first search, as operation should be used the inference
-        :param abs_pos:
         :param node_observations: accumulated obs vectors of nodes
         :param encodings: accumulated pos encodings of nodes
         :param node_pos: Position of node relative to parent node
