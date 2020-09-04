@@ -22,6 +22,7 @@ class TreeTransformer(TFModelV2):
         self.positional_encoding_dim = self.action_space.n * (self._tree_depth + 1)
         self._policy_target = tf.cast(np.zeros(shape=(100, self.action_space.n)), tf.float32)
         self._baseline = tf.expand_dims([0], 0)
+        self._inf = tf.expand_dims(tf.convert_to_tensor([-np.inf]), 0)
 
         num_heads = int(self.positional_encoding_dim / (self._tree_depth + 1))
 
@@ -37,7 +38,7 @@ class TreeTransformer(TFModelV2):
                                      train_mode=False,
                                      positional_encoding=tf.cast(
                                          tf.expand_dims(np.zeros((21, self.positional_encoding_dim)), 0),
-                                         dtype=tf.float32))
+                                         dtype=tf.float32), encoder_mask=np.zeros(21))
         self.register_variables(self.transformer.variables)
 
     def forward(self, input_dict, state, seq_lens):
@@ -52,17 +53,24 @@ class TreeTransformer(TFModelV2):
         padded_obs_seq = tf.cast(obs[0], dtype=tf.float32)
         padded_enc_seq = tf.cast(obs[1], dtype=tf.float32)
 
+        # ignore unavailable values
+        inf = tf.fill(dims=(1, 1, tf.shape(padded_obs_seq)[2]), value=-np.inf)
+        encoder_mask = tf.not_equal(padded_obs_seq, inf)
+        encoder_mask = tf.cast(tf.math.reduce_all(encoder_mask, axis=2), tf.float32)
+
         z = self.infer(padded_obs_seq,
                        padded_enc_seq,
-                       is_training)
+                       is_training,
+                       encoder_mask)
 
         return z, state
 
-    def infer(self, x, positional_encoding: np.ndarray, is_training) -> tf.Tensor:
+    def infer(self, x, positional_encoding: np.ndarray, is_training, encoder_mask) -> tf.Tensor:
         x = tf.cast(x, tf.float32)
         positional_encoding = tf.cast(positional_encoding, tf.float32)
         policy_target, value_target = self.transformer(x, train_mode=is_training,
-                                                       positional_encoding=positional_encoding)
+                                                       positional_encoding=positional_encoding,
+                                                       encoder_mask=encoder_mask)
         self._baseline = tf.reshape(value_target, [-1])
         return policy_target
 

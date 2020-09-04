@@ -10,7 +10,7 @@ flatland-sparse-tree-transformer-ppo:
     config:
         num_workers: 7
         num_envs_per_worker: 1
-        num_gpus: 1
+        num_gpus: 0
 
         clip_rewards: True
         clip_param: 0.1

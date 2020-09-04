@@ -21,9 +21,9 @@ class Transformer(tf.keras.Model):
         self.vd2 = tf.keras.layers.Dense(512, activation="relu")
         self.value = tf.keras.layers.Dense(1)
 
-    def call(self, input, train_mode, positional_encoding):
+    def call(self, input, train_mode, positional_encoding, encoder_mask):
         positional_encoding = self.pos_encoding(positional_encoding)
-        enc_output = self.encoder(input, train_mode, positional_encoding)
+        enc_output = self.encoder(input, train_mode, positional_encoding, encoder_mask=encoder_mask)
         avg_encoder = tf.reduce_mean(enc_output, axis=1)
 
         p_x = self.pd1(avg_encoder)
@@ -79,7 +79,7 @@ class Encoder(TransformerLayer):
 
         self.dropout = tf.keras.layers.Dropout(rate)
 
-    def call(self, x, training, positional_encoding):
+    def call(self, x, training, positional_encoding, encoder_mask):
         x = self.dense1(x)
         x = self.dense2(x)
         x = self.dense3(x)
@@ -90,7 +90,7 @@ class Encoder(TransformerLayer):
         x = self.dropout(x, training=training)
 
         for i in range(self.num_layers):
-            x = self.enc_layers[i](x, training, None)
+            x = self.enc_layers[i](x, training, encoder_mask)
 
         return x  # (batch_size, input_seq_len, d_model)
 
@@ -109,7 +109,7 @@ class EncoderLayer(TransformerLayer):
         self.dropout2 = tf.keras.layers.Dropout(rate)
 
     def call(self, x, training, mask):
-        attn_output, _ = self.mha(x, x, x)  # (batch_size, input_seq_len, d_model)
+        attn_output, _ = self.mha(x, x, x, mask)  # (batch_size, input_seq_len, d_model)
         attn_output = self.dropout1(attn_output, training=training)
         out1 = self.layernorm1(x + attn_output)  # (batch_size, input_seq_len, d_model)
 
