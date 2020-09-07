@@ -28,7 +28,7 @@ class FixedTreeObservationTest(unittest.TestCase):
         self.prep_obs()
         obs = self.obs.builder().get(handle=0)
         print(obs)
-        assert np.all(obs[-1] != -np.inf)
+        assert np.all(obs[-1] != -1)
 
     def test__leaf_position(self):
         self.prep_obs_forward()

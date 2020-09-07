@@ -53,7 +53,7 @@ class FixedTreeTransformer(TFModelV2):
         self._padded_obs_seq = tf.cast(obs, dtype=tf.float32)
 
         # ignore unavailable values
-        inf = tf.fill(dims=(1, 1, tf.shape(self._padded_obs_seq)[2]), value=FixedTreeObservation.PAD_VALUE)
+        inf = tf.fill(dims=(1, 1, tf.shape(self._padded_obs_seq)[2]), value=-1.)
         encoder_mask = tf.not_equal(self._padded_obs_seq, inf)
         encoder_mask = tf.cast(tf.math.reduce_all(encoder_mask, axis=2), tf.float32)
         obs_shape = tf.shape(self._padded_obs_seq)
