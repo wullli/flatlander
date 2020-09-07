@@ -1,4 +1,4 @@
-flatland-sparse-positional-tree-transformer-ppo:
+flatland-sparse-positional-tree-transformer-apex:
     run: APEX
     env: flatland_sparse
     stop:
@@ -9,8 +9,8 @@ flatland-sparse-positional-tree-transformer-ppo:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 2
-        num_envs_per_worker: 1
+        num_workers: 7
+        num_envs_per_worker: 5
         num_gpus: 1
 
         hiddens: []

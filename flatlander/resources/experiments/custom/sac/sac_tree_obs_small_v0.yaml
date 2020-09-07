@@ -5,9 +5,9 @@ sac-tree-obs-small-v0:
         timesteps_total: 15000000  # 1.5e7
     checkpoint_at_end: True
     checkpoint_score_attr: episode_reward_mean
-    num_samples: 3
+    num_samples: 1
     config:
-        num_workers: 5
+        num_workers: 7
         num_envs_per_worker: 5
         num_gpus: 1
 
@@ -16,7 +16,7 @@ sac-tree-obs-small-v0:
         env_config:
             observation: tree
             observation_config:
-                max_depth: 2
+                max_depth: 3
                 shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
@@ -27,21 +27,12 @@ sac-tree-obs-small-v0:
                 entity: wullli
                 tags: ["small_v0", "tree_obs", "sac", "custom"] # TODO should be set programmatically
 
-        model:
+        twin_q: True
+        policy_model:
             fcnet_activation: relu
-            fcnet_hiddens: [256, 256]
-            vf_share_layers: True  # False
+            fcnet_hiddens: [512, 512]
 
-        evaluation_num_workers: 2
-        evaluation_interval: 100
-        evaluation_num_episodes: 100
-        evaluation_config:
-            explore: False
-            env_config:
-                observation: tree
-                observation_config:
-                    max_depth: 2
-                    shortest_path_max_depth: 30
-                regenerate_rail_on_reset: True
-                regenerate_schedule_on_reset: True
-                render: False
+        Q_model:
+            fcnet_activation: relu
+            fcnet_hiddens: [512, 512]
+
