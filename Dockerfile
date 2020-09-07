@@ -27,6 +27,8 @@ RUN apt-get install -y wget rsync \
     python-opengl \
     && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir ${HOME}
+RUN chown -R ${NB_UID}:${NB_UID} ${HOME}
 WORKDIR ${HOME}
 USER ${NB_USER}
 RUN wget \
