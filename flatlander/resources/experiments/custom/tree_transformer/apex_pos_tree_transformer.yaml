@@ -38,16 +38,19 @@ flatland-sparse-positional-tree-transformer-ppo:
                 vf_share_layers: True
                 transformer:
                     embedding_layers:
-                        - 128
-                        - 128
+                        - 512
+                        - 512
+                        - 512
                     policy_layers:
-                        - 128
-                        - 128
+                        - 512
+                        - 512
+                        - 512
                     value_layers:
-                        - 128
-                        - 128
+                        - 512
+                        - 512
+                        - 512
 
-                    encoder_layer_neurons: 128
+                    encoder_layer_neurons: 2048
                     num_encoder_layers: 2
                     dropout_rate: 0.25
 

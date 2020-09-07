@@ -15,13 +15,16 @@ flatland-sparse-fixed-tree-transformer-apex:
 
         hiddens: []
         dueling: False
-        lr: 0.001
 
         env_config:
             observation: fixed_tree
             observation_config:
-                max_depth: 2
+                max_depth: 3
                 shortest_path_max_depth: 30
+
+            sparse_reward: True
+            done_reward: 1
+            not_finished_reward: -1
 
             generator: sparse_rail_generator
             generator_config: small_v0
@@ -35,7 +38,7 @@ flatland-sparse-fixed-tree-transformer-apex:
             custom_model: fixed_tree_transformer
             custom_options:
                 n_features_per_node: 11
-                tree_depth: 2
+                tree_depth: 3
                 transformer:
                     embedding_layers:
                         - 512

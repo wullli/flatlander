@@ -19,7 +19,8 @@ class TreeObservation(Observation):
             TreeObsForRailEnv(
                 max_depth=config['max_depth'],
                 predictor=ShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
-            )
+            ),
+            config.get('normalize_fixed', None)
         )
 
     def builder(self) -> ObservationBuilder:
@@ -94,14 +95,18 @@ def split_tree_into_feature_groups(tree: TreeObsForRailEnv.Node, max_tree_depth:
     return data, distance, agent_data
 
 
-def normalize_observation(observation: TreeObsForRailEnv.Node, tree_depth: int, observation_radius=0):
+def normalize_observation(observation: TreeObsForRailEnv.Node, tree_depth: int, observation_radius=0,
+                          normalize_fixed=None):
     """
     This function normalizes the observation used by the RL algorithm
     """
     data, distance, agent_data = split_tree_into_feature_groups(observation, tree_depth)
 
     data = norm_obs_clip(data, fixed_radius=observation_radius)
-    distance = norm_obs_clip(distance, normalize_to_range=True)
+    if normalize_fixed is not None:
+        distance = norm_obs_clip(distance, fixed_radius=normalize_fixed)
+    else:
+        distance = norm_obs_clip(distance, normalize_to_range=True)
     agent_data = np.clip(agent_data, -1, 1)
     normalized_obs = np.concatenate((np.concatenate((data, distance)), agent_data))
     return normalized_obs
@@ -109,9 +114,10 @@ def normalize_observation(observation: TreeObsForRailEnv.Node, tree_depth: int, 
 
 class TreeObsForRailEnvRLLibWrapper(ObservationBuilder):
 
-    def __init__(self, tree_obs_builder: TreeObsForRailEnv):
+    def __init__(self, tree_obs_builder: TreeObsForRailEnv, normalize_fixed=None):
         super().__init__()
         self._builder = tree_obs_builder
+        self._normalize_fixed = normalize_fixed
 
     @property
     def observation_dim(self):
@@ -122,10 +128,12 @@ class TreeObsForRailEnvRLLibWrapper(ObservationBuilder):
 
     def get(self, handle: int = 0):
         obs = self._builder.get(handle)
-        return normalize_observation(obs, self._builder.max_depth, observation_radius=10) if obs is not None else obs
+        return normalize_observation(obs, self._builder.max_depth, observation_radius=10,
+                                     normalize_fixed=self._normalize_fixed) if obs is not None else obs
 
     def get_many(self, handles: Optional[List[int]] = None):
-        return {k: normalize_observation(o, self._builder.max_depth, observation_radius=10)
+        return {k: normalize_observation(o, self._builder.max_depth, observation_radius=10,
+                                         normalize_fixed=self._normalize_fixed)
                 for k, o in self._builder.get_many(handles).items() if o is not None}
 
     def util_print_obs_subtree(self, tree):

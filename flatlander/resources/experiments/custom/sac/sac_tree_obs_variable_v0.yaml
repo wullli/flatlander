@@ -20,6 +20,7 @@ sac-tree-obs-variable-v0:
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
+                normalize_fixed: 100
 
             generator: sparse_rail_generator
             generator_config: variable_v0
