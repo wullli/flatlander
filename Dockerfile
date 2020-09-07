@@ -27,6 +27,7 @@ RUN apt-get install -y wget rsync \
     python-opengl \
     && rm -rf /var/lib/apt/lists/*
 
+USER ${NB_USER}
 RUN wget \
     https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
     && mkdir /root/.conda \
@@ -46,8 +47,8 @@ ENV CONDA_PREFIX /root/miniconda3/envs/flatland-rl
 
 SHELL ["/bin/bash", "-c"]
 
+USER root
 RUN chown -R ${NB_UID}:${NB_UID} /
-
 USER ${NB_USER}
 
 
