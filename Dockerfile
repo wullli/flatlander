@@ -8,7 +8,7 @@ ENV LANG=C.UTF-8
 ARG NB_USER
 ARG NB_UID
 ENV USER ${NB_USER}
-ENV HOME /root/${NB_USER}
+ENV HOME /root/
 
 RUN adduser --disabled-password \
     --gecos "Default user" \
