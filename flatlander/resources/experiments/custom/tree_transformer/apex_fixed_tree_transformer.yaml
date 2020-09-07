@@ -37,12 +37,15 @@ flatland-sparse-fixed-tree-transformer-ppo:
                 tree_depth: 2
                 transformer:
                     embedding_layers:
-                        - 128
-                        - 128
+                        - 512
+                        - 512
+                        - 512
                     policy_layers:
                         - 512
                         - 512
+                        - 512
                     value_layers:
+                        - 512
                         - 512
                         - 512
                     d_model: 32
