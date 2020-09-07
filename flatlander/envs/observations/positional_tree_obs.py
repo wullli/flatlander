@@ -13,7 +13,7 @@ from flatlander.envs.observations.utils import norm_obs_clip
 
 @register_obs("positional_tree")
 class PositionalTreeObservation(Observation):
-    PAD_VALUE = -1000.
+    PAD_VALUE = -np.inf
 
     def __init__(self, config) -> None:
         super().__init__(config)

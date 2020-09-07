@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+import numpy as np
+
 from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.envs.observations import TreeObsForRailEnv
 
@@ -26,7 +28,12 @@ class DummyBuilder(ObservationBuilder):
                                       num_agents_malfunctioning=0,
                                       speed_min_fractional=0,
                                       num_agents_ready_to_depart=0,
-                                      childs={})
+                                      childs={'R': -np.inf,
+                                              'S': -np.inf,
+                                              'L': -np.inf,
+                                              'B': -np.inf,
+                                              'F': -np.inf
+                                              })
         middle_nodes = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
                                               dist_other_target_encountered=0,
                                               dist_other_agent_encountered=0,
@@ -39,7 +46,12 @@ class DummyBuilder(ObservationBuilder):
                                               num_agents_malfunctioning=0,
                                               speed_min_fractional=0,
                                               num_agents_ready_to_depart=0,
-                                              childs={'R': deepcopy(node), 'S': deepcopy(node)})
+                                              childs={'R': deepcopy(node),
+                                                      'S': deepcopy(node),
+                                                      'L': -np.inf,
+                                                      'B': -np.inf,
+                                                      'F': -np.inf
+                                                      })
         root = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
                                       dist_other_target_encountered=0,
                                       dist_other_agent_encountered=0,
@@ -52,7 +64,11 @@ class DummyBuilder(ObservationBuilder):
                                       num_agents_malfunctioning=0,
                                       speed_min_fractional=0,
                                       num_agents_ready_to_depart=0,
-                                      childs={'L': deepcopy(middle_nodes), 'R': deepcopy(middle_nodes)})
+                                      childs={'L': deepcopy(middle_nodes),
+                                              'R': deepcopy(middle_nodes),
+                                              'S': -np.inf,
+                                              'B': -np.inf,
+                                              'F': -np.inf})
         return root
 
     def reset(self):
