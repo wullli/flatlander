@@ -15,7 +15,7 @@ class Transformer(tf.keras.Model):
                  value_layers: List[int],
                  policy_layers: List[int],
                  embedding_layers: List[int],
-                 n_actions, rate=0.1, use_positional_encoding=True):
+                 n_actions, dropout_rate=0.1, use_positional_encoding=True):
         super(Transformer, self).__init__()
         if value_layers is None:
             value_layers = [512, 512]
@@ -29,9 +29,10 @@ class Transformer(tf.keras.Model):
                                num_heads,
                                encoder_layer_neurons,
                                embedding_layers,
-                               rate,
+                               dropout_rate,
                                use_positional_encoding)
 
+        self.dropout = tf.keras.layers.Dropout(dropout_rate)
         self.value_layers = [tf.keras.layers.Dense(neurons, activation="relu")
                              for neurons in value_layers]
         self.policy_layers = [tf.keras.layers.Dense(neurons, activation="relu")
@@ -49,14 +50,12 @@ class Transformer(tf.keras.Model):
         enc_output = self.encoder(input, train_mode, positional_encoding, encoder_mask=encoder_mask)
         avg_encoder = tf.reduce_mean(enc_output, axis=1)
 
-        p_x = avg_encoder
-
+        p_x = self.dropout(avg_encoder, training=train_mode)
         for i in range(len(self.policy_layers)):
             p_x = self.policy_layers[i](p_x)
         policy_out = self.policy(p_x)
 
-        v_x = avg_encoder
-
+        v_x = self.dropout(avg_encoder, training=train_mode)
         for i in range(len(self.value_layers)):
             v_x = self.value_layers[i](v_x)
         value_out = self.value(v_x)

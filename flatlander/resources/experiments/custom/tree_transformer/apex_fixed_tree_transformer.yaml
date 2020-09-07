@@ -9,9 +9,9 @@ flatland-sparse-fixed-tree-transformer-ppo:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 1
-        num_envs_per_worker: 1
-        num_gpus: 0
+        num_workers: 7
+        num_envs_per_worker: 5
+        num_gpus: 1
 
         hiddens: [ ]
         dueling: False
@@ -40,14 +40,15 @@ flatland-sparse-fixed-tree-transformer-ppo:
                         - 128
                         - 128
                     policy_layers:
-                        - 128
-                        - 128
+                        - 512
+                        - 512
                     value_layers:
-                        - 128
-                        - 128
+                        - 512
+                        - 512
                     d_model: 32
-                    encoder_layer_neurons: 128
+                    encoder_layer_neurons: 2048
                     num_encoder_layers: 2
                     num_heads: 4
+                    dropout_rate: 0.25
 
 
