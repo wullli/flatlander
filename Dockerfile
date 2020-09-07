@@ -27,6 +27,7 @@ RUN apt-get install -y wget rsync \
     python-opengl \
     && rm -rf /var/lib/apt/lists/*
 
+WORKDIR ${HOME}
 USER ${NB_USER}
 RUN wget \
     https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
