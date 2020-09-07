@@ -18,18 +18,23 @@ sac-tree-obs-variable-v0:
         env_config:
             observation: tree
             observation_config:
-                max_depth: 3
-                shortest_path_max_depth: 100
+                max_depth: 2
+                shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
-            generator_config: variable_v0.yaml
+            generator_config: variable_v0
 
             wandb:
                 project: flatland
                 entity: wullli
                 tags: ["variable_v0", "tree_obs", "sac", "custom"] # TODO should be set programmatically
 
-        model:
+        twin_q: True
+        policy_model:
+            fcnet_hiddens: [256, 256]
+            vf_share_layers: True  # False
+
+        Q_model:
             fcnet_activation: relu
             fcnet_hiddens: [256, 256]
             vf_share_layers: True  # False

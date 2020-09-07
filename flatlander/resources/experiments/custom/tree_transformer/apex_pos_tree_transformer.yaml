@@ -1,0 +1,52 @@
+flatland-sparse-positional-tree-transformer-ppo:
+    run: APEX
+    env: flatland_sparse
+    stop:
+        timesteps_total: 10000000  # 1e7
+    checkpoint_freq: 10
+    checkpoint_at_end: True
+    keep_checkpoints_num: 5
+    checkpoint_score_attr: episode_reward_mean
+    num_samples: 1
+    config:
+        num_workers: 2
+        num_envs_per_worker: 1
+        num_gpus: 0
+
+        hiddens: []
+        dueling: False
+
+        env_config:
+            observation: positional_tree
+            observation_config:
+                max_depth: 2
+                shortest_path_max_depth: 30
+
+            generator: sparse_rail_generator
+            generator_config: small_v0
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["apex", "small_v0", "positional", "tree", "transformer", "custom"]
+
+        model:
+            custom_model: positional_tree_transformer
+            custom_options:
+                n_features_per_node: 11
+                tree_depth: 2
+                vf_share_layers: True
+                transformer:
+                    embedding_layers:
+                        - 128
+                        - 128
+                    policy_layers:
+                        - 128
+                        - 128
+                    value_layers:
+                        - 128
+                        - 128
+
+                    encoder_layer_neurons: 128
+                    num_encoder_layers: 2
+
