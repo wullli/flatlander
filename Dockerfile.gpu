@@ -10,6 +10,8 @@ ARG NB_UID
 ENV USER ${NB_USER}
 ENV HOME /root/${NB_USER}
 
+USER root
+
 RUN apt-get update
 RUN apt-get install -y wget rsync \
     xorg-dev \

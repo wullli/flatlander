@@ -15,6 +15,8 @@ RUN adduser --disabled-password \
     --uid ${NB_UID} \
     ${NB_USER}
 
+USER root
+
 RUN apt-get update
 RUN apt-get install -y wget rsync \
     xorg-dev \
