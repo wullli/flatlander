@@ -13,7 +13,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
         num_envs_per_worker: 5
         num_gpus: 1
 
-        hiddens: [ ]
+        hiddens: []
         dueling: False
 
         env_config:
@@ -36,7 +36,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
                 n_features_per_node: 11
                 tree_depth: 2
                 transformer:
-                embedding_layers:
+                    embedding_layers:
                         - 128
                         - 128
                     policy_layers:

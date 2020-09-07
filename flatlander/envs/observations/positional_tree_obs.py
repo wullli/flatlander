@@ -28,9 +28,9 @@ class PositionalTreeObservation(Observation):
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        return gym.spaces.Tuple((gym.spaces.Box(low=-np.inf, high=np.inf, shape=(self._builder.max_nr_nodes,
-                                                                                 self._builder.observation_dim,)),
-                                 gym.spaces.Box(low=-np.inf, high=np.inf,
+        return gym.spaces.Tuple((gym.spaces.Box(low=-1, high=1, shape=(self._builder.max_nr_nodes,
+                                                                       self._builder.observation_dim,)),
+                                 gym.spaces.Box(low=0, high=1,
                                                 shape=(self._builder.max_nr_nodes,
                                                        self._builder.positional_encoding_len))))
 
@@ -48,6 +48,7 @@ class PositionalTreeObsWrapper(ObservationBuilder):
                                    RailEnvActions.MOVE_LEFT,
                                    RailEnvActions.MOVE_RIGHT]
         self._positional_encoding_len = self._builder.max_depth * len(self._available_actions)
+        self._max_dist_seen = 100
 
     @property
     def observation_dim(self):
@@ -80,6 +81,7 @@ class PositionalTreeObsWrapper(ObservationBuilder):
                                       fill_value=PositionalTreeObservation.PAD_VALUE)
         padded_encodings[:len(encodings), :] = np.array(encodings)
         padded_observations[:len(node_observations), :] = np.array(node_observations)
+        padded_observations = np.clip(padded_observations, -1, 1)
         return padded_observations, padded_encodings
 
     def get_many(self, handles: Optional[List[int]] = None):
@@ -90,8 +92,7 @@ class PositionalTreeObsWrapper(ObservationBuilder):
     def set_env(self, env):
         self._builder.set_env(env)
 
-    @staticmethod
-    def _get_node_feature_vector(node: TreeObsForRailEnv.Node) -> np.ndarray:
+    def _get_node_feature_vector(self, node: TreeObsForRailEnv.Node) -> np.ndarray:
         data = np.zeros(6)
         distance = np.zeros(1)
         agent_data = np.zeros(4)
@@ -111,7 +112,7 @@ class PositionalTreeObsWrapper(ObservationBuilder):
         agent_data[3] = node.speed_min_fractional
 
         data = norm_obs_clip(data, fixed_radius=10)
-        distance = norm_obs_clip(distance, normalize_to_range=True)
+        distance = norm_obs_clip(distance, fixed_radius=100)
         agent_data = np.clip(agent_data, -1, 1)
         normalized_obs = np.concatenate([data, distance, agent_data])
 
@@ -145,4 +146,3 @@ class PositionalTreeObsWrapper(ObservationBuilder):
         positional_encoding[:len(ancestry)] = np.array(ancestry)
         node_observations.append(self._get_node_feature_vector(node))
         encodings.append(positional_encoding)
-

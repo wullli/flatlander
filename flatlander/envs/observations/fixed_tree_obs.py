@@ -28,8 +28,8 @@ class FixedTreeObservation(Observation):
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(self._builder.max_nr_nodes,
-                                                               self._builder.observation_dim,))
+        return gym.spaces.Box(low=-1, high=1, shape=(self._builder.max_nr_nodes,
+                                                     self._builder.observation_dim,))
 
 
 class FixedTreeObsWrapper(ObservationBuilder):
@@ -64,6 +64,7 @@ class FixedTreeObsWrapper(ObservationBuilder):
         padded_observations = np.full(shape=(self.max_nr_nodes, self.observation_dim,),
                                       fill_value=FixedTreeObservation.PAD_VALUE)
         self.dfs(obs_node, padded_observations)
+        padded_observations = np.clip(padded_observations, -1, 1)
         return padded_observations
 
     def get_many(self, handles: Optional[List[int]] = None):
@@ -95,7 +96,7 @@ class FixedTreeObsWrapper(ObservationBuilder):
         agent_data[3] = node.speed_min_fractional
 
         data = norm_obs_clip(data, fixed_radius=10)
-        distance = norm_obs_clip(distance, normalize_to_range=True)
+        distance = norm_obs_clip(distance, fixed_radius=100)
         agent_data = np.clip(agent_data, -1, 1)
         normalized_obs = np.concatenate([data, distance, agent_data])
 

@@ -31,11 +31,10 @@ sac-tree-obs-variable-v0:
 
         twin_q: True
         policy_model:
+            fcnet_activation: relu
             fcnet_hiddens: [256, 256]
-            vf_share_layers: True  # False
 
         Q_model:
             fcnet_activation: relu
             fcnet_hiddens: [256, 256]
-            vf_share_layers: True  # False
 

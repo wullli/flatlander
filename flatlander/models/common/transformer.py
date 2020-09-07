@@ -75,8 +75,8 @@ class Encoder(tf.keras.layers.Layer):
 
         self.d_model = d_model
         self.num_layers = num_layers
-        self.embedding_out = tf.keras.layers.Dense(d_model)
-        self.embedding_layers = [tf.keras.layers.Dense(neurons, activation="relu" if i > 0 else None)
+        self.embedding_out = tf.keras.layers.Dense(d_model, activation="relu")
+        self.embedding_layers = [tf.keras.layers.Dense(neurons, activation="relu")
                                  for i, neurons in enumerate(embedding_layers)]
 
         self.enc_layers = [EncoderLayer(d_model, num_heads, dense_neurons, rate)

@@ -9,9 +9,9 @@ flatland-sparse-positional-tree-transformer-ppo:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 7
-        num_envs_per_worker: 5
-        num_gpus: 1
+        num_workers: 1
+        num_envs_per_worker: 1
+        num_gpus: 0
 
         # effective batch_size: train_batch_size * num_agents_in_each_environment [5, 10]
         # see https://github.com/ray-project/ray/issues/4628

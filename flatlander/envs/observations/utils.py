@@ -29,13 +29,13 @@ def min_gt(seq, val):
     return min
 
 
-def norm_obs_clip(obs, clip_min=-1, clip_max=1, fixed_radius=0, normalize_to_range=False):
+def norm_obs_clip(obs, clip_min=-1, clip_max=1, fixed_radius=0, normalize_to_range=False) -> object:
     """
     This function returns the difference between min and max value of an observation
     :param obs: Observation that should be normalized
     :param clip_min: min value where observation will be clipped
     :param clip_max: max value where observation will be clipped
-    :return: returnes normalized and clipped observatoin
+    :return: returnes normalized and clipped observation
     """
     if fixed_radius > 0:
         max_obs = fixed_radius
