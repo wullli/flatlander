@@ -8,11 +8,12 @@ ENV LANG=C.UTF-8
 ARG NB_USER
 ARG NB_UID
 ENV USER ${NB_USER}
-ENV HOME /root/
+ENV HOME /home/${NB_USER}
 
 RUN adduser --disabled-password \
     --gecos "Default user" \
     --uid ${NB_UID} \
+    --home ${HOME}
     ${NB_USER}
 
 USER root
@@ -45,6 +46,9 @@ ENV CONDA_PREFIX /root/miniconda3/envs/flatland-rl
 
 SHELL ["/bin/bash", "-c"]
 
+RUN chown -R ${NB_UID}:${NB_UID} /
+
 USER ${NB_USER}
+
 
 CMD conda --version && nvidia-smi

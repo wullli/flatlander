@@ -47,7 +47,7 @@ class FlatlanderCLI(object):
         out_dir = repo_dir.parent / "flatland-challenge-data/out"
         cmd = cmd_prefix \
               + ' -v ' + str(data_dir) + ':/tmp/flatland-out ' \
-              + ' -v ' + str(out_dir) + ':/root/ray_results ' \
+              + ' -v ' + str(out_dir) + ':/home/$USER/ray_results ' \
               + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login ' \
                                          '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
                                          'python3 /src/flatlander/scripts/baselines.py ' \
@@ -71,7 +71,7 @@ class FlatlanderCLI(object):
             cmd_prefix += ' --gpus all'
 
         cmd = cmd_prefix \
-              + ' -v ' + str(out_dir) + ':/root/ray_results ' \
+              + ' -v ' + str(out_dir) + ':/home/$USER/ray_results ' \
               + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c \'pip install -e /src && wandb login ' \
                                          '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
                                          'python3 /src/flatlander/scripts/experiment.py ' \
