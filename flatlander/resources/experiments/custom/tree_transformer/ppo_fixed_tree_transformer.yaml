@@ -26,7 +26,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
         env_config:
             observation: fixed_tree
             observation_config:
-                max_depth: 3
+                max_depth: 2
                 shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
@@ -41,19 +41,19 @@ flatland-sparse-fixed-tree-transformer-ppo:
             custom_model: fixed_tree_transformer
             custom_options:
                 n_features_per_node: 11
-                tree_depth: 3
+                tree_depth: 2
                 transformer:
-                    embedding_layers:
+                embedding_layers:
                         - 128
                         - 128
                     policy_layers:
-                        - 512
-                        - 512
+                        - 128
+                        - 128
                     value_layers:
-                        - 512
-                        - 512
+                        - 128
+                        - 128
                     d_model: 128
-                    encoder_layer_neurons: 512
+                    encoder_layer_neurons: 128
                     num_encoder_layers: 2
                     num_heads: 8
 

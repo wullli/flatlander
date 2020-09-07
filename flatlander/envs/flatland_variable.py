@@ -4,7 +4,7 @@ from pprint import pprint
 import gym
 
 from flatland.envs.malfunction_generators import malfunction_from_params, no_malfunction_generator
-from flatland.envs.rail_generators import sparse_rail_generator, RailGenerator
+from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatlander.envs import get_generator_config
 from flatlander.envs.flatland_base import FlatlandBase
@@ -15,9 +15,10 @@ from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, Skip
     DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper
 
 from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as RailEnv
+import numpy as np
 
 
-class FlatlandSparse(FlatlandBase):
+class FlatlandVariable(FlatlandBase):
 
     def __init__(self, env_config) -> None:
         super().__init__()
@@ -69,7 +70,7 @@ class FlatlandSparse(FlatlandBase):
     def action_space(self) -> gym.spaces.Space:
         return self._env.action_space
 
-    def get_rail_generator(self):
+    def _launch(self):
         rail_generator = sparse_rail_generator(
             seed=self._config['seed'],
             max_num_cities=self._config['max_num_cities'],
@@ -77,10 +78,6 @@ class FlatlandSparse(FlatlandBase):
             max_rails_between_cities=self._config['max_rails_between_cities'],
             max_rails_in_city=self._config['max_rails_in_city']
         )
-        return rail_generator
-
-    def _launch(self):
-        rail_generator = self.get_rail_generator()
 
         malfunction_generator = no_malfunction_generator()
         if {'malfunction_rate', 'malfunction_min_duration', 'malfunction_max_duration'} <= self._config.keys():
@@ -101,11 +98,12 @@ class FlatlandSparse(FlatlandBase):
         env = None
         try:
             env = RailEnv(
-                width=self._config['width'],
-                height=self._config['height'],
+                width=np.random.choice(range(self._config['min_width'], self._config['max_width'])),
+                height=np.random.choice(range(self._config['min_height'], self._config['max_height'])),
                 rail_generator=rail_generator,
                 schedule_generator=schedule_generator,
-                number_of_agents=self._config['number_of_agents'],
+                number_of_agents=np.random.choice(range(self._config['min_number_of_agents'],
+                                                        self._config['max_number_of_agents'])),
                 malfunction_generator_and_process_data=malfunction_generator,
                 obs_builder_object=self._observation.builder(),
                 remove_agents_at_target=False,

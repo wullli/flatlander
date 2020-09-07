@@ -1,14 +1,38 @@
-import sys
-sys.path.append(".")
-
 import time
 
 import numpy as np
+import ray
+import tensorflow as tf
+import yaml
+from ray.rllib.agents import sac
 
+from flatland.envs.observations import TreeObsForRailEnv
+from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.evaluators.client import FlatlandRemoteClient
-from flatlander.envs.observations.default_observation_builder import CustomObservationBuilder
+from flatlander.envs.observations.tree_obs import TreeObsForRailEnvRLLibWrapper
+from flatlander.utils.loader import load_envs
 
+tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()
+
+
+def init():
+    with open("scratch/checkpoint-51089/config.yaml") as f:
+        config = yaml.safe_load(f)
+    load_envs("./flatlander/runner")
+
+    obs_builder = TreeObsForRailEnvRLLibWrapper(
+        TreeObsForRailEnv(
+            max_depth=config["env_config"]["observation_config"]["max_depth"],
+            predictor=ShortestPathPredictorForRailEnv(
+                config["env_config"]["observation_config"]["shortest_path_max_depth"])
+        ))
+
+    ray.init(local_mode=False, num_cpus=1, num_gpus=1)
+    agent = sac.SACTrainer(config=config, env="flatland_sparse")
+    agent.restore("./scratch/checkpoint-51089/checkpoint-51089")
+    policy = agent.get_policy()
+    return policy, obs_builder
 
 
 def random_agent(_, n_agents: int):
@@ -18,59 +42,65 @@ def random_agent(_, n_agents: int):
     return _action
 
 
-obs_builder = CustomObservationBuilder()
-
-evaluation_number = 0
-while True:
-
-    evaluation_number += 1
-    time_start = time.time()
-    observation, info = remote_client.env_create(
-        obs_builder_object=obs_builder
-    )
-    env_creation_time = time.time() - time_start
-    if not observation:
-        break
-
-    print("Evaluation Number : {}".format(evaluation_number))
-
-    local_env = remote_client.env
-    number_of_agents = len(local_env.agents)
-
-    time_taken_by_controller = []
-    time_taken_per_step = []
-    steps = 0
+def evaluate(policy, obs_builder):
+    evaluation_number = 0
     while True:
+
+        evaluation_number += 1
         time_start = time.time()
-        action_list = []
-
-        action = random_agent(observation, n_agents=number_of_agents)
-
-        time_taken = time.time() - time_start
-        time_taken_by_controller.append(time_taken)
-
-        time_start = time.time()
-        observation, all_rewards, done, info = remote_client.env_step(action)
-        steps += 1
-        time_taken = time.time() - time_start
-        time_taken_per_step.append(time_taken)
-
-        if done['__all__']:
-            print("Reward : ", sum(list(all_rewards.values())))
+        observation, info = remote_client.env_create(
+            obs_builder_object=obs_builder
+        )
+        env_creation_time = time.time() - time_start
+        if not observation:
             break
 
-    np_time_taken_by_controller = np.array(time_taken_by_controller)
-    np_time_taken_per_step = np.array(time_taken_per_step)
-    print("=" * 100)
-    print("=" * 100)
-    print("Evaluation Number : ", evaluation_number)
-    print("Current Env Path : ", remote_client.current_env_path)
-    print("Env Creation Time : ", env_creation_time)
-    print("Number of Steps : ", steps)
-    print("Mean/Std of Time taken by Controller : ", np_time_taken_by_controller.mean(),
-          np_time_taken_by_controller.std())
-    print("Mean/Std of Time per Step : ", np_time_taken_per_step.mean(), np_time_taken_per_step.std())
-    print("=" * 100)
+        print("Starting evaluation #{}".format(evaluation_number))
+        print("Number of agents:", len(remote_client.env.agents))
+        print("Environment size:", remote_client.env.width, "x", remote_client.env.height)
 
-print("Evaluation of all environments complete...")
-print(remote_client.submit())
+        time_taken_by_controller = []
+        time_taken_per_step = []
+        steps = 0
+        while True:
+            time_start = time.time()
+
+            obs_batch = np.array(list(observation.values()))
+            action_batch = policy.compute_actions(obs_batch, explore=False)
+            actions = dict(zip(observation.keys(), action_batch[0]))
+
+            time_taken = time.time() - time_start
+            time_taken_by_controller.append(time_taken)
+
+            time_start = time.time()
+            observation, all_rewards, done, info = remote_client.env_step(actions)
+            steps += 1
+            time_taken = time.time() - time_start
+            time_taken_per_step.append(time_taken)
+            print('.', end='', flush=True)
+
+            if done['__all__']:
+                print("Reward : ", sum(list(all_rewards.values())))
+                break
+
+        np_time_taken_by_controller = np.array(time_taken_by_controller)
+        np_time_taken_per_step = np.array(time_taken_per_step)
+        print("=" * 100)
+        print("=" * 100)
+        print("Evaluation Number : ", evaluation_number)
+        print("Current Env Path : ", remote_client.current_env_path)
+        print("Env Creation Time : ", env_creation_time)
+        print("Number of Steps : ", steps)
+        print("Mean/Std of Time taken by Controller : ", np_time_taken_by_controller.mean(),
+              np_time_taken_by_controller.std())
+        print("Mean/Std of Time per Step : ", np_time_taken_per_step.mean(), np_time_taken_per_step.std())
+        print("=" * 100)
+
+    print("Evaluation of all environments complete...")
+    print(remote_client.submit())
+
+
+if __name__ == "__main__":
+    p, o = init()
+    evaluate(p, o)
+
