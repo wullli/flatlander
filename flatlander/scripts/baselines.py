@@ -12,7 +12,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     runner = ExperimentRunner()
     experiments_files = glob.glob(os.path.join(os.path.dirname(__file__), "..", "resources",
-                                                "baselines", "active", "**/*.yaml"))
+                                                "baselines", "open", "**/*.yaml"))
     experiments = {}
     print("RUNNING BASELINE EXPERIMENTS: ", "\n".join(experiments_files))
     for baseline_yaml in experiments_files:

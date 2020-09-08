@@ -89,7 +89,7 @@ class MyTreeObsForRailEnv(ObservationBuilder):
                     self.predicted_dir.update({t: dir_list})
                 self.max_prediction_depth = len(self.predicted_pos)
         # Update local lookup table for all agents' positions
-        # ignore other agents not in the grid (only status active and done)
+        # ignore other agents not in the grid (only status open and done)
         # self.location_has_agent = {tuple(agent.position): 1 for agent in self.envs.agents if
         #                         agent.status in [RailAgentStatus.ACTIVE, RailAgentStatus.DONE]}
 
@@ -186,7 +186,7 @@ class MyTreeObsForRailEnv(ObservationBuilder):
 
             min_fractional speed otherwise
         #12:
-            number of agents ready to depart but no yet active
+            number of agents ready to depart but no yet open
 
         Missing/padding nodes are filled in with -inf (truncated).
         Missing values in present node are filled in with +inf (truncated).

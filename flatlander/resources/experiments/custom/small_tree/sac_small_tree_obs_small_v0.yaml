@@ -11,17 +11,9 @@ sac-small-tree-obs-small-v0:
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
-        clip_rewards: False
-        vf_clip_param: 500.0
-        entropy_coeff: 0.01
-        # effective batch_size: train_batch_size * num_agents_in_each_environment [5, 10]
-        # see https://github.com/ray-project/ray/issues/4628
-        train_batch_size: 1000  # 5000
-        rollout_fragment_length: 50  # 100
-        sgd_minibatch_size: 100  # 500
-        vf_share_layers: False
+        normalize_actions: False
 
         env_config:
             observation: small_tree
@@ -35,7 +27,7 @@ sac-small-tree-obs-small-v0:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "small_tree_obs", "ppo", "baseline"] # TODO should be set programmatically
+                tags: ["small_v0", "small_tree_obs", "sac", "baseline"] # TODO should be set programmatically
 
         twin_q: True
         policy_model:
