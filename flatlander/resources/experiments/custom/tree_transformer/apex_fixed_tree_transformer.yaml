@@ -9,9 +9,9 @@ flatland-sparse-fixed-tree-transformer-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 7
-        num_envs_per_worker: 5
-        num_gpus: 1
+        num_workers: 4
+        num_envs_per_worker: 1
+        num_gpus: 0
 
         hiddens: []
         dueling: False
@@ -22,18 +22,22 @@ flatland-sparse-fixed-tree-transformer-apex:
                 max_depth: 2
                 shortest_path_max_depth: 30
 
+            sparse_reward: True
+            done_reward: 1
+            not_finished_reward: -1
+
             generator: sparse_rail_generator
             generator_config: small_v0
 
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["apex", "small_v0", "fixed", "tree", "transformer", "custom"]
+                tags: ["ppo", "small_v0", "fixed", "tree", "transformer", "custom"]
 
         model:
             custom_model: fixed_tree_transformer
             custom_options:
-                n_features_per_node: 11
+                n_features_per_node: 7
                 tree_depth: 2
                 transformer:
                     embedding_layers:
@@ -50,7 +54,7 @@ flatland-sparse-fixed-tree-transformer-apex:
                         - 512
                     d_model: 32
                     encoder_layer_neurons: 2048
-                    num_encoder_layers: 2
+                    num_encoder_layers: 4
                     num_heads: 4
                     dropout_rate: 0.25
 
