@@ -19,9 +19,10 @@
         "-f",
         "../resources/experiments/custom/small_tree/ppo_small_tree_obs_small_v0.yaml"
     ],
-    "state": "running",
+    "state": "killed",
     "jobType": null,
     "mode": "run",
     "project": "flatland",
-    "heartbeatAt": "2020-09-08T12:47:17.858687"
+    "heartbeatAt": "2020-09-08T12:49:38.993901",
+    "exitcode": 255
 }

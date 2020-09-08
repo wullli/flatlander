@@ -9,5 +9,5 @@ stages:
 build:
   stage: build
   script:
-    - docker build -t fl -f Dockerfile.gpu .
+    - ls
 

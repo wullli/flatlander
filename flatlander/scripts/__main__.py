@@ -32,7 +32,7 @@ class FlatlanderCLI(object):
     def baselines():
         # pass -d if daemon mode desired
         name = "fl_baselines"
-        cmd_prefix = 'docker run -p 8265:8265 --log-opt max-size=10m --log-opt max-file=5 --shm-size ' \
+        cmd_prefix = 'docker run --log-opt max-size=10m --log-opt max-file=5 --shm-size ' \
                      '200000000000 ' \
                      '--name ' + str(name)
 
@@ -56,11 +56,14 @@ class FlatlanderCLI(object):
 
     @staticmethod
     def experiment():
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-f', help='Experiment config file')
+        args, _ = parser.parse_known_args()
         repo_dir = Path(os.path.dirname(__file__)).parent.parent
         out_dir = repo_dir.parent / "flatland-challenge-data/out"
-        name = "fl_experiment"
+        name = "fl_experiment_" + str(args.f)
 
-        cmd_prefix = 'docker run -p 8265:8265 --log-opt max-size=1m --log-opt max-file=5 --shm-size ' \
+        cmd_prefix = 'docker run --log-opt max-size=1m --log-opt max-file=5 --shm-size ' \
                      '200000000000 ' \
                      '--name ' + str(name)
 
