@@ -39,7 +39,7 @@ class FixedTreeTransformer(TFModelV2):
                                 dtype=tf.float32, minval=-1, maxval=1)
         _, _ = self.transformer.call(inp,
                                      train_mode=False,
-                                     encoder_mask=np.zeros((100, 1, 1, 21)))
+                                     encoder_mask=np.zeros((100, 21, 21)))
 
     def forward(self, input_dict, state, seq_lens):
         """
@@ -57,7 +57,9 @@ class FixedTreeTransformer(TFModelV2):
         encoder_mask = tf.not_equal(self._padded_obs_seq, inf)
         encoder_mask = tf.cast(tf.math.reduce_all(encoder_mask, axis=2), tf.float32)
         obs_shape = tf.shape(self._padded_obs_seq)
-        encoder_mask = tf.reshape(encoder_mask, (obs_shape[0], 1, 1, obs_shape[1]))
+        encoder_mask = tf.reshape(encoder_mask, (obs_shape[0], obs_shape[1], 1))
+        encoder_mask = tf.broadcast_to(encoder_mask, (obs_shape[0], obs_shape[1], obs_shape[1]))
+
 
         self._z = self.infer(self._padded_obs_seq,
                              is_training,

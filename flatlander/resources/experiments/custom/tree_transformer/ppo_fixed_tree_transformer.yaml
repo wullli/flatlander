@@ -9,9 +9,9 @@ flatland-sparse-fixed-tree-transformer-ppo:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 7
+        num_workers: 1
         num_envs_per_worker: 1
-        num_gpus: 1
+        num_gpus: 0
 
         # effective batch_size: train_batch_size * num_agents_in_each_environment [5, 10]
         # see https://github.com/ray-project/ray/issues/4628
@@ -20,8 +20,10 @@ flatland-sparse-fixed-tree-transformer-ppo:
         sgd_minibatch_size: 100  # 500
         num_sgd_iter: 10
         batch_mode: complete_episodes
-        vf_share_layers: False
+        vf_share_layers: True
         vf_clip_param: 500
+        vf_loss_coeff: 0.01
+        lr: 0.005
 
         env_config:
             observation: fixed_tree
@@ -44,12 +46,15 @@ flatland-sparse-fixed-tree-transformer-ppo:
                 tree_depth: 2
                 transformer:
                     embedding_layers:
-                        - 128
-                        - 128
+                        - 512
+                        - 512
+                        - 512
                     policy_layers:
                         - 512
                         - 512
+                        - 512
                     value_layers:
+                        - 512
                         - 512
                         - 512
                     d_model: 32
