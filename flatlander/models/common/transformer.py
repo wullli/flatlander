@@ -2,7 +2,7 @@ from typing import List
 
 import tensorflow as tf
 
-from tensorflow_addons.layers import MultiHeadAttention
+from flatlander.models.common.attention import MultiHeadAttention
 from flatlander.models.common.positional_tree_encoding import ShivQuirkPositionalEncoding
 
 
@@ -116,7 +116,7 @@ class EncoderLayer(tf.keras.layers.Layer):
         self.dropout_2 = tf.keras.layers.Dropout(rate)
 
     def call(self, x, training, mask):
-        attn_output = self.mha([x, x, x], mask=mask)  # (batch_size, input_seq_len, d_model)
+        attn_output = self.mha(x, x, x, mask)  # (batch_size, input_seq_len, d_model)
         attn_output = self.dropout_1(attn_output, training=training)
         out1 = self.layer_norm_1(x + attn_output)  # (batch_size, input_seq_len, d_model)
 
