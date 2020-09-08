@@ -22,13 +22,16 @@ flatland-sparse-fixed-tree-transformer-ppo:
         batch_mode: complete_episodes
         vf_share_layers: False
         vf_clip_param: 500
-        lr: 0.000001
 
         env_config:
             observation: fixed_tree
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
+
+            sparse_reward: True
+            done_reward: 1
+            not_finished_reward: -1
 
             generator: sparse_rail_generator
             generator_config: small_v0
@@ -58,7 +61,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
                         - 512
                     d_model: 32
                     encoder_layer_neurons: 2048
-                    num_encoder_layers: 2
+                    num_encoder_layers: 4
                     num_heads: 4
                     dropout_rate: 0.25
 
