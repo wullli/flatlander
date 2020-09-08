@@ -99,16 +99,6 @@ class FlatlanderCLI(object):
         args = parser.parse_args(sys.argv[2:])
         os.system('docker load -i ' + args.input)
 
-    @staticmethod
-    def logs():
-        parser = argparse.ArgumentParser(description='Flatlander CLI interface')
-        parser.add_argument('-t', '--type', help='if experiment or baselines run',
-                            default="experiment",
-                            choices=["experiment", "baselines"])
-        args, unknown = parser.parse_known_args(sys.argv[2:])
-        docker_args = " ".join(unknown)
-        os.system('docker logs fl_' + args.type + " " + docker_args)
-
 
 def main():
     FlatlanderCLI()
