@@ -2,10 +2,20 @@ import tensorflow as tf
 
 
 class MultiHeadAttention(tf.keras.layers.Layer):
-    def __init__(self, d_model, num_heads):
+    def __init__(self, d_model, num_heads, learn_scale=True):
         super(MultiHeadAttention, self).__init__()
         self.num_heads = num_heads
         self.d_model = d_model
+        self.learn_scale = learn_scale
+
+        self.scale = 1.0
+        if self.learn_scale:
+            self.scale = self.add_weight(
+                name="scale",
+                shape=(),
+                initializer=tf.constant_initializer(1.0),
+                trainable=True,
+            )
 
         assert d_model % self.num_heads == 0
 
@@ -50,8 +60,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
         return output, attention_weights
 
-    @staticmethod
-    def scaled_dot_product_attention(q, k, v, mask):
+    def scaled_dot_product_attention(self, q, k, v, mask):
         """Calculate the attention weights.
         q, k, v must have matching leading dimensions.
         k, v must have matching penultimate dimension, i.e.: seq_len_k = seq_len_v.
@@ -72,8 +81,11 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         matmul_qk = tf.matmul(q, k, transpose_b=True)  # (..., seq_len_q, seq_len_k)
 
         # scale matmul_qk
-        dk = tf.cast(tf.shape(k)[-1], tf.float32)
-        scaled_attention_logits = matmul_qk / tf.math.sqrt(dk)
+        if self.learn_scale:
+            scaled_attention_logits = matmul_qk * self.scale
+        else:
+            dk = tf.cast(tf.shape(k)[-1], tf.float32)
+            scaled_attention_logits = matmul_qk / tf.math.sqrt(dk)
 
         # add the mask to the scaled tensor.
         if mask is not None:

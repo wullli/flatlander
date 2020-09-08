@@ -2,7 +2,7 @@ flatland-sparse-positional-tree-transformer-ppo:
     run: PPO
     env: flatland_sparse
     stop:
-        timesteps_total: 2000000  # 2e6
+        timesteps_total: 15000000  # 15e6
     checkpoint_freq: 10
     checkpoint_at_end: True
     keep_checkpoints_num: 5
@@ -28,10 +28,6 @@ flatland-sparse-positional-tree-transformer-ppo:
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
-
-            sparse_reward: True
-            done_reward: 1
-            not_finished_reward: -1
 
             generator: sparse_rail_generator
             generator_config: small_v0
@@ -63,5 +59,5 @@ flatland-sparse-positional-tree-transformer-ppo:
 
                     encoder_layer_neurons: 2048
                     num_encoder_layers: 4
-                    dropout_rate: 0.25
+                    dropout_rate: 0.1
 
