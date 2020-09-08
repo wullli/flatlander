@@ -127,3 +127,4 @@ scratch/test-envs/
 scratch/
 **/.idea
 **/.ipynb_checkpoints
+flatlander/scripts/wandb/
