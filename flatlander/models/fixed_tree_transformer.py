@@ -5,7 +5,6 @@ import numpy as np
 import tensorflow as tf
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 
-from flatlander.envs.observations.fixed_tree_obs import FixedTreeObservation
 from flatlander.models.common.transformer import Transformer
 
 
@@ -45,7 +44,7 @@ class FixedTreeTransformer(TFModelV2):
         """
         To debug use breakpoint with: tf.reduce_any(tf.equal(encoder_mask, 0.).numpy()
         """
-        obs: tf.Tensor= input_dict['obs']
+        obs: tf.Tensor = input_dict['obs']
         is_training = False
         if 'is_training' in input_dict.keys():
             is_training = input_dict['is_training']
@@ -57,9 +56,7 @@ class FixedTreeTransformer(TFModelV2):
         encoder_mask = tf.not_equal(self._padded_obs_seq, inf)
         encoder_mask = tf.cast(tf.math.reduce_all(encoder_mask, axis=2), tf.float32)
         obs_shape = tf.shape(self._padded_obs_seq)
-        encoder_mask = tf.reshape(encoder_mask, (obs_shape[0], obs_shape[1], 1))
-        encoder_mask = tf.broadcast_to(encoder_mask, (obs_shape[0], obs_shape[1], obs_shape[1]))
-
+        encoder_mask = tf.reshape(encoder_mask, (obs_shape[0], 1, 1, obs_shape[1]))
 
         self._z = self.infer(self._padded_obs_seq,
                              is_training,

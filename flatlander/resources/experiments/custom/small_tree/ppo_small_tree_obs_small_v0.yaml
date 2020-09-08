@@ -7,7 +7,7 @@ ppo-small-tree-obs-small-v0:
     checkpoint_at_end: True
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
-    num_samples: 3
+    num_samples: 1
     config:
         num_workers: 7
         num_envs_per_worker: 5
@@ -22,11 +22,12 @@ ppo-small-tree-obs-small-v0:
         rollout_fragment_length: 50  # 100
         sgd_minibatch_size: 100  # 500
         vf_share_layers: False
+        lr: 0.005
 
         env_config:
             observation: small_tree
             observation_config:
-                max_depth: 2
+                max_depth: 3
                 shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
@@ -39,5 +40,5 @@ ppo-small-tree-obs-small-v0:
 
         model:
             fcnet_activation: relu
-            fcnet_hiddens: [256, 256]
+            fcnet_hiddens: [512, 512]
             vf_share_layers: True  # False
