@@ -22,7 +22,6 @@ ppo-small-tree-obs-small-v0:
         rollout_fragment_length: 50  # 100
         sgd_minibatch_size: 100  # 500
         vf_share_layers: False
-        lr: 0.005
 
         env_config:
             observation: small_tree

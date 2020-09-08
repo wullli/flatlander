@@ -29,6 +29,10 @@ flatland-sparse-positional-tree-transformer-ppo:
                 max_depth: 2
                 shortest_path_max_depth: 30
 
+            sparse_reward: True
+            done_reward: 1
+            not_finished_reward: -1
+
             generator: sparse_rail_generator
             generator_config: small_v0
 
@@ -42,7 +46,7 @@ flatland-sparse-positional-tree-transformer-ppo:
             custom_options:
                 n_features_per_node: 11
                 tree_depth: 2
-                vf_share_layers: True
+                vf_share_layers: False
                 transformer:
                     embedding_layers:
                         - 512
@@ -58,6 +62,6 @@ flatland-sparse-positional-tree-transformer-ppo:
                         - 512
 
                     encoder_layer_neurons: 2048
-                    num_encoder_layers: 2
+                    num_encoder_layers: 4
                     dropout_rate: 0.25
 
