@@ -30,12 +30,25 @@ class FixedTreeObservationTest(unittest.TestCase):
         print(obs)
         assert np.all(obs[-1] != -1)
 
-    def test__leaf_position(self):
+    def test_leaf_position_forward_tree(self):
         self.prep_obs_forward()
         obs = self.obs.builder().get(handle=0)
         print(obs)
-        assert np.all(obs[0] != -np.inf)
-        assert np.all(obs[1] != -np.inf)
-        assert np.all(obs[4] != -np.inf)
-        assert np.all(obs[5] != -np.inf)
+        assert np.all(obs[0] != -1)
+        assert np.all(obs[1] != -1)
+        assert np.all(obs[4] != -1)
+        assert np.all(obs[15] != -1)
+        assert np.all(obs[16] != -1)
+        assert np.all(obs[19] != -1)
+        assert np.all(obs[20] != -1)
+
+    def test_leaf_position_left_tree(self):
+        self.prep_obs()
+        obs = self.obs.builder().get(handle=0)
+        print(obs)
+        assert np.all(obs[13] != -1)
+        assert np.all(obs[14] != -1)
+        assert np.all(obs[18] != -1)
+        assert np.all(obs[19] != -1)
+        assert np.all(obs[20] != -1)
 

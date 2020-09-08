@@ -58,9 +58,9 @@ class FixedTreeObsWrapper(ObservationBuilder):
 
     def get(self, handle: int = 0):
         obs: TreeObsForRailEnv.Node = self._builder.get(handle)
-        return self._build_pairs(obs)
+        return self.build_obs(obs)
 
-    def _build_pairs(self, obs_node: TreeObsForRailEnv.Node):
+    def build_obs(self, obs_node: TreeObsForRailEnv.Node):
         padded_observations = np.full(shape=(self.max_nr_nodes, self.observation_dim,),
                                       fill_value=FixedTreeObservation.PAD_VALUE)
         self.dfs(obs_node, padded_observations)
@@ -68,7 +68,7 @@ class FixedTreeObsWrapper(ObservationBuilder):
         return padded_observations
 
     def get_many(self, handles: Optional[List[int]] = None):
-        result = {k: self._build_pairs(o)
+        result = {k: self.build_obs(o)
                   for k, o in self._builder.get_many(handles).items() if o is not None}
         return result
 
