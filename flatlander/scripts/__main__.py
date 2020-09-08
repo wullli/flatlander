@@ -61,7 +61,9 @@ class FlatlanderCLI(object):
         args, _ = parser.parse_known_args()
         repo_dir = Path(os.path.dirname(__file__)).parent.parent
         out_dir = repo_dir.parent / "flatland-challenge-data/out"
-        name = "fl_experiment_" + str(args.f)
+        base = os.path.basename(args.f)
+        exp_name = os.path.splitext(base)[0]
+        name = "fl_experiment_" + str(exp_name)
 
         cmd_prefix = 'docker run --log-opt max-size=1m --log-opt max-file=5 --shm-size ' \
                      '200000000000 ' \
