@@ -38,7 +38,7 @@ class FixedTreeTransformer(TFModelV2):
                                 dtype=tf.float32, minval=-1, maxval=1)
         _, _ = self.transformer.call(inp,
                                      train_mode=False,
-                                     encoder_mask=np.zeros((100, 21, 21)))
+                                     encoder_mask=np.zeros((100, 1, 1, 21)))
 
     def forward(self, input_dict, state, seq_lens):
         """

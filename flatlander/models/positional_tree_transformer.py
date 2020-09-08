@@ -48,7 +48,7 @@ class PositionalTreeTransformer(TFModelV2):
                                      train_mode=False,
                                      positional_encoding=tf.cast(
                                          tf.expand_dims(np.zeros((21, self.positional_encoding_dim)), 0),
-                                         dtype=tf.float32), encoder_mask=np.zeros((100, 21, 21)))
+                                         dtype=tf.float32), encoder_mask=np.zeros((100, 1, 1, 21)))
 
     def forward(self, input_dict, state, seq_lens):
         """
