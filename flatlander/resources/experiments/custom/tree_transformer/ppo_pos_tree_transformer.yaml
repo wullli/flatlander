@@ -2,7 +2,7 @@ flatland-sparse-positional-tree-transformer-ppo:
     run: PPO
     env: flatland_sparse
     stop:
-        timesteps_total: 10000000  # 1e7
+        timesteps_total: 2000000  # 2e6
     checkpoint_freq: 10
     checkpoint_at_end: True
     keep_checkpoints_num: 5
