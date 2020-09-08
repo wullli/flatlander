@@ -57,7 +57,7 @@ flatland-sparse-positional-tree-transformer-ppo:
                         - 512
                         - 512
 
-                    encoder_layer_neurons: 2048
-                    num_encoder_layers: 4
+                    encoder_layer_neurons: 512
+                    num_encoder_layers: 2
                     dropout_rate: 0.1
 
