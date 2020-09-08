@@ -52,7 +52,7 @@ class PositionalTreeObsWrapper(ObservationBuilder):
 
     @property
     def observation_dim(self):
-        return self._builder.observation_dim
+        return self._builder.observation_dim - 4
 
     @property
     def positional_encoding_len(self):
@@ -93,23 +93,19 @@ class PositionalTreeObsWrapper(ObservationBuilder):
         self._builder.set_env(env)
 
     def _get_node_feature_vector(self, node: TreeObsForRailEnv.Node) -> np.ndarray:
-        data = np.zeros(6)
+        data = np.zeros(3)
         distance = np.zeros(1)
-        agent_data = np.zeros(4)
+        agent_data = np.zeros(3)
 
         data[0] = node.dist_own_target_encountered
-        data[1] = node.dist_other_target_encountered
-        data[2] = node.dist_other_agent_encountered
-        data[3] = node.dist_potential_conflict
-        data[4] = node.dist_unusable_switch
-        data[5] = node.dist_to_next_branch
+        data[1] = node.dist_potential_conflict
+        data[2] = node.dist_unusable_switch
 
         distance[0] = node.dist_min_to_target
 
-        agent_data[0] = node.num_agents_same_direction
-        agent_data[1] = node.num_agents_opposite_direction
-        agent_data[2] = node.num_agents_malfunctioning
-        agent_data[3] = node.speed_min_fractional
+        agent_data[0] = node.num_agents_opposite_direction
+        agent_data[1] = node.num_agents_malfunctioning
+        agent_data[2] = node.speed_min_fractional
 
         data = norm_obs_clip(data, fixed_radius=10)
         distance = norm_obs_clip(distance, fixed_radius=100)

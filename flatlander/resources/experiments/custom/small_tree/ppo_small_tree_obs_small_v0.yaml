@@ -10,7 +10,7 @@ ppo-small-tree-obs-small-v0:
     num_samples: 1
     config:
         num_workers: 7
-        num_envs_per_worker: 5
+        num_envs_per_worker: 1
         num_gpus: 0
 
         clip_rewards: False
