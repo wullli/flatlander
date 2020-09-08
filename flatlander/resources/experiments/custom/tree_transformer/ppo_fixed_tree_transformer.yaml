@@ -20,10 +20,9 @@ flatland-sparse-fixed-tree-transformer-ppo:
         sgd_minibatch_size: 100  # 500
         num_sgd_iter: 10
         batch_mode: complete_episodes
-        vf_share_layers: True
+        vf_share_layers: False
         vf_clip_param: 500
-        vf_loss_coeff: 0.01
-        lr: 0.005
+        lr: 0.000001
 
         env_config:
             observation: fixed_tree
