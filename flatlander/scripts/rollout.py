@@ -12,6 +12,7 @@ from pathlib import Path
 import gym
 import numpy as np
 import ray
+import yaml
 from ray.rllib.agents.registry import get_agent_class
 from ray.rllib.env import MultiAgentEnv
 from ray.rllib.env.base_env import _DUMMY_AGENT_ID
@@ -37,8 +38,8 @@ python rollout.py /Users/flaurent/Sites/flatland/flatland-checkpoints/checkpoint
 """
 
 # Register all necessary assets in tune registries
-load_envs(os.path.join(os.getcwd(), ".."))  # Load envs
-load_models(os.path.join(os.getcwd(), ".."))  # Load models
+load_envs(os.path.dirname(__file__))  # Load envs
+load_envs(os.path.dirname(__file__))  # Load models
 
 
 class RolloutSaver:
@@ -184,7 +185,7 @@ def create_parser(parser_creator=None):
              "user-defined trainable function or class registered in the "
              "tune registry.")
     required_named.add_argument(
-        "--envs", type=str, help="The gym environment to use.")
+        "--env", type=str, help="The gym environment to use.")
     parser.add_argument(
         "--no-render",
         default=False,
@@ -236,22 +237,20 @@ def run(args, parser):
     config = {}
     # Load configuration from file
     config_dir = os.path.dirname(args.checkpoint)
-    config_path = os.path.join(config_dir, "params.pkl")
-    if not os.path.exists(config_path):
-        config_path = os.path.join(config_dir, "../params.pkl")
+    config_path = os.path.join(config_dir, "config.yaml")
     if not os.path.exists(config_path):
         if not args.config:
             raise ValueError(
-                "Could not find params.pkl in either the checkpoint dir or "
+                "Could not find config.yaml in either the checkpoint dir or "
                 "its parent directory.")
     else:
         with open(config_path, "rb") as f:
-            config = pickle.load(f)
+            config = yaml.load(f)
     if "num_workers" in config:
         config["num_workers"] = min(2, config["num_workers"])
     config = merge_dicts(config, args.config)
     if not args.env:
-        if not config.get("envs"):
+        if not config.get("env"):
             parser.error("the following arguments are required: --envs")
         args.env = config.get("envs")
 

@@ -61,6 +61,7 @@ class FlatlandVariable(FlatlandBase):
                                                  discounting=env_config.get('discounting', 1.))
         if env_config.get('available_actions_obs', False):
             self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
+            
 
     @property
     def observation_space(self) -> gym.spaces.Space:
@@ -97,13 +98,15 @@ class FlatlandVariable(FlatlandBase):
 
         env = None
         try:
+            np.random.choice(range(self._config['min_width'], self._config['max_width']))
+            np.random.choice(range(self._config['min_height'], self._config['max_height']))
+            n_agents = n_agentsn+ceiling(10**len(n_agents)−1)∗0.75
             env = RailEnv(
-                width=np.random.choice(range(self._config['min_width'], self._config['max_width'])),
-                height=np.random.choice(range(self._config['min_height'], self._config['max_height'])),
+                width=,
+                height=,
                 rail_generator=rail_generator,
                 schedule_generator=schedule_generator,
-                number_of_agents=np.random.choice(range(self._config['min_number_of_agents'],
-                                                        self._config['max_number_of_agents'])),
+                number_of_agents=,
                 malfunction_generator_and_process_data=malfunction_generator,
                 obs_builder_object=self._observation.builder(),
                 remove_agents_at_target=False,
