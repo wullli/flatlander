@@ -15,7 +15,7 @@ class TransformerLearningRateSchedule:
 
     @DeveloperAPI
     def __init__(self, d_model, warmup_steps):
-        self.cur_lr = tf.get_variable("lr", initializer=0.001, trainable=False)
+        self.cur_lr = tf.get_variable("lr", initializer=0.0001, trainable=False)
         self.cur_step = tf.get_variable("cur_step", initializer=1.0, trainable=False)
         self.d_model = d_model
         self.d_model = tf.cast(self.d_model, tf.float32)
@@ -28,7 +28,7 @@ class TransformerLearningRateSchedule:
         arg1 = tf.math.rsqrt(self.cur_step)
         arg2 = self.cur_step * (self.warmup_steps ** -1.5)
         lr = tf.math.rsqrt(self.d_model) * tf.math.minimum(arg1, arg2)
-        self.cur_lr = tf.multiply(lr, 0.1)
+        self.cur_lr.assign(tf.multiply(lr, 0.1))
 
     @override(TFPolicy)
     def optimizer(self):
