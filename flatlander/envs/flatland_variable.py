@@ -99,9 +99,6 @@ class FlatlandVariable(FlatlandBase):
 
         env = None
         try:
-            np.random.choice(range(self._config['min_width'], self._config['max_width']))
-            np.random.choice(range(self._config['min_height'], self._config['max_height']))
-
             env = RailEnv(
                 width=dim,
                 height=dim,
