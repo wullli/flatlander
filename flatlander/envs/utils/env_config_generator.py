@@ -12,6 +12,6 @@ indexes = np.array(list(range(len(env_vals))))
 def get_round_2_env():
     row = np.random.choice(indexes)
     n_agents = env_vals[row, 0]
-    n_cities = env_vals[row, 1]
-    dim = env_vals[row, 2]
+    dim = env_vals[row, 1]
+    n_cities = env_vals[row, 2]
     return n_agents, n_cities, dim

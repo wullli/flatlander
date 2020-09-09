@@ -3,7 +3,8 @@ from pprint import pprint
 
 import gym
 
-from flatland.envs.malfunction_generators import malfunction_from_params, no_malfunction_generator
+from flatland.envs.malfunction_generators import malfunction_from_params, no_malfunction_generator, NoMalfunctionGen, \
+    ParamMalfunctionGen
 from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatlander.envs import get_generator_config
@@ -82,14 +83,16 @@ class FlatlandVariable(FlatlandBase):
             max_rails_in_city=self._config['max_rails_in_city']
         )
 
-        malfunction_generator = no_malfunction_generator()
+        rail_generator = self.get_rail_generator()
+
+        malfunction_generator = NoMalfunctionGen()
         if {'malfunction_rate', 'malfunction_min_duration', 'malfunction_max_duration'} <= self._config.keys():
             stochastic_data = {
                 'malfunction_rate': self._config['malfunction_rate'],
                 'min_duration': self._config['malfunction_min_duration'],
                 'max_duration': self._config['malfunction_max_duration']
             }
-            malfunction_generator = malfunction_from_params(stochastic_data)
+            malfunction_generator = ParamMalfunctionGen(stochastic_data)
 
         speed_ratio_map = None
         if 'speed_ratio_map' in self._config:
