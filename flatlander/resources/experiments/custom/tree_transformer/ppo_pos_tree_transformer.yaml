@@ -30,6 +30,7 @@ flatland-sparse-positional-tree-transformer-ppo:
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
+                small_tree: False
 
             generator: sparse_rail_generator
             generator_config: small_v0
@@ -42,14 +43,10 @@ flatland-sparse-positional-tree-transformer-ppo:
         model:
             custom_model: positional_tree_transformer
             custom_options:
-                n_features_per_node: 7
+                n_features_per_node: 11
                 tree_depth: 2
                 vf_share_layers: False
                 transformer:
-                    embedding_layers:
-                        - 512
-                        - 512
-                        - 512
                     policy_layers:
                         - 512
                         - 512

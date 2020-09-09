@@ -31,15 +31,12 @@ class TreeCNN(tf.keras.Model):
 
         self.conv_1 = tf.keras.layers.Conv1D(filters=64, activation="relu", kernel_size=3)
         self.conv_2 = tf.keras.layers.Conv1D(filters=64, activation="relu", kernel_size=3)
-        self.max_pool_1 = tf.keras.layers.MaxPool1D(pool_size=2)
 
         self.conv_3 = tf.keras.layers.Conv1D(filters=128, activation="relu", kernel_size=3)
         self.conv_4 = tf.keras.layers.Conv1D(filters=128, activation="relu", kernel_size=3)
-        self.max_pool_2 = tf.keras.layers.MaxPool1D(pool_size=2)
 
         self.conv_5 = tf.keras.layers.Conv1D(filters=256, activation="relu", kernel_size=3)
         self.conv_6 = tf.keras.layers.Conv1D(filters=256, activation="relu", kernel_size=3)
-        self.max_pool_3 = tf.keras.layers.MaxPool1D(pool_size=2)
 
         self.value_layers = [tf.keras.layers.Dense(neurons, activation="relu")
                              for neurons in value_layers]
@@ -55,30 +52,28 @@ class TreeCNN(tf.keras.Model):
 
         c_x = self.conv_1(input)
         c_x = self.conv_2(c_x)
-        c_x = self.max_pool_1(c_x)
         c_x = self.dropout_1(c_x, training=train_mode)
 
         c_x = self.conv_3(c_x)
         c_x = self.conv_4(c_x)
-        c_x = self.max_pool_2(c_x)
+        c_x = self.dropout_2(c_x, training=train_mode)
 
         c_x = self.conv_5(c_x)
         c_x = self.conv_6(c_x)
-        c_x = self.max_pool_3(c_x)
+        c_x = self.dropout_3(c_x, training=train_mode)
 
-        c_x = self.dropout_1(c_x, training=train_mode)
         c_x = self.flatten(c_x)
 
         p_x = c_x
         for i in range(len(self.policy_layers)):
             p_x = self.policy_layers[i](p_x)
-        p_x = self.dropout_3(p_x, training=train_mode)
+        p_x = self.dropout_4(p_x, training=train_mode)
         policy_out = self.policy_out(p_x)
 
         v_x = c_x
         for i in range(len(self.value_layers)):
             v_x = self.value_layers[i](v_x)
-        v_x = self.dropout_4(v_x, training=train_mode)
+        v_x = self.dropout_5(v_x, training=train_mode)
         value_out = self.value_out(v_x)
 
         return policy_out, value_out

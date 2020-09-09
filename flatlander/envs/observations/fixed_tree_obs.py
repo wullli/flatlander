@@ -8,7 +8,7 @@ from flatland.envs.observations import TreeObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnvActions
 from flatlander.envs.observations import Observation, register_obs
-from flatlander.envs.observations.utils import norm_obs_clip
+from flatlander.envs.observations.utils import norm_obs_clip, _get_small_node_feature_vector, _get_node_feature_vector
 
 
 @register_obs("fixed_tree")
@@ -21,7 +21,8 @@ class FixedTreeObservation(Observation):
             TreeObsForRailEnv(
                 max_depth=config['max_depth'],
                 predictor=ShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
-            )
+            ),
+            small_tree=config.get('small_tree', None)
         )
 
     def builder(self) -> ObservationBuilder:
@@ -34,10 +35,11 @@ class FixedTreeObservation(Observation):
 
 class FixedTreeObsWrapper(ObservationBuilder):
 
-    def __init__(self, tree_obs_builder: TreeObsForRailEnv):
+    def __init__(self, tree_obs_builder: TreeObsForRailEnv, small_tree=False):
         super().__init__()
         self._builder = tree_obs_builder
         self._max_nr_nodes = 0
+        self._small_tree = small_tree
         self._available_actions = [RailEnvActions.MOVE_FORWARD,
                                    RailEnvActions.DO_NOTHING,
                                    RailEnvActions.MOVE_LEFT,
@@ -47,7 +49,10 @@ class FixedTreeObsWrapper(ObservationBuilder):
 
     @property
     def observation_dim(self):
-        return self._builder.observation_dim - 3
+        if self._small_tree:
+            return self._builder.observation_dim - 3
+        else:
+            return self._builder.observation_dim
 
     @property
     def max_nr_nodes(self):
@@ -75,31 +80,6 @@ class FixedTreeObsWrapper(ObservationBuilder):
     def set_env(self, env):
         self._builder.set_env(env)
 
-    @staticmethod
-    def _get_node_feature_vector(node: TreeObsForRailEnv.Node) -> np.ndarray:
-
-        data = np.zeros(4)
-        distance = np.zeros(1)
-        agent_data = np.zeros(3)
-
-        data[0] = node.dist_own_target_encountered
-        data[1] = node.dist_potential_conflict
-        data[2] = node.dist_unusable_switch
-        data[3] = node.dist_other_agent_encountered
-
-        distance[0] = node.dist_min_to_target
-
-        agent_data[0] = node.num_agents_opposite_direction
-        agent_data[1] = node.num_agents_malfunctioning
-        agent_data[2] = node.speed_min_fractional
-
-        data = norm_obs_clip(data, fixed_radius=10)
-        distance = norm_obs_clip(distance, fixed_radius=100)
-        agent_data = np.clip(agent_data, -1, 1)
-        normalized_obs = np.concatenate([data, distance, agent_data])
-
-        return normalized_obs
-
     def dfs(self, node: TreeObsForRailEnv.Node,
             node_observations: np.ndarray, current_level=0, abs_pos=0):
         """
@@ -119,7 +99,8 @@ class FixedTreeObsWrapper(ObservationBuilder):
             elif current_level != self._builder.max_depth:
                 abs_pos += self._count_missing_nodes(current_level + 1)
 
-        node_observations[abs_pos, :] = self._get_node_feature_vector(node)
+        node_obs = _get_small_node_feature_vector(node) if self._small_tree else _get_node_feature_vector(node)
+        node_observations[abs_pos, :] = node_obs
         return abs_pos + 1
 
     def _count_missing_nodes(self, tree_level):

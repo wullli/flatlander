@@ -1,5 +1,7 @@
 import numpy as np
 
+from flatland.envs.observations import TreeObsForRailEnv
+
 
 def max_lt(seq, val):
     """
@@ -51,3 +53,55 @@ def norm_obs_clip(obs, clip_min=-1, clip_max=1, fixed_radius=0, normalize_to_ran
         return np.clip(np.array(obs) / max_obs, clip_min, clip_max)
     norm = np.abs(max_obs - min_obs)
     return np.clip((np.array(obs) - min_obs) / norm, clip_min, clip_max)
+
+
+def _get_small_node_feature_vector(node: TreeObsForRailEnv.Node) -> np.ndarray:
+    data = np.zeros(4)
+    distance = np.zeros(1)
+    agent_data = np.zeros(3)
+
+    data[0] = node.dist_own_target_encountered
+    data[1] = node.dist_potential_conflict
+    data[2] = node.dist_unusable_switch
+    data[3] = node.dist_other_agent_encountered
+
+    distance[0] = node.dist_min_to_target
+
+    agent_data[0] = node.num_agents_opposite_direction
+    agent_data[1] = node.num_agents_malfunctioning
+    agent_data[2] = node.speed_min_fractional
+
+    data = norm_obs_clip(data, fixed_radius=10)
+    distance = norm_obs_clip(distance, fixed_radius=100)
+    agent_data = np.clip(agent_data, -1, 1)
+    normalized_obs = np.concatenate([data, distance, agent_data])
+
+    return normalized_obs
+
+
+def _get_node_feature_vector(node: TreeObsForRailEnv.Node) -> (np.ndarray, np.ndarray, np.ndarray):
+    data = np.zeros(6)
+    distance = np.zeros(1)
+    agent_data = np.zeros(4)
+
+    data[0] = node.dist_own_target_encountered
+    data[1] = node.dist_other_target_encountered
+    data[2] = node.dist_other_agent_encountered
+    data[3] = node.dist_potential_conflict
+    data[4] = node.dist_unusable_switch
+    data[5] = node.dist_to_next_branch
+
+    distance[0] = node.dist_min_to_target
+
+    agent_data[0] = node.num_agents_same_direction
+    agent_data[1] = node.num_agents_opposite_direction
+    agent_data[2] = node.num_agents_malfunctioning
+    agent_data[3] = node.speed_min_fractional
+
+    data = norm_obs_clip(data, fixed_radius=10)
+    distance = norm_obs_clip(distance, fixed_radius=100)
+    agent_data = np.clip(agent_data, -1, 1)
+    normalized_obs = np.concatenate([data, distance, agent_data])
+
+    return normalized_obs
+

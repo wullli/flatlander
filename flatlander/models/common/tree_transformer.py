@@ -17,7 +17,6 @@ class Transformer(tf.keras.Model):
                  encoder_layer_neurons,
                  value_layers: List[int],
                  policy_layers: List[int],
-                 embedding_layers: List[int],
                  n_actions,
                  dropout_rate=0.1,
                  use_positional_encoding=True):
@@ -33,19 +32,20 @@ class Transformer(tf.keras.Model):
                                d_model,
                                num_heads,
                                encoder_layer_neurons,
-                               embedding_layers,
                                dropout_rate,
                                use_positional_encoding)
 
         self.dropout_1 = tf.keras.layers.Dropout(dropout_rate)
         self.dropout_2 = tf.keras.layers.Dropout(dropout_rate)
         self.dropout_3 = tf.keras.layers.Dropout(dropout_rate)
+
         self.value_layers = [tf.keras.layers.Dense(neurons, activation="relu")
                              for neurons in value_layers]
         self.policy_layers = [tf.keras.layers.Dense(neurons, activation="relu")
                               for neurons in policy_layers]
-        self.conv_1 = tf.keras.layers.Conv1D(32, activation="relu", kernel_size=3)
-        self.conv_2 = tf.keras.layers.Conv1D(64, activation="relu", kernel_size=3)
+
+        self.conv_1 = tf.keras.layers.Conv1D(64, activation="relu", kernel_size=3)
+        self.conv_2 = tf.keras.layers.Conv1D(128, activation="relu", kernel_size=3)
 
         self.policy = tf.keras.layers.Dense(n_actions)
         self.value = tf.keras.layers.Dense(1)
@@ -62,7 +62,6 @@ class Transformer(tf.keras.Model):
 
         c_x = self.conv_1(enc_output)
         c_x = self.conv_2(c_x)
-        c_x = self.max_pool(c_x)
         c_x = self.dropout_1(c_x, training=train_mode)
         c_x = self.flatten(c_x)
 
@@ -87,45 +86,23 @@ class Encoder(tf.keras.layers.Layer):
                  d_model,
                  num_heads,
                  dense_neurons,
-                 embedding_layers: List[int],
                  rate=0.1,
                  use_positional_encoding=True):
         super(Encoder, self).__init__()
         self.use_positional_encoding = use_positional_encoding
-
         self.d_model = d_model
         self.num_layers = num_layers
-
-        self.conv_1 = tf.keras.layers.Conv1D(filters=64, activation="relu", kernel_size=3)
-        self.conv_2 = tf.keras.layers.Conv1D(filters=64, activation="relu", kernel_size=3)
-
-        self.conv_3 = tf.keras.layers.Conv1D(filters=128, activation="relu", kernel_size=3)
-        self.conv_4 = tf.keras.layers.Conv1D(filters=128, activation="relu", kernel_size=3)
-
-        self.flatten = tf.keras.layers.Flatten()
-
         self.embedding_out = tf.keras.layers.Dense(d_model, activation="relu")
 
-        self.enc_layers = [EncoderLayer(d_model, num_heads, dense_neurons, rate)
+        self.enc_layers = [EncoderLayer(d_model, num_heads, dense_neurons, rate=rate)
                            for _ in range(num_layers)]
 
         self.dropout = tf.keras.layers.Dropout(rate)
 
     def call(self, x, training, positional_encoding, encoder_mask):
 
-        x = self.conv_1(x)
-        x = self.conv_2(x)
-        x = self.max_pool_1(x)
-        x = self.dropout_1(x, training=training)
-
-        x = self.conv_3(x)
-        x = self.conv_4(x)
-        x = self.max_pool_2(x)
-        x = self.flatten(x)
-
-        x = self.embedding_out(x)
-
         if self.use_positional_encoding:
+            x = self.embedding_out(x)
             x += positional_encoding
 
         x = self.dropout(x, training=training)

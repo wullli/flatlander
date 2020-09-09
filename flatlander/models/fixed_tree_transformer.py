@@ -28,6 +28,7 @@ class FixedTreeTransformer(TFModelV2):
         self._logger = logging.getLogger(FixedTreeTransformer.__name__)
 
         self.transformer = Transformer(n_actions=self.action_space.n,
+                                       d_model=self._n_features_per_node,
                                        use_positional_encoding=False, **self._options["transformer"])
 
         self._test_transformer()
