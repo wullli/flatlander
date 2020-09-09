@@ -9,7 +9,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 4
+        num_workers: 5
         num_envs_per_worker: 5
         num_gpus: 1
 
@@ -62,7 +62,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
                     dropout_rate: 0.1
 
         evaluation_num_workers: 2
-        evaluation_interval: 10
+        evaluation_interval: 100
         evaluation_num_episodes: 50
         evaluation_config:
             explore: False
