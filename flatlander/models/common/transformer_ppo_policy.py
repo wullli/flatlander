@@ -29,7 +29,7 @@ class TransformerLearningRateSchedule:
         arg1 = np.reciprocal(np.sqrt(self.cur_step))
         arg2 = self.cur_step * (self.warmup_steps ** -1.5)
         lr = np.reciprocal(np.sqrt(self.d_model_size)) * min(arg1, arg2)
-        self.cur_lr.load(lr * 0.1, session=self._sess)
+        self.cur_lr.load(lr * 0.01, session=self._sess)
 
     @override(TFPolicy)
     def optimizer(self):
