@@ -9,7 +9,7 @@ sac-tree-obs-variable-v0:
     keep_checkpoints_num: 5
     num_samples: 1
     config:
-        num_workers: 1
+        num_workers: 6
         num_envs_per_worker: 5
         num_gpus: 1
 

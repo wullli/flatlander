@@ -28,7 +28,7 @@ class TransformerLearningRateSchedule:
         arg1 = tf.math.rsqrt(self.cur_step)
         arg2 = self.cur_step * (self.warmup_steps ** -1.5)
         lr = tf.math.rsqrt(self.d_model) * tf.math.minimum(arg1, arg2)
-        self.cur_lr = lr
+        self.cur_lr = tf.multiply(lr, 0.1)
 
     @override(TFPolicy)
     def optimizer(self):
@@ -40,7 +40,7 @@ def setup_mixins(policy, obs_space, action_space, config):
     KLCoeffMixin.__init__(policy, config)
     EntropyCoeffSchedule.__init__(policy, config["entropy_coeff"],
                                   config["entropy_coeff_schedule"])
-    warmup_steps = config["model"]["custom_options"].get("warmup_steps", 10000)
+    warmup_steps = config["model"]["custom_options"].get("warmup_steps", 100000)
     TransformerLearningRateSchedule.__init__(policy,
                                              config["model"]["custom_options"]["n_features_per_node"],
                                              warmup_steps)

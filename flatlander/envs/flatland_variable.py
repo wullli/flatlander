@@ -41,13 +41,8 @@ class FlatlandVariable(FlatlandBase):
             pprint(self._config)
             print("=" * 50)
 
-        self._env = FlatlandGymEnv(
-            rail_env=self._launch(),
-            observation_space=self._observation.observation_space(),
-            render=env_config.get('render'),
-            regenerate_rail_on_reset=self._config['regenerate_rail_on_reset'],
-            regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset']
-        )
+        self._env = self.get_env()
+
         if env_config['observation'] == 'shortest_path':
             self._env = ShortestPathActionWrapper(self._env)
         if env_config.get('sparse_reward', False):
@@ -64,6 +59,15 @@ class FlatlandVariable(FlatlandBase):
         if env_config.get('available_actions_obs', False):
             self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
 
+    def get_env(self):
+        return FlatlandGymEnv(
+            rail_env=self._launch(),
+            observation_space=self._observation.observation_space(),
+            render=self._env_config.get('render'),
+            regenerate_rail_on_reset=self._config['regenerate_rail_on_reset'],
+            regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset']
+        )
+
     @property
     def observation_space(self) -> gym.spaces.Space:
         return self._env.observation_space
@@ -73,6 +77,7 @@ class FlatlandVariable(FlatlandBase):
         return self._env.action_space
 
     def _launch(self):
+        print("NEW ENV LAUNCHED")
         n_agents, n_cities, dim = get_round_2_env()
 
         rail_generator = sparse_rail_generator(
@@ -82,8 +87,6 @@ class FlatlandVariable(FlatlandBase):
             max_rails_between_cities=self._config['max_rails_between_cities'],
             max_rails_in_city=self._config['max_rails_in_city']
         )
-
-        rail_generator = self.get_rail_generator()
 
         malfunction_generator = NoMalfunctionGen()
         if {'malfunction_rate', 'malfunction_min_duration', 'malfunction_max_duration'} <= self._config.keys():
@@ -123,3 +126,9 @@ class FlatlandVariable(FlatlandBase):
             logging.error("=" * 50)
 
         return env
+
+    def reset(self, *args, **kwargs):
+        self._env = self.get_env()
+        self._env.reset(*args, **kwargs)
+        return self._env.reset(*args, **kwargs)
+
