@@ -7,7 +7,7 @@ from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.new_tree_obs_builder import MyTreeObsForRailEnv as TreeObsForRailEnv
-
+from flatland.envs.observations import Node
 
 @register_obs("new_tree")
 class TreeObservation(Observation):
@@ -36,7 +36,7 @@ class TreeObservation(Observation):
         return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(151,))
 
 
-def _split_node_into_feature_groups(node: TreeObsForRailEnv.Node, dist_min_to_target: int) -> (np.ndarray, np.ndarray,
+def _split_node_into_feature_groups(node: Node, dist_min_to_target: int) -> (np.ndarray, np.ndarray,
                                                                                                np.ndarray):
     data = np.zeros(3)
     distance = np.zeros(1)
@@ -74,7 +74,7 @@ def _split_node_into_feature_groups(node: TreeObsForRailEnv.Node, dist_min_to_ta
     return data, distance, agent_data
 
 
-def _split_subtree_into_feature_groups(node: TreeObsForRailEnv.Node, dist_min_to_target: int,
+def _split_subtree_into_feature_groups(node: Node, dist_min_to_target: int,
                                        current_tree_depth: int,
                                        max_tree_depth: int) -> (
         np.ndarray, np.ndarray, np.ndarray):
@@ -101,7 +101,7 @@ def _split_subtree_into_feature_groups(node: TreeObsForRailEnv.Node, dist_min_to
     return data, distance, agent_data
 
 
-def split_tree_into_feature_groups(tree: TreeObsForRailEnv.Node, max_tree_depth: int) -> (
+def split_tree_into_feature_groups(tree: Node, max_tree_depth: int) -> (
         np.ndarray, np.ndarray, np.ndarray):
     """
     This function splits the tree into three difference arrays of values
@@ -120,7 +120,7 @@ def split_tree_into_feature_groups(tree: TreeObsForRailEnv.Node, max_tree_depth:
     return data, distance, agent_data
 
 
-def normalize_observation(observation: TreeObsForRailEnv.Node, tree_depth: int, observation_radius=0):
+def normalize_observation(observation: Node, tree_depth: int, observation_radius=0):
     """
     This function normalizes the observation used by the RL algorithm
     """

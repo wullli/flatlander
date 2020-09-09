@@ -73,6 +73,7 @@ class FlatlandVariable(FlatlandBase):
 
     def _launch(self):
         n_agents, n_cities, dim = get_round_2_env()
+
         rail_generator = sparse_rail_generator(
             seed=self._config['seed'],
             max_num_cities=n_cities,
@@ -105,7 +106,7 @@ class FlatlandVariable(FlatlandBase):
                 rail_generator=rail_generator,
                 schedule_generator=schedule_generator,
                 number_of_agents=n_agents,
-                malfunction_generator_and_process_data=malfunction_generator,
+                malfunction_generator=malfunction_generator,
                 obs_builder_object=self._observation.builder(),
                 remove_agents_at_target=False,
                 random_seed=self._config['seed'],

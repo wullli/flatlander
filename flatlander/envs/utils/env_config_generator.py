@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 envs = pd.read_csv(os.path.join(os.path.dirname(__file__), "round_2_envs.csv"))
-envs = envs[["n_agents", "x_dim", "n_cities"]].iloc[:40]
+envs = envs[["n_agents", "x_dim", "n_cities"]].iloc[:20]
 env_vals = envs.values
 indexes = np.array(list(range(len(env_vals))))
 

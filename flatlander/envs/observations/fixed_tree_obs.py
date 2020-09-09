@@ -9,7 +9,7 @@ from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnvActions
 from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.utils import norm_obs_clip, _get_small_node_feature_vector, _get_node_feature_vector
-
+from flatland.envs.observations import Node
 
 @register_obs("fixed_tree")
 class FixedTreeObservation(Observation):
@@ -62,10 +62,10 @@ class FixedTreeObsWrapper(ObservationBuilder):
         self._builder.reset()
 
     def get(self, handle: int = 0):
-        obs: TreeObsForRailEnv.Node = self._builder.get(handle)
+        obs: Node = self._builder.get(handle)
         return self.build_obs(obs)
 
-    def build_obs(self, obs_node: TreeObsForRailEnv.Node):
+    def build_obs(self, obs_node: Node):
         padded_observations = np.full(shape=(self.max_nr_nodes, self.observation_dim,),
                                       fill_value=FixedTreeObservation.PAD_VALUE)
         self.dfs(obs_node, padded_observations)
@@ -81,7 +81,7 @@ class FixedTreeObsWrapper(ObservationBuilder):
     def set_env(self, env):
         self._builder.set_env(env)
 
-    def dfs(self, node: TreeObsForRailEnv.Node,
+    def dfs(self, node: Node,
             node_observations: np.ndarray, current_level=0, abs_pos=0):
         """
         Depth first search, as operation should be used the inference

@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy as np
 
 from flatland.core.env_observation_builder import ObservationBuilder
-from flatland.envs.observations import TreeObsForRailEnv
+from flatland.envs.observations import Node
 
 
 class DummyBuilder(ObservationBuilder):
@@ -16,7 +16,7 @@ class DummyBuilder(ObservationBuilder):
         return getattr(self.org_builder, attr)
 
     def get(self, handle: int = 0):
-        node = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        node = Node(dist_own_target_encountered=0,
                                       dist_other_target_encountered=0,
                                       dist_other_agent_encountered=0,
                                       dist_potential_conflict=0,
@@ -34,7 +34,7 @@ class DummyBuilder(ObservationBuilder):
                                               'B': -np.inf,
                                               'F': -np.inf
                                               })
-        middle_nodes = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        middle_nodes = Node(dist_own_target_encountered=0,
                                               dist_other_target_encountered=0,
                                               dist_other_agent_encountered=0,
                                               dist_potential_conflict=0,
@@ -52,7 +52,7 @@ class DummyBuilder(ObservationBuilder):
                                                       'B': -np.inf,
                                                       'F': -np.inf
                                                       })
-        root = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        root = Node(dist_own_target_encountered=0,
                                       dist_other_target_encountered=0,
                                       dist_other_agent_encountered=0,
                                       dist_potential_conflict=0,
@@ -85,7 +85,7 @@ class DummyBuilderForward(ObservationBuilder):
         return getattr(self.org_builder, attr)
 
     def get(self, handle: int = 0):
-        node = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        node = Node(dist_own_target_encountered=0,
                                       dist_other_target_encountered=0,
                                       dist_other_agent_encountered=0,
                                       dist_potential_conflict=10,
@@ -102,7 +102,7 @@ class DummyBuilderForward(ObservationBuilder):
                                               'S': -np.inf,
                                               'B': -np.inf,
                                               'F': -np.inf})
-        middle_nodes = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        middle_nodes = Node(dist_own_target_encountered=0,
                                               dist_other_target_encountered=0,
                                               dist_other_agent_encountered=0,
                                               dist_potential_conflict=5,
@@ -119,7 +119,7 @@ class DummyBuilderForward(ObservationBuilder):
                                                       'S': -np.inf,
                                                       'R': -np.inf,
                                                       'L': -np.inf})
-        root = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        root = Node(dist_own_target_encountered=0,
                                       dist_other_target_encountered=0,
                                       dist_other_agent_encountered=0,
                                       dist_potential_conflict=0,
@@ -151,7 +151,7 @@ class DummyBuilderForwardAlternative(ObservationBuilder):
         return getattr(self.org_builder, attr)
 
     def get(self, handle: int = 0):
-        node = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        node = Node(dist_own_target_encountered=0,
                                       dist_other_target_encountered=0,
                                       dist_other_agent_encountered=0,
                                       dist_potential_conflict=10,
@@ -168,7 +168,7 @@ class DummyBuilderForwardAlternative(ObservationBuilder):
                                               'S': -np.inf,
                                               'B': -np.inf,
                                               'F': -np.inf})
-        middle_nodes = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        middle_nodes = Node(dist_own_target_encountered=0,
                                               dist_other_target_encountered=0,
                                               dist_other_agent_encountered=0,
                                               dist_potential_conflict=5,
@@ -185,7 +185,7 @@ class DummyBuilderForwardAlternative(ObservationBuilder):
                                                       'S': -np.inf,
                                                       'R': -np.inf,
                                                       'L': -np.inf})
-        root = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        root = Node(dist_own_target_encountered=0,
                                       dist_other_target_encountered=0,
                                       dist_other_agent_encountered=0,
                                       dist_potential_conflict=0,
@@ -218,7 +218,7 @@ class DummyBuilderBackward(ObservationBuilder):
         return getattr(self.org_builder, attr)
 
     def get(self, handle: int = 0):
-        node = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        node = Node(dist_own_target_encountered=0,
                                       dist_other_target_encountered=0,
                                       dist_other_agent_encountered=0,
                                       dist_potential_conflict=10,
@@ -235,7 +235,7 @@ class DummyBuilderBackward(ObservationBuilder):
                                               'S': -np.inf,
                                               'B': -np.inf,
                                               'F': -np.inf})
-        middle_nodes = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        middle_nodes = Node(dist_own_target_encountered=0,
                                               dist_other_target_encountered=0,
                                               dist_other_agent_encountered=0,
                                               dist_potential_conflict=5,
@@ -252,7 +252,7 @@ class DummyBuilderBackward(ObservationBuilder):
                                                       'S': -np.inf,
                                                       'R': -np.inf,
                                                       'L': -np.inf})
-        root = TreeObsForRailEnv.Node(dist_own_target_encountered=0,
+        root = Node(dist_own_target_encountered=0,
                                       dist_other_target_encountered=0,
                                       dist_other_agent_encountered=0,
                                       dist_potential_conflict=0,

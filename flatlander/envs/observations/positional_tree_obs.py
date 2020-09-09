@@ -4,11 +4,11 @@ import gym
 import numpy as np
 
 from flatland.core.env_observation_builder import ObservationBuilder
-from flatland.envs.observations import TreeObsForRailEnv
+from flatland.envs.observations import TreeObsForRailEnv, Node
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnvActions
 from flatlander.envs.observations import Observation, register_obs
-from flatlander.envs.observations.utils import norm_obs_clip, _get_small_node_feature_vector, _get_node_feature_vector
+from flatlander.envs.observations.utils import _get_small_node_feature_vector, _get_node_feature_vector
 
 
 @register_obs("positional_tree")
@@ -71,10 +71,10 @@ class PositionalTreeObsWrapper(ObservationBuilder):
         self._builder.reset()
 
     def get(self, handle: int = 0):
-        obs: TreeObsForRailEnv.Node = self._builder.get(handle)
+        obs: Node = self._builder.get(handle)
         return self._build_pairs(obs)
 
-    def _build_pairs(self, obs_node: TreeObsForRailEnv.Node):
+    def _build_pairs(self, obs_node: Node):
         encodings = []
         node_observations = []
         self.dfs(obs_node, -1, [],
@@ -98,7 +98,7 @@ class PositionalTreeObsWrapper(ObservationBuilder):
     def set_env(self, env):
         self._builder.set_env(env)
 
-    def dfs(self, node: TreeObsForRailEnv.Node,
+    def dfs(self, node: Node,
             node_pos: int,
             ancestry: list,
             encodings: list,

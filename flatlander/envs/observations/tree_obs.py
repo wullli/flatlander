@@ -4,7 +4,7 @@ import gym
 import numpy as np
 
 from flatland.core.env_observation_builder import ObservationBuilder
-from flatland.envs.observations import TreeObsForRailEnv
+from flatland.envs.observations import TreeObsForRailEnv, Node
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.utils import norm_obs_clip
@@ -33,7 +33,7 @@ class TreeObservation(Observation):
             nr_nodes += np.power(4, i)
         return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(num_features_per_node * nr_nodes,))
 
-def _split_node_into_feature_groups(node: TreeObsForRailEnv.Node) -> (np.ndarray, np.ndarray, np.ndarray):
+def _split_node_into_feature_groups(node: Node) -> (np.ndarray, np.ndarray, np.ndarray):
     data = np.zeros(6)
     distance = np.zeros(1)
     agent_data = np.zeros(4)
@@ -55,7 +55,7 @@ def _split_node_into_feature_groups(node: TreeObsForRailEnv.Node) -> (np.ndarray
     return data, distance, agent_data
 
 
-def _split_subtree_into_feature_groups(node: TreeObsForRailEnv.Node, current_tree_depth: int, max_tree_depth: int) -> (
+def _split_subtree_into_feature_groups(node: Node, current_tree_depth: int, max_tree_depth: int) -> (
 np.ndarray, np.ndarray, np.ndarray):
     if node == -np.inf:
         remaining_depth = max_tree_depth - current_tree_depth
@@ -79,7 +79,7 @@ np.ndarray, np.ndarray, np.ndarray):
     return data, distance, agent_data
 
 
-def split_tree_into_feature_groups(tree: TreeObsForRailEnv.Node, max_tree_depth: int) -> (np.ndarray, np.ndarray, np.ndarray):
+def split_tree_into_feature_groups(tree: Node, max_tree_depth: int) -> (np.ndarray, np.ndarray, np.ndarray):
     """
     This function splits the tree into three difference arrays of values
     """
@@ -95,7 +95,7 @@ def split_tree_into_feature_groups(tree: TreeObsForRailEnv.Node, max_tree_depth:
     return data, distance, agent_data
 
 
-def normalize_observation(observation: TreeObsForRailEnv.Node, tree_depth: int, observation_radius=0,
+def normalize_observation(observation: Node, tree_depth: int, observation_radius=0,
                           normalize_fixed=None):
     """
     This function normalizes the observation used by the RL algorithm

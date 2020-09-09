@@ -1,6 +1,6 @@
 import numpy as np
 
-from flatland.envs.observations import TreeObsForRailEnv
+from flatland.envs.observations import TreeObsForRailEnv, Node
 
 
 def max_lt(seq, val):
@@ -55,7 +55,7 @@ def norm_obs_clip(obs, clip_min=-1, clip_max=1, fixed_radius=0, normalize_to_ran
     return np.clip((np.array(obs) - min_obs) / norm, clip_min, clip_max)
 
 
-def _get_small_node_feature_vector(node: TreeObsForRailEnv.Node) -> np.ndarray:
+def _get_small_node_feature_vector(node: Node) -> np.ndarray:
     data = np.zeros(4)
     distance = np.zeros(1)
     agent_data = np.zeros(3)
@@ -79,7 +79,7 @@ def _get_small_node_feature_vector(node: TreeObsForRailEnv.Node) -> np.ndarray:
     return normalized_obs
 
 
-def _get_node_feature_vector(node: TreeObsForRailEnv.Node) -> (np.ndarray, np.ndarray, np.ndarray):
+def _get_node_feature_vector(node: Node) -> (np.ndarray, np.ndarray, np.ndarray):
     data = np.zeros(6)
     distance = np.zeros(1)
     agent_data = np.zeros(4)

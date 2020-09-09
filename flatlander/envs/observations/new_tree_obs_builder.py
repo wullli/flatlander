@@ -215,7 +215,7 @@ class MyTreeObsForRailEnv(ObservationBuilder):
         # Here information about the agent itself is stored
         distance_map = self.env.distance_map.get()
 
-        root_node_observation = MyTreeObsForRailEnv.Node(dist_own_target_encountered=0, dist_other_target_encountered=0,
+        root_node_observation = MyNode(dist_own_target_encountered=0, dist_other_target_encountered=0,
                                                          dist_other_agent_encountered=0, dist_potential_conflict=0,
                                                          dist_unusable_switch=0, dist_to_next_branch=0,
                                                          dist_min_to_target=distance_map[
@@ -456,7 +456,7 @@ class MyTreeObsForRailEnv(ObservationBuilder):
             dist_to_next_branch = tot_dist
             dist_min_to_target = self.env.distance_map.get()[handle, position[0], position[1], direction]
 
-        node = MyTreeObsForRailEnv.Node(dist_own_target_encountered=own_target_encountered,
+        node = MyNode(dist_own_target_encountered=own_target_encountered,
                                         dist_other_target_encountered=other_target_encountered,
                                         dist_other_agent_encountered=other_agent_encountered,
                                         dist_potential_conflict=potential_conflict,
