@@ -1,3 +1,5 @@
+import math
+
 from ray.rllib import Policy, TFPolicy
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_tf_policy import ValueNetworkMixin, PPOTFPolicy
@@ -5,7 +7,7 @@ from ray.rllib.agents.ppo.ppo_torch_policy import KLCoeffMixin
 from ray.rllib.policy.tf_policy import EntropyCoeffSchedule
 from ray.rllib.utils import override, DeveloperAPI, try_import_tf
 from ray.tune import register_trainable
-
+import numpy as np
 tf = try_import_tf()
 
 
@@ -15,8 +17,8 @@ class TransformerLearningRateSchedule:
 
     @DeveloperAPI
     def __init__(self, d_model, warmup_steps):
-        self.cur_lr = tf.get_variable("lr", initializer=0.0001, trainable=False)
-        self.cur_step = tf.get_variable("cur_step", initializer=1.0, trainable=False)
+        self.cur_lr = tf.get_variable("lr", initializer=0.00005, trainable=False)
+        self.cur_step = 1.0
         self.d_model = d_model
         self.d_model = tf.cast(self.d_model, tf.float32)
         self.warmup_steps = warmup_steps
@@ -24,11 +26,11 @@ class TransformerLearningRateSchedule:
     @override(Policy)
     def on_global_var_update(self, global_vars):
         super(TransformerLearningRateSchedule, self).on_global_var_update(global_vars)
-        self.cur_step.load(float(global_vars["timestep"]), session=self._sess)
-        arg1 = tf.math.rsqrt(self.cur_step)
+        self.cur_step = float(global_vars["timestep"]),
+        arg1 = np.reciprocal(self.cur_step)
         arg2 = self.cur_step * (self.warmup_steps ** -1.5)
-        lr = tf.math.rsqrt(self.d_model) * tf.math.minimum(arg1, arg2)
-        self.cur_lr.assign(tf.multiply(lr, 0.1))
+        lr = np.reciprocal(self.d_model) * min(arg1, arg2)
+        self.cur_lr.load(lr * 0.1, session=self._sess)
 
     @override(TFPolicy)
     def optimizer(self):
