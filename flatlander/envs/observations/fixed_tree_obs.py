@@ -70,6 +70,7 @@ class FixedTreeObsWrapper(ObservationBuilder):
                                       fill_value=FixedTreeObservation.PAD_VALUE)
         self.dfs(obs_node, padded_observations)
         padded_observations = np.clip(padded_observations, -1, np.inf)
+        assert not np.any(padded_observations == np.inf)
         return padded_observations
 
     def get_many(self, handles: Optional[List[int]] = None):

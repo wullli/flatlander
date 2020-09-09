@@ -87,6 +87,7 @@ class PositionalTreeObsWrapper(ObservationBuilder):
         padded_encodings[:len(encodings), :] = np.array(encodings)
         padded_observations[:len(node_observations), :] = np.array(node_observations)
         padded_observations = np.clip(padded_observations, -1, np.inf)
+        assert not np.any(padded_observations == np.inf)
         return padded_observations, padded_encodings
 
     def get_many(self, handles: Optional[List[int]] = None):

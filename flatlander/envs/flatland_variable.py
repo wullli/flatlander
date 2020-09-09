@@ -9,6 +9,7 @@ from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatlander.envs import get_generator_config
 from flatlander.envs.flatland_base import FlatlandBase
 from flatlander.envs.observations import make_obs
+from flatlander.envs.utils.env_config_generator import get_round_2_env
 from flatlander.envs.utils.gym_env import FlatlandGymEnv
 from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, SkipNoChoiceCellsWrapper, \
     SparseRewardWrapper, \
@@ -61,7 +62,6 @@ class FlatlandVariable(FlatlandBase):
                                                  discounting=env_config.get('discounting', 1.))
         if env_config.get('available_actions_obs', False):
             self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
-            
 
     @property
     def observation_space(self) -> gym.spaces.Space:
@@ -72,9 +72,10 @@ class FlatlandVariable(FlatlandBase):
         return self._env.action_space
 
     def _launch(self):
+        n_agents, n_cities, dim = get_round_2_env()
         rail_generator = sparse_rail_generator(
             seed=self._config['seed'],
-            max_num_cities=self._config['max_num_cities'],
+            max_num_cities=n_cities,
             grid_mode=self._config['grid_mode'],
             max_rails_between_cities=self._config['max_rails_between_cities'],
             max_rails_in_city=self._config['max_rails_in_city']
@@ -100,13 +101,13 @@ class FlatlandVariable(FlatlandBase):
         try:
             np.random.choice(range(self._config['min_width'], self._config['max_width']))
             np.random.choice(range(self._config['min_height'], self._config['max_height']))
-            n_agents = n_agentsn+ceiling(10**len(n_agents)−1)∗0.75
+
             env = RailEnv(
-                width=,
-                height=,
+                width=dim,
+                height=dim,
                 rail_generator=rail_generator,
                 schedule_generator=schedule_generator,
-                number_of_agents=,
+                number_of_agents=n_agents,
                 malfunction_generator_and_process_data=malfunction_generator,
                 obs_builder_object=self._observation.builder(),
                 remove_agents_at_target=False,

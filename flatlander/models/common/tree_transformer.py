@@ -19,6 +19,7 @@ class Transformer(tf.keras.Model):
                  policy_layers: List[int],
                  n_actions,
                  dropout_rate=0.1,
+                 use_cnn_decoding=False,
                  use_positional_encoding=True):
         super(Transformer, self).__init__()
         if value_layers is None:
@@ -27,6 +28,7 @@ class Transformer(tf.keras.Model):
         if policy_layers is None:
             policy_layers = [512, 512]
         self.use_positional_encoding = use_positional_encoding
+        self.use_cnn_decoding = use_cnn_decoding
 
         self.encoder = Encoder(num_encoder_layers,
                                d_model,
@@ -44,13 +46,14 @@ class Transformer(tf.keras.Model):
         self.policy_layers = [tf.keras.layers.Dense(neurons, activation="relu")
                               for neurons in policy_layers]
 
-        self.conv_1 = tf.keras.layers.Conv1D(64, activation="relu", kernel_size=3)
-        self.conv_2 = tf.keras.layers.Conv1D(128, activation="relu", kernel_size=3)
-
         self.policy = tf.keras.layers.Dense(n_actions)
         self.value = tf.keras.layers.Dense(1)
         self.flatten = tf.keras.layers.Flatten()
         self.max_pool = tf.keras.layers.MaxPooling1D(pool_size=2)
+
+        if self.use_cnn_decoding:
+            self.conv_1 = tf.keras.layers.Conv1D(64, activation="relu", kernel_size=3)
+            self.conv_2 = tf.keras.layers.Conv1D(128, activation="relu", kernel_size=3)
 
         if use_positional_encoding:
             self.pos_encoding = ShivQuirkPositionalEncoding(d_model=d_model)
@@ -60,18 +63,20 @@ class Transformer(tf.keras.Model):
             positional_encoding = self.pos_encoding(positional_encoding)
         enc_output = self.encoder(input, train_mode, positional_encoding, encoder_mask=encoder_mask)
 
-        c_x = self.conv_1(enc_output)
-        c_x = self.conv_2(c_x)
-        c_x = self.dropout_1(c_x, training=train_mode)
-        c_x = self.flatten(c_x)
+        x = enc_output
+        if self.use_cnn_decoding:
+            x = self.conv_1(x)
+            x = self.conv_2(x)
+            x = self.dropout_1(x, training=train_mode)
+        x = self.flatten(x)
 
-        p_x = c_x
+        p_x = x
         for i in range(len(self.policy_layers)):
             p_x = self.policy_layers[i](p_x)
         p_x = self.dropout_2(p_x, training=train_mode)
         policy_out = self.policy(p_x)
 
-        v_x = c_x
+        v_x = x
         for i in range(len(self.value_layers)):
             v_x = self.value_layers[i](v_x)
         v_x = self.dropout_3(v_x, training=train_mode)

@@ -19,7 +19,7 @@ RUN adduser --disabled-password \
 USER root
 
 RUN apt-get update
-RUN apt-get install -y wget rsync \
+RUN apt-get install -y wget rsync git \
     xorg-dev \
     libglu1-mesa libgl1-mesa-dev \
     xvfb \
@@ -49,6 +49,8 @@ RUN conda env create -f /src/environment-gpu.yml
 ENV PATH ${HOME}/miniconda3/envs/flatland-rl/bin:$PATH
 ENV CONDA_DEFAULT_ENV flatland-rl
 ENV CONDA_PREFIX ${HOME}/miniconda3/envs/flatland-rl
+
+RUN python3 -m pip install git+https://gitlab.aicrowd.com/flatland/flatland.git
 
 SHELL ["/bin/bash", "-c"]
 

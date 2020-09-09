@@ -1,5 +1,5 @@
 flatland-sparse-fixed-tree-transformer-ppo:
-    run: PPO
+    run: TTFPPO
     env: flatland_sparse
     stop:
         timesteps_total: 15000000  # 15e6
@@ -43,9 +43,11 @@ flatland-sparse-fixed-tree-transformer-ppo:
         model:
             custom_model: fixed_tree_transformer
             custom_options:
+                warmup_steps: 100000
                 n_features_per_node: 11
                 tree_depth: 2
                 transformer:
+                    use_cnn_decoding: False
                     policy_layers:
                         - 512
                         - 512
@@ -58,5 +60,19 @@ flatland-sparse-fixed-tree-transformer-ppo:
                     num_encoder_layers: 2
                     num_heads: 11
                     dropout_rate: 0.1
+
+        evaluation_num_workers: 2
+        evaluation_interval: 10
+        evaluation_num_episodes: 50
+        evaluation_config:
+            explore: False
+            env_config:
+                observation: fixed_tree
+                observation_config:
+                    max_depth: 2
+                    shortest_path_max_depth: 30
+                    small_tree: False
+                generator: sparse_rail_generator
+                generator_config: small_v0
 
 
