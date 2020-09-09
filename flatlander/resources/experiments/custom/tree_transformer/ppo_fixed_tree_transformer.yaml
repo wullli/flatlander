@@ -9,8 +9,8 @@ flatland-sparse-fixed-tree-transformer-ppo:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 5
-        num_envs_per_worker: 5
+        num_workers: 1
+        num_envs_per_worker: 1
         num_gpus: 1
 
         gamma: 0.99
