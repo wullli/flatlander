@@ -8,6 +8,9 @@ from flatlander.models.common.positional_tree_encoding import ShivQuirkPositiona
 
 class Transformer(tf.keras.Model):
 
+    def get_config(self):
+        pass
+
     def __init__(self, num_encoder_layers,
                  d_model,
                  num_heads,
@@ -34,14 +37,20 @@ class Transformer(tf.keras.Model):
                                dropout_rate,
                                use_positional_encoding)
 
-        self.dropout = tf.keras.layers.Dropout(dropout_rate)
+        self.dropout_1 = tf.keras.layers.Dropout(dropout_rate)
+        self.dropout_2 = tf.keras.layers.Dropout(dropout_rate)
+        self.dropout_3 = tf.keras.layers.Dropout(dropout_rate)
         self.value_layers = [tf.keras.layers.Dense(neurons, activation="relu")
                              for neurons in value_layers]
         self.policy_layers = [tf.keras.layers.Dense(neurons, activation="relu")
                               for neurons in policy_layers]
+        self.conv_1 = tf.keras.layers.Conv1D(32, activation="relu", kernel_size=3)
+        self.conv_2 = tf.keras.layers.Conv1D(64, activation="relu", kernel_size=3)
 
         self.policy = tf.keras.layers.Dense(n_actions)
         self.value = tf.keras.layers.Dense(1)
+        self.flatten = tf.keras.layers.Flatten()
+        self.max_pool = tf.keras.layers.MaxPooling1D(pool_size=2)
 
         if use_positional_encoding:
             self.pos_encoding = ShivQuirkPositionalEncoding(d_model=d_model)
@@ -50,16 +59,23 @@ class Transformer(tf.keras.Model):
         if self.use_positional_encoding:
             positional_encoding = self.pos_encoding(positional_encoding)
         enc_output = self.encoder(input, train_mode, positional_encoding, encoder_mask=encoder_mask)
-        avg_encoder = tf.reduce_mean(enc_output, axis=1)
 
-        p_x = self.dropout(avg_encoder, training=train_mode)
+        c_x = self.conv_1(enc_output)
+        c_x = self.conv_2(c_x)
+        c_x = self.max_pool(c_x)
+        c_x = self.dropout_1(c_x, training=train_mode)
+        c_x = self.flatten(c_x)
+
+        p_x = c_x
         for i in range(len(self.policy_layers)):
             p_x = self.policy_layers[i](p_x)
+        p_x = self.dropout_2(p_x, training=train_mode)
         policy_out = self.policy(p_x)
 
-        v_x = self.dropout(avg_encoder, training=train_mode)
+        v_x = c_x
         for i in range(len(self.value_layers)):
             v_x = self.value_layers[i](v_x)
+        v_x = self.dropout_3(v_x, training=train_mode)
         value_out = self.value(v_x)
 
         return policy_out, value_out
@@ -79,9 +95,16 @@ class Encoder(tf.keras.layers.Layer):
 
         self.d_model = d_model
         self.num_layers = num_layers
+
+        self.conv_1 = tf.keras.layers.Conv1D(filters=64, activation="relu", kernel_size=3)
+        self.conv_2 = tf.keras.layers.Conv1D(filters=64, activation="relu", kernel_size=3)
+
+        self.conv_3 = tf.keras.layers.Conv1D(filters=128, activation="relu", kernel_size=3)
+        self.conv_4 = tf.keras.layers.Conv1D(filters=128, activation="relu", kernel_size=3)
+
+        self.flatten = tf.keras.layers.Flatten()
+
         self.embedding_out = tf.keras.layers.Dense(d_model, activation="relu")
-        self.embedding_layers = [tf.keras.layers.Dense(neurons, activation="relu")
-                                 for i, neurons in enumerate(embedding_layers)]
 
         self.enc_layers = [EncoderLayer(d_model, num_heads, dense_neurons, rate)
                            for _ in range(num_layers)]
@@ -90,8 +113,16 @@ class Encoder(tf.keras.layers.Layer):
 
     def call(self, x, training, positional_encoding, encoder_mask):
 
-        for i in range(len(self.embedding_layers)):
-            x = self.embedding_layers[i](x)
+        x = self.conv_1(x)
+        x = self.conv_2(x)
+        x = self.max_pool_1(x)
+        x = self.dropout_1(x, training=training)
+
+        x = self.conv_3(x)
+        x = self.conv_4(x)
+        x = self.max_pool_2(x)
+        x = self.flatten(x)
+
         x = self.embedding_out(x)
 
         if self.use_positional_encoding:
@@ -106,7 +137,7 @@ class Encoder(tf.keras.layers.Layer):
 
 
 class EncoderLayer(tf.keras.layers.Layer):
-    def __init__(self, d_model, num_heads, dense_neurons, use_residual=False, rate=0.1):
+    def __init__(self, d_model, num_heads, dense_neurons, use_residual=True, rate=0.1):
         super(EncoderLayer, self).__init__()
         self.use_residual = use_residual
         self.mha = MultiHeadAttention(d_model, num_heads, learn_scale=True)
@@ -122,15 +153,15 @@ class EncoderLayer(tf.keras.layers.Layer):
         attn_output, _ = self.mha(x, x, x, mask)  # (batch_size, input_seq_len, d_model)
         attn_output = self.dropout_1(attn_output, training=training)
         if self.use_residual:
-            out1 = self.layer_norm_1(x + attn_output)  # (batch_size, input_seq_len, d_model)
+            out1 = self.layer_norm_1(attn_output + x)  # (batch_size, input_seq_len, d_model)
         else:
             out1 = self.layer_norm_1(attn_output)  # (batch_size, input_seq_len, d_model)
 
-        ffn_output = self.ffn(out1)  # (batch_size, input_seq_len, d_model)
+        ffn_output = self.ffn(out1)  # out1)  # (batch_size, input_seq_len, d_model)
         ffn_output = self.dropout_2(ffn_output, training=training)
 
         if self.use_residual:
-            out2 = self.layer_norm_2(ffn_output + out1)  # (batch_size, input_seq_len, d_model)
+            out2 = self.layer_norm_2(ffn_output + out1)  # out1)  # (batch_size, input_seq_len, d_model)
         else:
             out2 = self.layer_norm_2(ffn_output)  # (batch_size, input_seq_len, d_model)
 

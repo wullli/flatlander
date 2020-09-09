@@ -10,18 +10,20 @@ flatland-sparse-fixed-tree-transformer-ppo:
     num_samples: 1
     config:
         num_workers: 4
-        num_envs_per_worker: 1
-        num_gpus: 0
+        num_envs_per_worker: 5
+        num_gpus: 1
 
+        gamma: 0.99
+
+        clip_rewards: False
+        vf_clip_param: 500.0
+        entropy_coeff: 0.01
         # effective batch_size: train_batch_size * num_agents_in_each_environment [5, 10]
         # see https://github.com/ray-project/ray/issues/4628
         train_batch_size: 1000  # 5000
         rollout_fragment_length: 50  # 100
         sgd_minibatch_size: 100  # 500
-        num_sgd_iter: 10
-        batch_mode: complete_episodes
         vf_share_layers: False
-        vf_clip_param: 500
 
         env_config:
             observation: fixed_tree
@@ -56,7 +58,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
                         - 512
                         - 512
                     d_model: 32
-                    encoder_layer_neurons: 512
+                    encoder_layer_neurons: 2048
                     num_encoder_layers: 2
                     num_heads: 4
                     dropout_rate: 0.1

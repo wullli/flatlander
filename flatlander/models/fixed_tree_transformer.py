@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 
-from flatlander.models.common.transformer import Transformer
+from flatlander.models.common.tree_transformer import Transformer
 
 
 class FixedTreeTransformer(TFModelV2):

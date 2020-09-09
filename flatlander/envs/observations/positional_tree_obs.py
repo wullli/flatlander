@@ -52,7 +52,7 @@ class PositionalTreeObsWrapper(ObservationBuilder):
 
     @property
     def observation_dim(self):
-        return self._builder.observation_dim - 4
+        return self._builder.observation_dim - 3
 
     @property
     def positional_encoding_len(self):
@@ -81,7 +81,7 @@ class PositionalTreeObsWrapper(ObservationBuilder):
                                       fill_value=PositionalTreeObservation.PAD_VALUE)
         padded_encodings[:len(encodings), :] = np.array(encodings)
         padded_observations[:len(node_observations), :] = np.array(node_observations)
-        padded_observations = np.clip(padded_observations, -1, 1)
+        padded_observations = np.clip(padded_observations, -1, np.inf)
         return padded_observations, padded_encodings
 
     def get_many(self, handles: Optional[List[int]] = None):
@@ -93,13 +93,14 @@ class PositionalTreeObsWrapper(ObservationBuilder):
         self._builder.set_env(env)
 
     def _get_node_feature_vector(self, node: TreeObsForRailEnv.Node) -> np.ndarray:
-        data = np.zeros(3)
+        data = np.zeros(4)
         distance = np.zeros(1)
         agent_data = np.zeros(3)
 
         data[0] = node.dist_own_target_encountered
         data[1] = node.dist_potential_conflict
         data[2] = node.dist_unusable_switch
+        data[3] = node.dist_other_agent_encountered
 
         distance[0] = node.dist_min_to_target
 

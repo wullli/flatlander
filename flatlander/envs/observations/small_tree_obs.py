@@ -27,7 +27,7 @@ class SmallTreeObservation(Observation):
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        num_features_per_node = self._builder.observation_dim - 4
+        num_features_per_node = self._builder.observation_dim - 3
         nr_nodes = 0
         for i in range(self.config['max_depth'] + 1):
             nr_nodes += np.power(4, i)
@@ -35,13 +35,14 @@ class SmallTreeObservation(Observation):
 
 
 def _split_node_into_feature_groups(node: TreeObsForRailEnv.Node) -> (np.ndarray, np.ndarray, np.ndarray):
-    data = np.zeros(3)
+    data = np.zeros(4)
     distance = np.zeros(1)
     agent_data = np.zeros(3)
 
     data[0] = node.dist_own_target_encountered
     data[1] = node.dist_potential_conflict
     data[2] = node.dist_unusable_switch
+    data[3] = node.dist_other_agent_encountered
 
     distance[0] = node.dist_min_to_target
 

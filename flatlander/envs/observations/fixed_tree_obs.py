@@ -47,7 +47,7 @@ class FixedTreeObsWrapper(ObservationBuilder):
 
     @property
     def observation_dim(self):
-        return self._builder.observation_dim - 4
+        return self._builder.observation_dim - 3
 
     @property
     def max_nr_nodes(self):
@@ -64,7 +64,7 @@ class FixedTreeObsWrapper(ObservationBuilder):
         padded_observations = np.full(shape=(self.max_nr_nodes, self.observation_dim,),
                                       fill_value=FixedTreeObservation.PAD_VALUE)
         self.dfs(obs_node, padded_observations)
-        padded_observations = np.clip(padded_observations, -1, 1)
+        padded_observations = np.clip(padded_observations, -1, np.inf)
         return padded_observations
 
     def get_many(self, handles: Optional[List[int]] = None):
@@ -78,13 +78,14 @@ class FixedTreeObsWrapper(ObservationBuilder):
     @staticmethod
     def _get_node_feature_vector(node: TreeObsForRailEnv.Node) -> np.ndarray:
 
-        data = np.zeros(3)
+        data = np.zeros(4)
         distance = np.zeros(1)
         agent_data = np.zeros(3)
 
         data[0] = node.dist_own_target_encountered
         data[1] = node.dist_potential_conflict
         data[2] = node.dist_unusable_switch
+        data[3] = node.dist_other_agent_encountered
 
         distance[0] = node.dist_min_to_target
 
