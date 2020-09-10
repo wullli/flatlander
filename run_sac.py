@@ -1,49 +1,38 @@
-import os
 import time
 
 import numpy as np
 import ray
 import tensorflow as tf
 import yaml
-from ray.rllib.agents import ppo
+from ray.rllib.agents import sac
 
 from flatland.envs.observations import TreeObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.evaluators.client import FlatlandRemoteClient
-from flatlander.envs.observations.fixed_tree_obs import FixedTreeObsWrapper
-from flatlander.utils.loader import load_envs, load_models
+from flatlander.envs.observations.tree_obs import TreeObsForRailEnvRLLibWrapper
+from flatlander.utils.loader import load_envs
 
 tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()
 
 
 def init():
-    with open(os.path.abspath("./scratch/model_checkpoints/tree_tf_1/checkpoint_5070/config.yaml")) as f:
+    with open("scratch/model_checkpoints/sac_variable_v0/checkpoint_28558/config.yaml") as f:
         config = yaml.safe_load(f)
     load_envs("./flatlander/runner")
-    load_models("./flatlander/runner")
 
-    obs_builder = FixedTreeObsWrapper(
+    obs_builder = TreeObsForRailEnvRLLibWrapper(
         TreeObsForRailEnv(
-            max_depth=config['env_config']['observation_config']['max_depth'],
+            max_depth=config["env_config"]["observation_config"]["max_depth"],
             predictor=ShortestPathPredictorForRailEnv(
-                config['env_config']['observation_config']['shortest_path_max_depth'])
-        ),
-        small_tree=False
-    )
+                config["env_config"]["observation_config"]["shortest_path_max_depth"])
+        ))
 
     ray.init(local_mode=False, num_cpus=1, num_gpus=1)
-    agent = ppo.PPOTrainer(config=config, env="flatland_sparse")
-    agent.restore(os.path.abspath("./scratch/model_checkpoints/tree_tf_1/checkpoint_5070/checkpoint-5070"))
+    agent = sac.SACTrainer(config=config, env="flatland_sparse")
+    agent.restore("./scratch/model_checkpoints/sac_variable_v0/checkpoint_28558/checkpoint-28558")
     policy = agent.get_policy()
     return policy, obs_builder
-
-
-def random_agent(_, n_agents: int):
-    _action = {}
-    for _idx in range(n_agents):
-        _action[_idx] = np.random.randint(0, 5)
-    return _action
 
 
 def evaluate(policy, obs_builder):

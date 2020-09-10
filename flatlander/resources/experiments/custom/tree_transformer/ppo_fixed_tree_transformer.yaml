@@ -9,8 +9,8 @@ flatland-sparse-fixed-tree-transformer-ppo:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 1
-        num_envs_per_worker: 1
+        num_workers: 7
+        num_envs_per_worker: 5
         num_gpus: 1
 
         gamma: 0.99
@@ -28,12 +28,12 @@ flatland-sparse-fixed-tree-transformer-ppo:
         env_config:
             observation: fixed_tree
             observation_config:
-                max_depth: 2
+                max_depth: 3
                 shortest_path_max_depth: 30
                 small_tree: False
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: medium_v0
 
             wandb:
                 project: flatland
@@ -45,7 +45,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
             custom_options:
                 warmup_steps: 100000
                 n_features_per_node: 11
-                tree_depth: 2
+                tree_depth: 3
                 transformer:
                     use_cnn_decoding: False
                     policy_layers:
@@ -63,7 +63,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
 
         evaluation_num_workers: 2
         evaluation_interval: 100
-        evaluation_num_episodes: 50
+        evaluation_num_episodes: 100
         evaluation_config:
             explore: False
             env_config:
