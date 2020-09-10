@@ -1,0 +1,30 @@
+env: flatland_sparse
+num_workers: 0
+num_envs_per_worker: 0
+num_gpus: 0
+
+normalize_actions: False
+
+env_config:
+    observation: tree
+    observation_config:
+        max_depth: 2
+        shortest_path_max_depth: 30
+
+    generator: sparse_rail_generator
+    generator_config: small_v0
+
+    wandb:
+        project: flatland
+        entity: wullli
+        tags: ["small_v0", "tree_obs", "sac", "custom"] # TODO should be set programmatically
+
+twin_q: True
+policy_model:
+    fcnet_activation: relu
+    fcnet_hiddens: [256, 256]
+
+Q_model:
+    fcnet_activation: relu
+    fcnet_hiddens: [256, 256]
+

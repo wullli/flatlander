@@ -1,7 +1,7 @@
 import os
 import time
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import numpy as np
 import ray
 import yaml
@@ -19,8 +19,7 @@ remote_client = FlatlandRemoteClient()
 
 def init():
     with open(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                           "..",
-                                           "scratch/model_checkpoints/tree_tf_1/checkpoint_5070/config.yaml"))) as f:
+                                           "model_checkpoints/tree_tf_1/checkpoint_5070/config.yaml"))) as f:
         config = yaml.safe_load(f)
     load_envs(os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../flatlander/runner")))
@@ -39,8 +38,7 @@ def init():
     ray.init(local_mode=False, num_cpus=1, num_gpus=1)
     agent = ppo.PPOTrainer(config=config, env="flatland_sparse")
     agent.restore(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                               "..",
-                                               "scratch/model_checkpoints/tree_tf_1/checkpoint_5070/checkpoint-5070")))
+                                               "model_checkpoints/tree_tf_1/checkpoint_5070/checkpoint-5070")))
     policy = agent.get_policy()
     return policy, obs_builder
 
