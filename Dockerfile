@@ -1,4 +1,3 @@
-# FROM continuumio/miniconda:latest
 FROM tensorflow/tensorflow:2.1.0-gpu-py3
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -33,25 +32,24 @@ RUN chown -R ${NB_UID}:${NB_UID} ${HOME}
 RUN chown -R ${NB_UID}:${NB_UID} /src
 
 WORKDIR ${HOME}
-USER ${NB_USER}
+USER ${NB_UID}
 RUN wget \
     https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
     && mkdir ${HOME}/.conda \
     && bash Miniconda3-latest-Linux-x86_64.sh -b \
     && rm -f Miniconda3-latest-Linux-x86_64.sh
 
-ENV PATH="/root/miniconda3/bin:${PATH}"
+ENV PATH="${HOME}/miniconda3/bin:${PATH}"
 ENV CUDA_VISIBLE_DEVICES=1
 
-RUN ls /src
 RUN conda env create -f /src/environment-gpu.yml
 
 ENV PATH ${HOME}/miniconda3/envs/flatland-rl/bin:$PATH
 ENV CONDA_DEFAULT_ENV flatland-rl
 ENV CONDA_PREFIX ${HOME}/miniconda3/envs/flatland-rl
 
-RUN python3 -m pip install git+https://gitlab.aicrowd.com/flatland/flatland.git
-
 SHELL ["/bin/bash", "-c"]
+
+EXPOSE 8265
 
 CMD conda --version && nvidia-smi
