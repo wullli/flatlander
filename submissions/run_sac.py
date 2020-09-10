@@ -1,3 +1,5 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import time
 
 import numpy as np
@@ -10,14 +12,16 @@ from flatland.envs.observations import TreeObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.evaluators.client import FlatlandRemoteClient
 from flatlander.envs.observations.tree_obs import TreeObsForRailEnvRLLibWrapper
-from flatlander.utils.loader import load_envs
+from flatlander.utils.loader import load_envs, load_models
 
 tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()
 
 
 def init():
-    with open("../scratch/model_checkpoints/sac_variable_v0/checkpoint_28558/config.yaml") as f:
+    with open(os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                           "..",
+                                           "scratch/model_checkpoints/sac_small_v0/checkpoint-51089/config.yaml"))) as f:
         config = yaml.safe_load(f)
     load_envs("../flatlander/runner")
 
@@ -28,9 +32,16 @@ def init():
                 config["env_config"]["observation_config"]["shortest_path_max_depth"])
         ))
 
+    load_envs(os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../flatlander/runner")))
+    load_models(os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../flatlander/runner")))
+
     ray.init(local_mode=False, num_cpus=1, num_gpus=1)
     agent = sac.SACTrainer(config=config, env="flatland_sparse")
-    agent.restore("./scratch/model_checkpoints/sac_variable_v0/checkpoint_28558/checkpoint-28558")
+    agent.restore(os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                               "..",
+                                               "scratch/model_checkpoints/sac_small_v0/checkpoint-51089/checkpoint-51089")))
     policy = agent.get_policy()
     return policy, obs_builder
 

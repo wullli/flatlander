@@ -46,6 +46,7 @@ RUN conda env create -f ${HOME}/environment-gpu.yml
 ENV PATH ${HOME}/miniconda3/envs/flatland-rl/bin:$PATH
 ENV CONDA_DEFAULT_ENV flatland-rl
 ENV CONDA_PREFIX ${HOME}/miniconda3/envs/flatland-rl
+ENV AICROWD_TESTS_FOLDER ${HOME}/scratch/test-envs
 
 SHELL ["/bin/bash", "-c"]
 
