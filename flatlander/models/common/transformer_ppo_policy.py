@@ -43,7 +43,7 @@ def setup_mixins(policy, obs_space, action_space, config):
                                   config["entropy_coeff_schedule"])
     warmup_steps = config["model"]["custom_options"].get("warmup_steps", 100000)
     TransformerLearningRateSchedule.__init__(policy,
-                                             config["model"]["custom_options"]["n_features_per_node"],
+                                             config["model"]["custom_options"]["transformer"]["num_heads"],
                                              warmup_steps)
 
 
