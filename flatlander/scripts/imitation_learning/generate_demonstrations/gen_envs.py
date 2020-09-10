@@ -213,7 +213,7 @@ def main2():
                         metavar=("nStart", "nEnd"),
                         help='merge episode into envs')
 
-    parser.add_argument("-d", "--outDir", type=str, nargs=1, default="./test-envs-tmp")
+    parser.add_argument("-d", "--outDir", type=str, nargs=1, default="./round_1-tmp")
 
     parser.add_argument("-m", '--merge', type=str, nargs=3, action="append",
                         metavar=("episode", "envs", "output_env"),

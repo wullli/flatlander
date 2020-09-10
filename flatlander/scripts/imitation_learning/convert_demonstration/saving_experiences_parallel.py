@@ -118,7 +118,7 @@ def preprocess_obs(obs):
 def generate_experiences(trials, start=0, tree_depth=2, max_depth=30, obs_type="tree", batch_builder=None, writer=None):
     env_file = f"envs-100-999/envs/Level_{trials}.pkl"
 
-    # env_file = f"../env_configs/test-envs-small/Test_0/Level_{trials}.mpk"
+    # env_file = f"../env_configs/round_1-small/Test_0/Level_{trials}.mpk"
     pad_name = False
 
     if pad_name:

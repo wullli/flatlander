@@ -67,7 +67,7 @@ def main(args):
     for trials in range(trial_start, n_trials + 1):
 
         env_file = f"envs-100-999/envs/Level_{trials}.pkl"
-        # env_file = f"../env_configs/test-envs-small/Test_0/Level_{trials}.mpk"
+        # env_file = f"../env_configs/round_1-small/Test_0/Level_{trials}.mpk"
 
         # file = f"../env_configs/actions-small/Test_0/Level_{trials}.mpk"
         file = f"envs-100-999/actions/envs/Level_{trials}.json"
