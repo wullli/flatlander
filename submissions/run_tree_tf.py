@@ -1,6 +1,6 @@
 import os
 import time
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import numpy as np
 import ray
 import tensorflow as tf
@@ -11,6 +11,7 @@ from flatland.envs.observations import TreeObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.evaluators.client import FlatlandRemoteClient
 from flatlander.envs.observations.fixed_tree_obs import FixedTreeObsWrapper
+from flatlander.utils.deadlock_check import check_if_all_blocked
 from flatlander.utils.loader import load_envs, load_models
 
 tf.compat.v1.disable_eager_execution()
@@ -18,10 +19,10 @@ remote_client = FlatlandRemoteClient()
 
 
 def init():
-    with open(os.path.abspath("./scratch/model_checkpoints/tree_tf_1/checkpoint_5070/config.yaml")) as f:
+    with open(os.path.abspath("../scratch/model_checkpoints/tree_tf_1/checkpoint_5070/config.yaml")) as f:
         config = yaml.safe_load(f)
-    load_envs("./flatlander/runner")
-    load_models("./flatlander/runner")
+    load_envs("../flatlander/runner")
+    load_models("../flatlander/runner")
 
     obs_builder = FixedTreeObsWrapper(
         TreeObsForRailEnv(
@@ -34,16 +35,9 @@ def init():
 
     ray.init(local_mode=False, num_cpus=1, num_gpus=1)
     agent = ppo.PPOTrainer(config=config, env="flatland_sparse")
-    agent.restore(os.path.abspath("./scratch/model_checkpoints/tree_tf_1/checkpoint_5070/checkpoint-5070"))
+    agent.restore(os.path.abspath("../scratch/model_checkpoints/tree_tf_1/checkpoint_5070/checkpoint-5070"))
     policy = agent.get_policy()
     return policy, obs_builder
-
-
-def random_agent(_, n_agents: int):
-    _action = {}
-    for _idx in range(n_agents):
-        _action[_idx] = np.random.randint(0, 5)
-    return _action
 
 
 def evaluate(policy, obs_builder):
@@ -68,31 +62,38 @@ def evaluate(policy, obs_builder):
         time_taken_by_controller = []
         time_taken_per_step = []
         steps = 0
+
         while True:
-            time_start = time.time()
+            if not check_if_all_blocked(env=remote_client.env):
+                time_start = time.time()
 
-            obs_batch = np.array(list(observation.values()))
-            action_batch = policy.compute_actions(obs_batch, explore=False)
-            actions = dict(zip(observation.keys(), action_batch[0]))
+                obs_batch = np.array(list(observation.values()))
+                action_batch = policy.compute_actions(obs_batch, explore=False)
+                actions = dict(zip(observation.keys(), action_batch[0]))
 
-            time_taken = time.time() - time_start
-            time_taken_by_controller.append(time_taken)
+                time_taken = time.time() - time_start
+                time_taken_by_controller.append(time_taken)
 
-            time_start = time.time()
-            observation, all_rewards, done, info = remote_client.env_step(actions)
-            steps += 1
-            time_taken = time.time() - time_start
-            time_taken_per_step.append(time_taken)
-            print('.', end='', flush=True)
+                time_start = time.time()
+                observation, all_rewards, done, info = remote_client.env_step(actions)
+                steps += 1
+                time_taken = time.time() - time_start
+                time_taken_per_step.append(time_taken)
+                print('.', end='', flush=True)
 
-            if done['__all__']:
-                reward_values = np.array(list(all_rewards.values()))
-                gained_reward = np.sum(1 + reward_values)
-                total_reward += gained_reward
-                print("\n\nGained reward: ", gained_reward, "/ Max possible:",
-                      np.sum(1 + np.ones_like(reward_values)))
-                print("Total reward: ", total_reward, "\n")
-                break
+                if done['__all__']:
+                    reward_values = np.array(list(all_rewards.values()))
+                    gained_reward = np.sum(1 + reward_values)
+                    total_reward += gained_reward
+                    print("\n\nGained reward: ", gained_reward, "/ Max possible:",
+                          np.sum(1 + np.ones_like(reward_values)))
+                    print("Total reward: ", total_reward, "\n")
+                    break
+            else:
+                time_start = time.time()
+                _, all_rewards, done, info = remote_client.env_step({})
+                step_time = time.time() - time_start
+                time_taken_per_step.append(step_time)
 
         np_time_taken_by_controller = np.array(time_taken_by_controller)
         np_time_taken_per_step = np.array(time_taken_per_step)

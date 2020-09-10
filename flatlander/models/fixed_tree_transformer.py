@@ -20,8 +20,6 @@ class FixedTreeTransformer(TFModelV2):
             "Currently, only 'gym.spaces.Discrete' action spaces are supported."
 
         self._options = model_config['custom_options']
-        self._n_features_per_node = self._options.get("n_features_per_node", 11)
-        self._tree_depth = self._options.get("tree_depth", 2)
         self._baseline = tf.expand_dims([0], 0)
 
         self._padded_obs_seq = None
@@ -30,18 +28,19 @@ class FixedTreeTransformer(TFModelV2):
         self._logger = logging.getLogger(FixedTreeTransformer.__name__)
 
         self.transformer = Transformer(n_actions=self.action_space.n,
-                                       d_model=self._n_features_per_node,
+                                       d_model=self.obs_space.shape[1],
                                        use_positional_encoding=False, **self._options["transformer"])
 
         self._test_transformer()
         self.register_variables(self.transformer.variables)
 
     def _test_transformer(self):
-        inp = tf.random.uniform((100, 21, self._n_features_per_node),
+        inp = tf.random.uniform((100, self.obs_space.shape[0],
+                                 self.obs_space.shape[1]),
                                 dtype=tf.float32, minval=-1, maxval=1)
         _, _ = self.transformer.call(inp,
                                      train_mode=False,
-                                     encoder_mask=np.zeros((100, 1, 1, 21)))
+                                     encoder_mask=tf.zeros((100, 1, 1, self.obs_space.shape[0])))
 
     def forward(self, input_dict, state, seq_lens):
         """

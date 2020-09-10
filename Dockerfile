@@ -26,10 +26,9 @@ RUN apt-get install -y wget rsync git \
     python-opengl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY environment-gpu.yml /src/environment-gpu.yml
+COPY . ${HOME}
 
 RUN chown -R ${NB_UID}:${NB_UID} ${HOME}
-RUN chown -R ${NB_UID}:${NB_UID} /src
 
 WORKDIR ${HOME}
 USER ${NB_UID}
@@ -42,7 +41,7 @@ RUN wget \
 ENV PATH="${HOME}/miniconda3/bin:${PATH}"
 ENV CUDA_VISIBLE_DEVICES=1
 
-RUN conda env create -f /src/environment-gpu.yml
+RUN conda env create -f ${HOME}/environment-gpu.yml
 
 ENV PATH ${HOME}/miniconda3/envs/flatland-rl/bin:$PATH
 ENV CONDA_DEFAULT_ENV flatland-rl

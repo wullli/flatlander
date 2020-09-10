@@ -17,9 +17,9 @@ remote_client = FlatlandRemoteClient()
 
 
 def init():
-    with open("scratch/model_checkpoints/sac_variable_v0/checkpoint_28558/config.yaml") as f:
+    with open("../scratch/model_checkpoints/sac_variable_v0/checkpoint_28558/config.yaml") as f:
         config = yaml.safe_load(f)
-    load_envs("./flatlander/runner")
+    load_envs("../flatlander/runner")
 
     obs_builder = TreeObsForRailEnvRLLibWrapper(
         TreeObsForRailEnv(

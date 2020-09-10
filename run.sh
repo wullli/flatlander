@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python ./run.py
+python ./submissions/run_tree_tf.py
