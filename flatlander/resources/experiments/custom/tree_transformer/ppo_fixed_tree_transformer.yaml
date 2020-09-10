@@ -11,7 +11,7 @@ flatland-sparse-fixed-tree-transformer-ppo:
     config:
         num_workers: 6
         num_envs_per_worker: 5
-        num_gpus: 1
+        num_gpus: 0
 
         gamma: 0.9999
 
