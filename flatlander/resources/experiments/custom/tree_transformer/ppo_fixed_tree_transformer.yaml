@@ -35,6 +35,9 @@ flatland-sparse-fixed-tree-transformer-ppo:
             generator: sparse_rail_generator
             generator_config: medium_v0
 
+            resolve_deadlocks: True
+            deadlock_reward: -1000
+
             wandb:
                 project: flatland
                 entity: wullli
