@@ -1,0 +1,11 @@
+add_agent_interval: 100000
+interval_growth_rate: 1.5
+max_agents: 10
+
+observation: new_tree
+observation_config:
+    max_depth: 2
+    shortest_path_max_depth: 30
+
+generator: sparse_rail_generator
+generator_config: small_v0

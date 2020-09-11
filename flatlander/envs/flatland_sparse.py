@@ -23,7 +23,6 @@ class FlatlandSparse(FlatlandBase):
     def __init__(self, env_config) -> None:
         super().__init__()
 
-        # TODO implement other generators
         assert env_config['generator'] == 'sparse_rail_generator'
         self._env_config = env_config
 

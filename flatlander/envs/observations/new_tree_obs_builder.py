@@ -11,6 +11,26 @@ from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.agent_utils import RailAgentStatus
 from flatland.utils.ordered_set import OrderedSet
 
+MyNode = collections.namedtuple('Node', 'dist_own_target_encountered '
+                                        'dist_other_target_encountered '
+                                        'dist_other_agent_encountered '
+                                        'dist_potential_conflict '
+                                        'dist_unusable_switch '
+                                        'dist_to_next_branch '
+                                        'dist_min_to_target '
+                                        'num_agents_same_direction '
+                                        'num_agents_opposite_direction '
+                                        'num_agents_malfunctioning '
+                                        'speed_min_fractional '
+                                        'num_agents_ready_to_depart '
+                                        'total_cells '
+                                        'total_switch '
+                                        'total_switches_neighbors '
+                                        'index_comparision '
+                                        'first_switch_free '
+                                        'first_switch_neighbor '
+                                        'childs')
+
 
 class MyTreeObsForRailEnv(ObservationBuilder):
     """
@@ -22,25 +42,6 @@ class MyTreeObsForRailEnv(ObservationBuilder):
 
     For details about the features in the tree observation see the get() function.
     """
-    Node = collections.namedtuple('Node', 'dist_own_target_encountered '
-                                          'dist_other_target_encountered '
-                                          'dist_other_agent_encountered '
-                                          'dist_potential_conflict '
-                                          'dist_unusable_switch '
-                                          'dist_to_next_branch '
-                                          'dist_min_to_target '
-                                          'num_agents_same_direction '
-                                          'num_agents_opposite_direction '
-                                          'num_agents_malfunctioning '
-                                          'speed_min_fractional '
-                                          'num_agents_ready_to_depart '
-                                          'total_cells '
-                                          'total_switch '
-                                          'total_switches_neighbors '
-                                          'index_comparision '
-                                          'first_switch_free '
-                                          'first_switch_neighbor '
-                                          'childs')
 
     tree_explored_actions_char = ['L', 'F', 'R', 'B']
 
@@ -63,7 +64,7 @@ class MyTreeObsForRailEnv(ObservationBuilder):
         self.switches_list = switch_list
         self.switches_neightbors_list = pre_switch_list
 
-    def get_many(self, handles: Optional[List[int]] = None) -> Dict[int, Node]:
+    def get_many(self, handles: Optional[List[int]] = None) -> Dict[int, MyNode]:
         """
         Called whenever an observation has to be computed for the `envs` environment, for each agent with handle
         in the `handles` list.
@@ -117,7 +118,7 @@ class MyTreeObsForRailEnv(ObservationBuilder):
 
         return observations
 
-    def get(self, handle: int = 0) -> Node:
+    def get(self, handle: int = 0) -> MyNode:
         """
         Computes the current observation for agent `handle` in envs
 
@@ -216,23 +217,23 @@ class MyTreeObsForRailEnv(ObservationBuilder):
         distance_map = self.env.distance_map.get()
 
         root_node_observation = MyNode(dist_own_target_encountered=0, dist_other_target_encountered=0,
-                                                         dist_other_agent_encountered=0, dist_potential_conflict=0,
-                                                         dist_unusable_switch=0, dist_to_next_branch=0,
-                                                         dist_min_to_target=distance_map[
-                                                             (handle, *agent_virtual_position,
-                                                              agent.direction)],
-                                                         num_agents_same_direction=0, num_agents_opposite_direction=0,
-                                                         num_agents_malfunctioning=agent.malfunction_data[
-                                                             'malfunction'],
-                                                         speed_min_fractional=agent.speed_data['speed'],
-                                                         num_agents_ready_to_depart=0,
-                                                         total_cells=0,
-                                                         total_switch=0,
-                                                         total_switches_neighbors=0,
-                                                         index_comparision=0,
-                                                         first_switch_free=0,
-                                                         first_switch_neighbor=0,
-                                                         childs={})
+                                       dist_other_agent_encountered=0, dist_potential_conflict=0,
+                                       dist_unusable_switch=0, dist_to_next_branch=0,
+                                       dist_min_to_target=distance_map[
+                                           (handle, *agent_virtual_position,
+                                            agent.direction)],
+                                       num_agents_same_direction=0, num_agents_opposite_direction=0,
+                                       num_agents_malfunctioning=agent.malfunction_data[
+                                           'malfunction'],
+                                       speed_min_fractional=agent.speed_data['speed'],
+                                       num_agents_ready_to_depart=0,
+                                       total_cells=0,
+                                       total_switch=0,
+                                       total_switches_neighbors=0,
+                                       index_comparision=0,
+                                       first_switch_free=0,
+                                       first_switch_neighbor=0,
+                                       childs={})
 
         visited = OrderedSet()
         self.opposite = []
@@ -457,24 +458,24 @@ class MyTreeObsForRailEnv(ObservationBuilder):
             dist_min_to_target = self.env.distance_map.get()[handle, position[0], position[1], direction]
 
         node = MyNode(dist_own_target_encountered=own_target_encountered,
-                                        dist_other_target_encountered=other_target_encountered,
-                                        dist_other_agent_encountered=other_agent_encountered,
-                                        dist_potential_conflict=potential_conflict,
-                                        dist_unusable_switch=unusable_switch,
-                                        dist_to_next_branch=dist_to_next_branch,
-                                        dist_min_to_target=dist_min_to_target,
-                                        num_agents_same_direction=other_agent_same_direction,
-                                        num_agents_opposite_direction=other_agent_opposite_direction,
-                                        num_agents_malfunctioning=malfunctioning_agent,
-                                        speed_min_fractional=min_fractional_speed,
-                                        num_agents_ready_to_depart=other_agent_ready_to_depart_encountered,
-                                        total_cells=total_cells,
-                                        total_switch=total_switch,
-                                        total_switches_neighbors=total_switches_neighbors,
-                                        index_comparision=index_comparision,
-                                        first_switch_free=first_switch_free,
-                                        first_switch_neighbor=first_switch_neighbor,
-                                        childs={})
+                      dist_other_target_encountered=other_target_encountered,
+                      dist_other_agent_encountered=other_agent_encountered,
+                      dist_potential_conflict=potential_conflict,
+                      dist_unusable_switch=unusable_switch,
+                      dist_to_next_branch=dist_to_next_branch,
+                      dist_min_to_target=dist_min_to_target,
+                      num_agents_same_direction=other_agent_same_direction,
+                      num_agents_opposite_direction=other_agent_opposite_direction,
+                      num_agents_malfunctioning=malfunctioning_agent,
+                      speed_min_fractional=min_fractional_speed,
+                      num_agents_ready_to_depart=other_agent_ready_to_depart_encountered,
+                      total_cells=total_cells,
+                      total_switch=total_switch,
+                      total_switches_neighbors=total_switches_neighbors,
+                      index_comparision=index_comparision,
+                      first_switch_free=first_switch_free,
+                      first_switch_neighbor=first_switch_neighbor,
+                      childs={})
 
         # #############################
         # #############################
@@ -515,7 +516,7 @@ class MyTreeObsForRailEnv(ObservationBuilder):
             node.childs.clear()
         return node, visited
 
-    def util_print_obs_subtree(self, tree: Node):
+    def util_print_obs_subtree(self, tree: MyNode):
         """
         Utility function to print tree observations returned by this object.
         """
@@ -524,7 +525,7 @@ class MyTreeObsForRailEnv(ObservationBuilder):
             self.print_subtree(tree.childs[direction], direction, "\t")
 
     @staticmethod
-    def print_node_features(node: Node, label, indent):
+    def print_node_features(node: MyNode, label, indent):
         print(indent, "Direction ", label, ": ", node.dist_own_target_encountered, ", ",
               node.dist_other_target_encountered, ", ", node.dist_other_agent_encountered, ", ",
               node.dist_potential_conflict, ", ", node.dist_unusable_switch, ", ", node.dist_to_next_branch, ", ",

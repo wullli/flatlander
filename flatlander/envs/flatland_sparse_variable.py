@@ -1,63 +1,19 @@
 import logging
-from pprint import pprint
 
-import gym
-
-from flatland.envs.malfunction_generators import malfunction_from_params, no_malfunction_generator, NoMalfunctionGen, \
+from flatland.envs.malfunction_generators import NoMalfunctionGen, \
     ParamMalfunctionGen
 from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
-from flatlander.envs import get_generator_config
-from flatlander.envs.flatland_base import FlatlandBase
-from flatlander.envs.observations import make_obs
+from flatlander.envs.flatland_sparse import FlatlandSparse
 from flatlander.envs.utils.env_config_generator import get_round_2_env
 from flatlander.envs.utils.gym_env import FlatlandGymEnv
-from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, SkipNoChoiceCellsWrapper, \
-    SparseRewardWrapper, \
-    DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper
-
 from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as RailEnv
-import numpy as np
 
 
-class FlatlandVariable(FlatlandBase):
+class FlatlandSparseVariable(FlatlandSparse):
 
     def __init__(self, env_config) -> None:
-        super().__init__()
-
-        # TODO implement other generators
-        assert env_config['generator'] == 'sparse_rail_generator'
-        self._env_config = env_config
-
-        self._observation = make_obs(env_config['observation'], env_config.get('observation_config'))
-        self._config = get_generator_config(env_config['generator_config'])
-
-        # Overwrites with env_config seed if it exists
-        if env_config.get('seed'):
-            self._config['seed'] = env_config.get('seed')
-
-        if not hasattr(env_config, 'worker_index') or (env_config.worker_index == 0 and env_config.vector_index == 0):
-            print("=" * 50)
-            pprint(self._config)
-            print("=" * 50)
-
-        self._env = self.get_env()
-
-        if env_config['observation'] == 'shortest_path':
-            self._env = ShortestPathActionWrapper(self._env)
-        if env_config.get('sparse_reward', False):
-            self._env = SparseRewardWrapper(self._env, finished_reward=env_config.get('done_reward', 1),
-                                            not_finished_reward=env_config.get('not_finished_reward', -1))
-        if env_config.get('deadlock_reward', 0) != 0:
-            self._env = DeadlockWrapper(self._env, deadlock_reward=env_config['deadlock_reward'])
-        if env_config.get('resolve_deadlocks', False):
-            deadlock_reward = env_config.get('deadlock_reward', 0)
-            self._env = DeadlockResolutionWrapper(self._env, deadlock_reward)
-        if env_config.get('skip_no_choice_cells', False):
-            self._env = SkipNoChoiceCellsWrapper(self._env, env_config.get('accumulate_skipped_rewards', False),
-                                                 discounting=env_config.get('discounting', 1.))
-        if env_config.get('available_actions_obs', False):
-            self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
+        super().__init__(env_config)
 
     def get_env(self):
         return FlatlandGymEnv(
@@ -67,14 +23,6 @@ class FlatlandVariable(FlatlandBase):
             regenerate_rail_on_reset=self._config['regenerate_rail_on_reset'],
             regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset']
         )
-
-    @property
-    def observation_space(self) -> gym.spaces.Space:
-        return self._env.observation_space
-
-    @property
-    def action_space(self) -> gym.spaces.Space:
-        return self._env.action_space
 
     def _launch(self):
         print("NEW ENV LAUNCHED")
@@ -131,4 +79,3 @@ class FlatlandVariable(FlatlandBase):
         self._env = self.get_env()
         self._env.reset(*args, **kwargs)
         return self._env.reset(*args, **kwargs)
-

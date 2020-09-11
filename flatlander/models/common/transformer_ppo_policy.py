@@ -13,7 +13,7 @@ tf = try_import_tf()
 
 @DeveloperAPI
 class TransformerLearningRateSchedule:
-    """Mixin for TFPolicy that adds a learning rate schedule."""
+    """Mixin for TFPolicy that adds a learning rate schedule with warmup."""
 
     @DeveloperAPI
     def __init__(self, d_model, warmup_steps):

@@ -1,0 +1,12 @@
+width: 32
+height: 32
+seed: 0
+regenerate_rail_on_reset: True
+regenerate_schedule_on_reset: True
+min_malfunction_interval: 250
+malfunction_min_duration: 20
+malfunction_max_duration: 50
+max_rails_in_city: 4
+max_rails_between_cities: 2
+grid_mode: False
+max_num_cities: 4
