@@ -83,7 +83,16 @@ def evaluate(policy, obs_builder):
 
                 time_start = time.time()
                 observation, all_rewards, done, info = remote_client.env_step(actions)
+
                 steps += 1
+
+                while len(observation) == 0:
+                    if done['__all__']:
+                        break
+                    observation, all_rewards, done, info = remote_client.env_step({})
+                    print('.', end='', flush=True)
+                    steps += 1
+
                 time_taken = time.time() - time_start
                 time_taken_per_step.append(time_taken)
                 print('.', end='', flush=True)
@@ -97,10 +106,9 @@ def evaluate(policy, obs_builder):
 
             if done['__all__']:
                 reward_values = np.array(list(all_rewards.values()))
-                gained_reward = np.sum(1 + reward_values)
+                gained_reward = np.mean(1 + reward_values)
                 total_reward += gained_reward
-                print("\n\nGained reward: ", gained_reward, "/ Max possible:",
-                      np.sum(1 + np.ones_like(reward_values)))
+                print("\n\nGained reward: ", gained_reward, "/ Max possible:",1)
                 print("Total reward: ", total_reward, "\n")
                 break
 

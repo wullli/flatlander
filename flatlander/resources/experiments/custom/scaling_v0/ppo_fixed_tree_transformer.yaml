@@ -1,4 +1,4 @@
-flatland-sparse-scaling-fixed-tree-transformer-ppo:
+flatland-sparse-scaling-fixed-tree-transformer-ppo-skip:
     run: TTFPPO
     env: flatland_sparse_scaling
     stop:
@@ -11,7 +11,7 @@ flatland-sparse-scaling-fixed-tree-transformer-ppo:
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
         gamma: 0.9999
 
@@ -28,7 +28,7 @@ flatland-sparse-scaling-fixed-tree-transformer-ppo:
         env_config:
             observation: fixed_tree
             observation_config:
-                max_depth: 2
+                max_depth: 3
                 shortest_path_max_depth: 30
                 small_tree: False
 
@@ -39,10 +39,13 @@ flatland-sparse-scaling-fixed-tree-transformer-ppo:
             interval_growth_rate: 1.25
             max_agents: 10
 
+            skip_no_choice_cells: True
+            accumulate_skipped_rewards: True
+
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["ppo", "medium_scaling_v0", "fixed", "tree", "transformer", "custom"]
+                tags: ["ppo", "medium_scaling_v0", "fixed", "tree", "transformer", "custom", "skip"]
 
         model:
             custom_model: fixed_tree_transformer
