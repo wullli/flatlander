@@ -1,11 +1,14 @@
 import os
 import time
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import numpy as np
 import ray
 import yaml
-from ray.rllib.agents import ppo
+from ray.rllib.agents.ppo import PPOTrainer
+
+from flatlander.models.common.transformer_ppo_policy import TTFPPOPolicyInfer
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from flatland.envs.observations import TreeObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
@@ -35,10 +38,11 @@ def init():
         small_tree=False
     )
 
-    ray.init(local_mode=False, num_cpus=1, num_gpus=1)
-    agent = ppo.PPOTrainer(config=config, env="flatland_sparse")
+    ray.init(local_mode=False, num_gpus=0)
+    agent = PPOTrainer.with_updates(name="TTFPPOPolicyInfer",
+                                    get_policy_class=lambda c: TTFPPOPolicyInfer)(config=config)
     agent.restore(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                               "model_checkpoints/tree_tf_1/checkpoint_5070/checkpoint-5070")))
+                                               "model_checkpoints/tree_tf_1/checkpoint_5070/checkpoint-5070/")))
     policy = agent.get_policy()
     return policy, obs_builder
 
@@ -84,19 +88,21 @@ def evaluate(policy, obs_builder):
                 time_taken_per_step.append(time_taken)
                 print('.', end='', flush=True)
 
-                if done['__all__']:
-                    reward_values = np.array(list(all_rewards.values()))
-                    gained_reward = np.sum(1 + reward_values)
-                    total_reward += gained_reward
-                    print("\n\nGained reward: ", gained_reward, "/ Max possible:",
-                          np.sum(1 + np.ones_like(reward_values)))
-                    print("Total reward: ", total_reward, "\n")
-                    break
             else:
                 time_start = time.time()
                 _, all_rewards, done, info = remote_client.env_step({})
                 step_time = time.time() - time_start
                 time_taken_per_step.append(step_time)
+                print('!', end='', flush=True)
+
+            if done['__all__']:
+                reward_values = np.array(list(all_rewards.values()))
+                gained_reward = np.sum(1 + reward_values)
+                total_reward += gained_reward
+                print("\n\nGained reward: ", gained_reward, "/ Max possible:",
+                      np.sum(1 + np.ones_like(reward_values)))
+                print("Total reward: ", total_reward, "\n")
+                break
 
         np_time_taken_by_controller = np.array(time_taken_by_controller)
         np_time_taken_per_step = np.array(time_taken_per_step)

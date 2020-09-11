@@ -1,11 +1,10 @@
 import logging
 
 import gym
-import numpy as np
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from ray.rllib.utils import try_import_tf
 
-from flatlander.models.common.tree_transformer import Transformer
+from flatlander.models.common.transformer import Transformer
 
 tf = try_import_tf()
 
@@ -73,16 +72,8 @@ class FixedTreeTransformer(TFModelV2):
         self._baseline = tf.reshape(value_target, [-1])
         return policy_target
 
-    def _traceback(self):
-        self._logger.error("policy_out:" + str(self._z.numpy()))
-        self._logger.error("obs_seq:" + str(self._padded_obs_seq.numpy()))
-        self._logger.error("enc_seq" + str(self._padded_enc_seq.numpy()))
-
     def variables(self, **kwargs):
         return self.transformer.variables
 
     def value_function(self):
         return self._baseline
-
-    def __del__(self):
-        self._traceback()

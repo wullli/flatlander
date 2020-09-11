@@ -1,0 +1,41 @@
+sac-tree-obs-variable-v0:
+    run: SAC
+    env: flatland_variable
+    stop:
+        timesteps_total: 15000000  # 1.5e7
+    checkpoint_at_end: True
+    checkpoint_score_attr: episode_reward_mean
+    checkpoint_freq: 10
+    keep_checkpoints_num: 5
+    num_samples: 1
+    config:
+        num_workers: 6
+        num_envs_per_worker: 5
+        num_gpus: 1
+
+        normalize_actions: False
+
+        env_config:
+            observation: tree
+            observation_config:
+                max_depth: 3
+                shortest_path_max_depth: 30
+                normalize_fixed: 100
+
+            generator: sparse_rail_generator
+            generator_config: variable_v0
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["variable_v0", "tree_obs", "sac", "custom"] # TODO should be set programmatically
+
+        twin_q: True
+        policy_model:
+            fcnet_activation: relu
+            fcnet_hiddens: [512, 512, 512]
+
+        Q_model:
+            fcnet_activation: relu
+            fcnet_hiddens: [512, 512, 512]
+

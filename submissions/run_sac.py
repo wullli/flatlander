@@ -1,5 +1,7 @@
 import os
 
+from flatlander.utils.deadlock_check import check_if_all_blocked
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import time
 
@@ -68,21 +70,28 @@ def evaluate(policy, obs_builder):
         time_taken_per_step = []
         steps = 0
         while True:
-            time_start = time.time()
+            if not check_if_all_blocked(env=remote_client.env):
+                time_start = time.time()
 
-            obs_batch = np.array(list(observation.values()))
-            action_batch = policy.compute_actions(obs_batch, explore=False)
-            actions = dict(zip(observation.keys(), action_batch[0]))
+                obs_batch = np.array(list(observation.values()))
+                action_batch = policy.compute_actions(obs_batch, explore=False)
+                actions = dict(zip(observation.keys(), action_batch[0]))
 
-            time_taken = time.time() - time_start
-            time_taken_by_controller.append(time_taken)
+                time_taken = time.time() - time_start
+                time_taken_by_controller.append(time_taken)
 
-            time_start = time.time()
-            observation, all_rewards, done, info = remote_client.env_step(actions)
-            steps += 1
-            time_taken = time.time() - time_start
-            time_taken_per_step.append(time_taken)
-            print('.', end='', flush=True)
+                time_start = time.time()
+                observation, all_rewards, done, info = remote_client.env_step(actions)
+                steps += 1
+                time_taken = time.time() - time_start
+                time_taken_per_step.append(time_taken)
+                print('.', end='', flush=True)
+            else:
+                time_start = time.time()
+                _, all_rewards, done, info = remote_client.env_step({})
+                step_time = time.time() - time_start
+                time_taken_per_step.append(step_time)
+                print('!', end='', flush=True)
 
             if done['__all__']:
                 reward_values = np.array(list(all_rewards.values()))
