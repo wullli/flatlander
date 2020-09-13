@@ -42,7 +42,7 @@ flatland-sparse-fixed-tree-transformer-ppo-global:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["ppo", "small_v0", "fixed", "tree", "transformer", "custom"]
+                tags: ["ppo", "small_v0", "fixed", "tree", "transformer", "custom", "global_reward"]
 
         model:
             custom_model: fixed_tree_transformer
