@@ -186,6 +186,8 @@ class CooperationRewardWrapper(gym.Wrapper):
             d[agent_id] = done[agent_id]
             i[agent_id] = info[agent_id]
             r[agent_id] = (reward[agent_id] + np.mean(reward.values())) / 2
+
+        d['__all__'] = done['__all__'] or all(d.values())
         return StepOutput(o, r, d, i)
 
     def reset(self, random_seed: Optional[int] = None) -> Dict[int, Any]:
@@ -205,7 +207,9 @@ class GlobalRewardWrapper(gym.Wrapper):
             o[agent_id] = obs[agent_id]
             d[agent_id] = done[agent_id]
             i[agent_id] = info[agent_id]
-            r[agent_id] = np.mean(reward.values())
+            r[agent_id] = np.mean(list(reward.values()))
+
+        d['__all__'] = done['__all__'] or all(d.values())
         return StepOutput(o, r, d, i)
 
     def reset(self, random_seed: Optional[int] = None) -> Dict[int, Any]:

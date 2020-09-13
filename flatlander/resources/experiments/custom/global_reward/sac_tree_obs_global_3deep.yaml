@@ -22,8 +22,6 @@ sac-tree-obs-small-v0-global:
             generator: sparse_rail_generator
             generator_config: small_v0
 
-            skip_no_choice_cells: True
-            accumulate_skipped_rewards: True
             global_reward: True
 
             wandb:
