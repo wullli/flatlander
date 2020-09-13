@@ -19,6 +19,7 @@ class Transformer(tf.keras.Model):
                  policy_layers: List[int],
                  n_actions,
                  dropout_rate=0.1,
+                 sequential=False,
                  use_cnn_decoding=False,
                  use_positional_encoding=True):
         super(Transformer, self).__init__()

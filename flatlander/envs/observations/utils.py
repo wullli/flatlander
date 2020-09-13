@@ -1,6 +1,7 @@
 import numpy as np
 
-from flatland.envs.observations import TreeObsForRailEnv, Node
+from flatland.envs.observations import Node
+from flatlander.envs.observations.builders.coop_tree import CoopNode
 
 
 def max_lt(seq, val):
@@ -56,25 +57,44 @@ def norm_obs_clip(obs, clip_min=-1, clip_max=1, fixed_radius=0, normalize_to_ran
 
 
 def _get_small_node_feature_vector(node: Node) -> np.ndarray:
-    data = np.zeros(4)
+    data = np.zeros(3)
     distance = np.zeros(1)
-    agent_data = np.zeros(3)
+    agent_data = np.zeros(2)
 
-    data[0] = node.dist_own_target_encountered
-    data[1] = node.dist_potential_conflict
-    data[2] = node.dist_unusable_switch
-    data[3] = node.dist_other_agent_encountered
+    data[0] = node.dist_potential_conflict
+    data[1] = node.dist_unusable_switch
+    data[2] = node.dist_other_agent_encountered
 
     distance[0] = node.dist_min_to_target
 
     agent_data[0] = node.num_agents_opposite_direction
     agent_data[1] = node.num_agents_malfunctioning
-    agent_data[2] = node.speed_min_fractional
 
     data = norm_obs_clip(data, fixed_radius=10)
     distance = norm_obs_clip(distance, fixed_radius=100)
     agent_data = np.clip(agent_data, -1, 1)
     normalized_obs = np.concatenate([data, distance, agent_data])
+
+    return normalized_obs
+
+
+def _get_coop_node_feature_vector(node: CoopNode) -> np.ndarray:
+    data = np.zeros(2)
+    distance = np.zeros(1)
+    agent_data = np.zeros(1)
+    agents_handle = node.potential_conflict_handle
+
+    data[0] = node.dist_potential_conflict
+    data[1] = node.dist_unusable_switch
+
+    distance[0] = node.dist_min_to_target
+
+    agent_data[0] = node.num_agents_malfunctioning
+
+    data = norm_obs_clip(data, fixed_radius=10)
+    distance = norm_obs_clip(distance, fixed_radius=100)
+    agent_data = norm_obs_clip(agent_data, fixed_radius=10)
+    normalized_obs = np.concatenate([agents_handle, data, distance, agent_data])
 
     return normalized_obs
 
@@ -104,4 +124,3 @@ def _get_node_feature_vector(node: Node) -> (np.ndarray, np.ndarray, np.ndarray)
     normalized_obs = np.concatenate([data, distance, agent_data])
 
     return normalized_obs
-

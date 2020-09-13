@@ -16,11 +16,14 @@ sac-tree-obs-small-v0:
         env_config:
             observation: tree
             observation_config:
-                max_depth: 3
+                max_depth: 2
                 shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
             generator_config: small_v0
+
+            skip_no_choice_cells: True
+            accumulate_skipped_rewards: True
 
             wandb:
                 project: flatland

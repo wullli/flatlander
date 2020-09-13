@@ -13,7 +13,7 @@ from flatlander.envs.observations import make_obs
 from flatlander.envs.utils.gym_env import FlatlandGymEnv
 from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, SkipNoChoiceCellsWrapper, \
     SparseRewardWrapper, \
-    DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper
+    DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper, CooperationRewardWrapper, GlobalRewardWrapper
 
 from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as RailEnv
 
@@ -50,6 +50,10 @@ class FlatlandSparse(FlatlandBase):
         if env_config.get('sparse_reward', False):
             self._env = SparseRewardWrapper(self._env, finished_reward=env_config.get('done_reward', 1),
                                             not_finished_reward=env_config.get('not_finished_reward', -1))
+        if env_config.get('cooperation_reward', False):
+            self._env = CooperationRewardWrapper(self._env)
+        if env_config.get('global_reward', False):
+            self._env = GlobalRewardWrapper(self._env)
         if env_config.get('deadlock_reward', 0) != 0:
             self._env = DeadlockWrapper(self._env, deadlock_reward=env_config['deadlock_reward'])
         if env_config.get('resolve_deadlocks', False):

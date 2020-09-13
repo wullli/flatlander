@@ -33,6 +33,7 @@ class TreeObservation(Observation):
             nr_nodes += np.power(4, i)
         return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(num_features_per_node * nr_nodes,))
 
+
 def _split_node_into_feature_groups(node: Node) -> (np.ndarray, np.ndarray, np.ndarray):
     data = np.zeros(6)
     distance = np.zeros(1)
@@ -56,7 +57,7 @@ def _split_node_into_feature_groups(node: Node) -> (np.ndarray, np.ndarray, np.n
 
 
 def _split_subtree_into_feature_groups(node: Node, current_tree_depth: int, max_tree_depth: int) -> (
-np.ndarray, np.ndarray, np.ndarray):
+        np.ndarray, np.ndarray, np.ndarray):
     if node == -np.inf:
         remaining_depth = max_tree_depth - current_tree_depth
         # reference: https://stackoverflow.com/questions/515214/total-number-of-nodes-in-a-tree-data-structure

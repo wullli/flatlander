@@ -23,7 +23,7 @@ remote_client = FlatlandRemoteClient()
 
 def init():
     with open(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                           "model_checkpoints/sac_small_v0/checkpoint-51089/config.yaml"))) as f:
+                                           "model_checkpoints/sac_medium_v0/checkpoint_58785/config.yaml"))) as f:
         config = yaml.safe_load(f)
     load_envs("../flatlander/runner")
 
@@ -42,7 +42,7 @@ def init():
     ray.init(local_mode=True, num_cpus=1, num_gpus=1)
     agent = sac.SACTrainer(config=config, env="flatland_sparse")
     agent.restore(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                               "model_checkpoints/sac_small_v0/checkpoint-51089/checkpoint-51089")))
+                                               "model_checkpoints/sac_medium_v0/checkpoint_58785/checkpoint-58785")))
     policy = agent.get_policy()
     return policy, obs_builder
 
@@ -82,10 +82,20 @@ def evaluate(policy, obs_builder):
 
                 time_start = time.time()
                 observation, all_rewards, done, info = remote_client.env_step(actions)
+
                 steps += 1
+
+                while len(observation) == 0:
+                    if done['__all__']:
+                        break
+                    observation, all_rewards, done, info = remote_client.env_step({})
+                    print('.', end='', flush=True)
+                    steps += 1
+
                 time_taken = time.time() - time_start
                 time_taken_per_step.append(time_taken)
                 print('.', end='', flush=True)
+
             else:
                 time_start = time.time()
                 _, all_rewards, done, info = remote_client.env_step({})
@@ -97,7 +107,7 @@ def evaluate(policy, obs_builder):
                 reward_values = np.array(list(all_rewards.values()))
                 gained_reward = np.mean(1 + reward_values)
                 total_reward += gained_reward
-                print("\n\nGained reward: ", gained_reward, "/ Max possible: 1")
+                print("\n\nGained reward: ", gained_reward, "/ Max possible:",1)
                 print("Total reward: ", total_reward, "\n")
                 break
 

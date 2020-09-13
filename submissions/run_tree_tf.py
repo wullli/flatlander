@@ -22,7 +22,7 @@ remote_client = FlatlandRemoteClient()
 
 def init():
     with open(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                           "model_checkpoints/tree_tf_1/checkpoint_5070/config.yaml"))) as f:
+                                           "model_checkpoints/tree_tf_1/checkpoint_5860_scaling/config.yaml"))) as f:
         config = yaml.safe_load(f)
     load_envs(os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../flatlander/runner")))
@@ -42,7 +42,7 @@ def init():
     agent = PPOTrainer.with_updates(name="TTFPPOPolicyInfer",
                                     get_policy_class=lambda c: TTFPPOPolicyInfer)(config=config)
     agent.restore(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                               "model_checkpoints/tree_tf_1/checkpoint_5070/checkpoint-5070/")))
+                                               "model_checkpoints/tree_tf_1/checkpoint_5860_scaling/checkpoint-5860")))
     policy = agent.get_policy()
     return policy, obs_builder
 
@@ -98,6 +98,8 @@ def evaluate(policy, obs_builder):
                 print('.', end='', flush=True)
 
             else:
+                if done['__all__']:
+                    break
                 time_start = time.time()
                 _, all_rewards, done, info = remote_client.env_step({})
                 step_time = time.time() - time_start
