@@ -1,0 +1,42 @@
+sac-tree-obs-small-v0-global:
+    run: SAC
+    env: flatland_sparse
+    stop:
+        timesteps_total: 15000000  # 1.5e7
+    checkpoint_at_end: True
+    checkpoint_score_attr: episode_reward_mean
+    num_samples: 1
+    config:
+        num_workers: 7
+        num_envs_per_worker: 5
+        num_gpus: 1
+
+        normalize_actions: False
+
+        env_config:
+            observation: tree
+            observation_config:
+                max_depth: 2
+                shortest_path_max_depth: 30
+
+            generator: sparse_rail_generator
+            generator_config: small_v0
+
+            skip_no_choice_cells: True
+            accumulate_skipped_rewards: True
+            global_reward: True
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["small_v0", "tree_obs", "sac", "custom", "global_reward"] # TODO should be set programmatically
+
+        twin_q: True
+        policy_model:
+            fcnet_activation: relu
+            fcnet_hiddens: [512, 512]
+
+        Q_model:
+            fcnet_activation: relu
+            fcnet_hiddens: [512, 512]
+
