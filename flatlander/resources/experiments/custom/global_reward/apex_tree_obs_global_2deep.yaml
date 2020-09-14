@@ -1,8 +1,8 @@
 flatland-sparse-small-tree-fc-apex-global:
-    run: APEX
+    run: APEXWarmup
     env: flatland_sparse
     stop:
-        timesteps_total: 5000000 # 5e6
+        timesteps_total: 20000000 # 2e7
     checkpoint_freq: 10
     checkpoint_at_end: True
     keep_checkpoints_num: 5
@@ -30,7 +30,7 @@ flatland-sparse-small-tree-fc-apex-global:
 
         model:
             fcnet_activation: relu
-            fcnet_hiddens: [256, 256]
+            fcnet_hiddens: [256, 256, 256]
             vf_share_layers: True
 
 

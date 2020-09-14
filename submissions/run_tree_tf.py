@@ -6,7 +6,7 @@ import ray
 import yaml
 from ray.rllib.agents.ppo import PPOTrainer
 
-from flatlander.models.common.transformer_ppo_policy import TTFPPOPolicyInfer
+from flatlander.models.common.warmup_learning_rate import TTFPPOPolicyInfer
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
