@@ -1,9 +1,6 @@
 import math
 
 from ray.rllib import Policy, TFPolicy
-from ray.rllib.agents.dqn import DQNTrainer
-from ray.rllib.agents.dqn.dqn_tf_policy import DQNTFPolicy, ComputeTDErrorMixin
-from ray.rllib.agents.dqn.simple_q_tf_policy import TargetNetworkMixin
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_tf_policy import ValueNetworkMixin, PPOTFPolicy
 from ray.rllib.agents.ppo.ppo_torch_policy import KLCoeffMixin
@@ -11,8 +8,6 @@ from ray.rllib.policy.tf_policy import EntropyCoeffSchedule, LearningRateSchedul
 from ray.rllib.utils import override, DeveloperAPI, try_import_tf
 from ray.tune import register_trainable
 import numpy as np
-
-from flatlander.alg.dynapex import DYNAPEX_DEFAULT_CONFIG, apex_execution_plan
 
 tf = try_import_tf()
 
@@ -69,50 +64,6 @@ TTFPPOPolicyInfer = PPOTFPolicy.with_updates(
         ValueNetworkMixin
     ])
 
-
-def setup_early_mixins(policy, obs_space, action_space, config):
-    LearningRateSchedule.__init__(policy, config["lr"], config["lr_schedule"])
-
-
-def setup_mid_mixins(policy, obs_space, action_space, config):
-    ComputeTDErrorMixin.__init__(policy)
-    warmup_steps = config["model"]["custom_options"].get("warmup_steps", 100000)
-    TransformerLearningRateSchedule.__init__(policy,
-                                             config["model"]["custom_options"]["transformer"]["num_heads"],
-                                             warmup_steps)
-
-
-def setup_late_mixins(policy, obs_space, action_space, config):
-    TargetNetworkMixin.__init__(policy, obs_space, action_space, config)
-
-
-DQNTFWarmupPolicy = DQNTFPolicy.with_updates(
-    name="DQNTFWarmupPolicy",
-    before_init=setup_early_mixins,
-    before_loss_init=setup_mid_mixins,
-    after_init=setup_late_mixins,
-    obs_include_prev_action_reward=False,
-    mixins=[
-        TransformerLearningRateSchedule,
-        TargetNetworkMixin,
-        ComputeTDErrorMixin,
-        LearningRateSchedule,
-    ])
-
-ApexTrainer = DQNTrainer.with_updates(
-    name="DYNAPEXWarmup",
-    default_policy=DQNTFWarmupPolicy,
-    default_config=DYNAPEX_DEFAULT_CONFIG,
-    execution_plan=apex_execution_plan)
-
-register_trainable(
-    "APEXWarmup",
-    DQNTrainer.with_updates(
-        name="DYNAPEXWarmup",
-        default_config=DYNAPEX_DEFAULT_CONFIG,
-        default_policy=DQNTFWarmupPolicy,
-        execution_plan=apex_execution_plan)
-)
 
 register_trainable(
     "TTFPPO",

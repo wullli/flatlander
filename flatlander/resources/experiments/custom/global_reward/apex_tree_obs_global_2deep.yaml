@@ -1,5 +1,5 @@
 flatland-sparse-small-tree-fc-apex-global:
-    run: APEXWarmup
+    run: APEX
     env: flatland_sparse
     stop:
         timesteps_total: 20000000 # 2e7
