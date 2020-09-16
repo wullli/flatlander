@@ -19,6 +19,8 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
         d, r, o = None, None, None
         obs_or_done = False
 
+        action_dict = {k: v for k, v in action_dict.items() if k not in self._agents_done}
+
         while not obs_or_done:
             # Perform envs steps as long as there is no observation (for all agents) or all agents are done
             # The observation is `None` if an agent is done or malfunctioning.
@@ -28,17 +30,16 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
             d, r, o = dict(), dict(), dict()
             for agent in self.agent_keys + ["__all__"]:
                 if agent != '__all__':
-                    if self.agent_done_independent and agent not in self._agents_done:
-                        if dones.get(agent, False):
+                    if dones.get(agent, False):
+                        if agent not in self._agents_done:
                             self._agents_done.append(agent)
+                    if self.agent_done_independent and agent not in self._agents_done:
                         o[agent] = obs.get(agent, self.fill_value)
                         r[agent] = rewards.get(agent, 0)
                         self._agent_scores[agent] += rewards.get(agent, 0)
                         self._agent_steps[agent] += 1
 
                     elif not self.agent_done_independent:
-                        if dones.get(agent, False):
-                            self._agents_done.append(agent)
                         o[agent] = obs.get(agent, self.fill_value)
                         r[agent] = rewards.get(agent, 0)
                         self._agent_scores[agent] += rewards.get(agent, 0)
