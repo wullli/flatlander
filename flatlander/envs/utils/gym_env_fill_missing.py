@@ -10,7 +10,8 @@ from flatlander.envs.utils.gym_env import FlatlandGymEnv, StepOutput
 class FillingFlatlandGymEnv(FlatlandGymEnv):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
-        self.fill_value = np.full(shape=self.observation_space.shape, fill_value=config.get("fill_value", 0))
+        self.missing_fill_value = np.full(shape=self.observation_space.shape, fill_value=config.get("missing_fill_value", -1))
+        self.done_fill_value = np.full(shape=self.observation_space.shape, fill_value=config.get("done_fill_value", 1))
         self.agent_keys = list(range(config.get("n_agents", 5)))
         self.agent_done_independent = config.get("agents_done_independent", False)
 
@@ -34,18 +35,18 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
                             self._agents_done.append(agent)
                     if self.agent_done_independent and agent not in self._agents_done:
                         if agent in self._agents_done:
-                            o[agent] = self.fill_value - 1.
+                            o[agent] = self.done_fill_value
                         else:
-                            o[agent] = obs.get(agent, self.fill_value)
+                            o[agent] = obs.get(agent, self.missing_fill_value)
                         r[agent] = rewards.get(agent, 0)
                         self._agent_scores[agent] += rewards.get(agent, 0)
                         self._agent_steps[agent] += 1
 
                     elif not self.agent_done_independent:
                         if agent in self._agents_done:
-                            o[agent] = self.fill_value - 1.
+                            o[agent] = self.done_fill_value
                         else:
-                            o[agent] = obs.get(agent, self.fill_value)
+                            o[agent] = obs.get(agent, self.missing_fill_value)
                         r[agent] = rewards.get(agent, 0)
                         self._agent_scores[agent] += rewards.get(agent, 0)
                         self._agent_steps[agent] += 1
