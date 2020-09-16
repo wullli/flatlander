@@ -15,6 +15,7 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
         self.done_fill_value = np.full(shape=self.observation_space.shape, fill_value=config.get("done_fill_value", 1))
         self.agent_keys = list(range(config.get("n_agents", 5)))
         self.agent_done_independent = config.get("agents_done_independent", False)
+        self.prev_obs = defaultdict(lambda : self.missing_fill_value)
 
     def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:
         d, r, o = None, None, None
@@ -35,19 +36,13 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
                         if agent not in self._agents_done:
                             self._agents_done.append(agent)
                     if self.agent_done_independent and agent not in self._agents_done:
-                        if agent in self._agents_done:
-                            o[agent] = self.done_fill_value
-                        else:
-                            o[agent] = obs.get(agent, self.missing_fill_value)
+                        o[agent] = obs.get(agent, self.prev_obs[agent])
                         r[agent] = rewards.get(agent, 0)
                         self._agent_scores[agent] += rewards.get(agent, 0)
                         self._agent_steps[agent] += 1
 
                     elif not self.agent_done_independent:
-                        if agent in self._agents_done:
-                            o[agent] = self.done_fill_value
-                        else:
-                            o[agent] = obs.get(agent, self.missing_fill_value)
+                        o[agent] = obs.get(agent, self.prev_obs[agent])
                         r[agent] = rewards.get(agent, 0)
                         self._agent_scores[agent] += rewards.get(agent, 0)
                         self._agent_steps[agent] += 1
@@ -61,6 +56,8 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
             obs_or_done = len(o) > 0 or d['__all__']  # step through envs as long as there are no obs/all agents done
 
         assert all([x is not None for x in (d, r, o)])
+
+        self.prev_obs = o
 
         return StepOutput(obs=o, reward=r, done=d, info={agent: {
             'max_episode_steps': self.rail_env._max_episode_steps,
@@ -79,9 +76,3 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
                                          random_seed=random_seed)
         return {k: obs.get(k, self.missing_fill_value)
                 for k in self.agent_keys}
-
-    def render(self, mode='human'):
-        return self.rail_env.render(mode)
-
-    def close(self):
-        self.rail_env.close()
