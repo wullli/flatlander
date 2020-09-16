@@ -130,6 +130,16 @@ class ExperimentRunner:
             lambda config: FlatlandSparse(config).with_agent_groups(
                 grouping, obs_space=obs_space, act_space=act_space))
 
+    def setup_policy_map(self, config: dict):
+        obs_space = make_obs(config["env_config"]["observation"],
+                             config["env_config"]["observation_config"]).observation_space()
+        config["env_config"]["learning_starts"] = 100
+        config["env_config"]["actions_are_logits"] = True
+        config["multiagent"] = {
+            "policies": {"pol_" + str(i): (None, obs_space, FillingFlatlandGymEnv.action_space, {"agent_id": i})
+                         for i in range(config["env_config"]["n_agents"])},
+            "policy_mapping_fn": lambda agent_id: "pol_" + str(agent_id)}
+
     def apply_args(self, run_args, experiments: dict):
         verbose = 1
         webui_host = '127.0.0.1'
@@ -193,6 +203,9 @@ class ExperimentRunner:
 
             if exp["run"] in self.group_algorithms:
                 self.setup_grouping(exp.get("config"))
+
+            if exp["run"] == "contrib/MADDPG":
+                self.setup_policy_map(exp.get("config"))
 
             if args is not None:
                 experiments, verbose = self.apply_args(run_args=args, experiments=experiments)

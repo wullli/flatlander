@@ -160,10 +160,10 @@ dependencies:
     - subprocess32==3.5.4
     - svgutils==0.3.1
     - tabulate==0.8.7
-    - tensorboard==2.1.1
-    - tensorboardx==2.1
-    - tensorflow_gpu==2.1.0
-    - tensorflow-estimator==2.1.0
+    - tensorboard==2.3
+    - tensorboardx==2.3
+    - tensorflow_gpu==2.3.0
+    - tensorflow-estimator==2.3.0
     - termcolor==1.1.0
     - timeout-decorator==0.4.1
     - toml==0.10.0

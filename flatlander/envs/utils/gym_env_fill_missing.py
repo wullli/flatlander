@@ -31,7 +31,7 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
                     r[agent] = rewards.get(agent, 0)
                     self._agent_scores[agent] += rewards.get(agent, 0)
                     self._agent_steps[agent] += 1
-                d[agent] = dones[agent] if not agent in self._agents_done else True
+                d[agent] = dones["__all__"]
 
             action_dict = {}  # reset action dict for cases where we do multiple envs steps
             obs_or_done = len(o) > 0 or d['__all__']  # step through envs as long as there are no obs/all agents done

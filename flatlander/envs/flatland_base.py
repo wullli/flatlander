@@ -1,3 +1,4 @@
+import numpy as np
 from gym.wrappers import monitor
 from ray.rllib import MultiAgentEnv
 
@@ -11,7 +12,16 @@ class FlatlandBase(MultiAgentEnv):
         'semantics.autoreset': True
     }
 
+    def __init__(self, actions_are_logits=False):
+        self._actions_are_logits = actions_are_logits
+
     def step(self, action_dict):
+        if self._actions_are_logits:
+            action_dict = {
+                k: np.random.choice([0, 1, 2, 3, 4], p=v)
+                for k, v in action_dict.items()
+            }
+
         obs, all_rewards, done, info = self._env.step(action_dict)
         if done['__all__']:
             self.close()

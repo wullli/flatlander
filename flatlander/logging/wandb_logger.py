@@ -18,6 +18,9 @@ def find(pattern, path):
     return result
 
 
+ignored_keys = ["callbacks", "policies", "policy_mapping_fn"]
+
+
 class WandbLogger(tune.logger.Logger):
     """Pass WandbLogger to the loggers argument of tune.run
 
@@ -166,7 +169,7 @@ def wandb_process(queue, config) -> None:
 
     if config:
         for k in config.keys():
-            if k != "callbacks":
+            if k not in ignored_keys:
                 if wandb.config.get(k) is None:
                     wandb.config[k] = config[k]
 

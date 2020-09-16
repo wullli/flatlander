@@ -1,5 +1,5 @@
-flatland-sparse-small-tree-fc-apex-global:
-    run: APEX
+flatland-sparse-small-tree-fc-maddpg-global:
+    run: contrib/MADDPG
     env: flatland_sparse
     stop:
         timesteps_total: 20000000 # 2e7
@@ -18,7 +18,6 @@ flatland-sparse-small-tree-fc-apex-global:
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
-                concat_agent_id: True
 
             generator: sparse_rail_generator
             generator_config: small_v0
@@ -29,11 +28,6 @@ flatland-sparse-small-tree-fc-apex-global:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "baseline", "global_reward"]
-
-        model:
-            fcnet_activation: relu
-            fcnet_hiddens: [256, 256, 256]
-            vf_share_layers: True
+                tags: ["small_v0", "tree_obs", "maddpg", "baseline", "global_reward"]
 
 

@@ -23,7 +23,7 @@ class FlatlandSparse(FlatlandBase):
     _gym_envs = {"default": FlatlandGymEnv, "fill_missing": FillingFlatlandGymEnv}
 
     def __init__(self, env_config) -> None:
-        super().__init__()
+        super().__init__(env_config.get("actions_are_logits", False))
 
         assert env_config['generator'] == 'sparse_rail_generator'
         self._env_config = env_config
@@ -48,7 +48,7 @@ class FlatlandSparse(FlatlandBase):
             render=env_config.get('render'),
             regenerate_rail_on_reset=self._config['regenerate_rail_on_reset'],
             regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset'],
-            num_agents=env_config["n_agents"]
+            num_agents=env_config.get("n_agents", None)
         )
         if env_config['observation'] == 'shortest_path':
             self._env = ShortestPathActionWrapper(self._env)
@@ -71,6 +71,7 @@ class FlatlandSparse(FlatlandBase):
             self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
         if env_config.get('fill_unavailable_actions', False):
             self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
+
 
     @property
     def observation_space(self) -> gym.spaces.Space:
