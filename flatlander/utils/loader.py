@@ -11,7 +11,7 @@ from ray.rllib.models import Model
 from ray.rllib.models import ModelCatalog
 from ray.rllib.models.modelv2 import ModelV2
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
-from ray.tune import registry
+from ray.tune import registry, register_env
 
 """
 Helper functions
