@@ -171,7 +171,10 @@ def wandb_process(queue, config) -> None:
         for k in config.keys():
             if k not in ignored_keys:
                 if wandb.config.get(k) is None:
-                    wandb.config[k] = config[k]
+                    try:
+                        wandb.config[k] = config[k]
+                    except:
+                        pass
 
         if 'yaml_config' in config['env_config']:
             yaml_config = config['env_config']['yaml_config']

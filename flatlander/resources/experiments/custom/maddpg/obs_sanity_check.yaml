@@ -25,7 +25,7 @@ flatland-sparse-small-tree-fc-apex-global:
             generator_config: small_v0
 
             global_reward: True
-            agents_done_independent: True
+            agents_done_independent: False
             gym_env: fill_missing
 
             wandb:
