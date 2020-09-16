@@ -36,6 +36,7 @@ flatland-sparse-small-tree-fc-qmix-global:
 
             global_reward: True
             gym_env: fill_missing
+            agents_done_independent: True
 
             wandb:
                 project: flatland

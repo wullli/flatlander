@@ -9,29 +9,45 @@ import numpy as np
 
 
 class FillingFlatlandGymEnv(FlatlandGymEnv):
-    def __init__(self, num_agents, **kwargs):
+    def __init__(self, num_agents, agents_done_independent, **kwargs):
         super().__init__(**kwargs)
         self.fill_value = np.full(shape=self.observation_space.shape, fill_value=0)
         self.agent_keys = list(range(num_agents))
+        self.agent_done_independent = agents_done_independent
 
     def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:
         d, r, o = None, None, None
         obs_or_done = False
+
         while not obs_or_done:
             # Perform envs steps as long as there is no observation (for all agents) or all agents are done
             # The observation is `None` if an agent is done or malfunctioning.
+
             obs, rewards, dones, infos = self.rail_env.step(action_dict)
 
             d, r, o = dict(), dict(), dict()
             for agent in self.agent_keys + ["__all__"]:
                 if agent != '__all__':
-                    if dones.get(agent, False):
-                        self._agents_done.append(agent)
-                    o[agent] = obs.get(agent, self.fill_value)
-                    r[agent] = rewards.get(agent, 0)
-                    self._agent_scores[agent] += rewards.get(agent, 0)
-                    self._agent_steps[agent] += 1
-                d[agent] = dones["__all__"]
+                    if self.agent_done_independent and agent not in self._agents_done:
+                        if dones.get(agent, False):
+                            self._agents_done.append(agent)
+                        o[agent] = obs.get(agent, self.fill_value)
+                        r[agent] = rewards.get(agent, 0)
+                        self._agent_scores[agent] += rewards.get(agent, 0)
+                        self._agent_steps[agent] += 1
+
+                    elif not self.agent_done_independent:
+                        if dones.get(agent, False):
+                            self._agents_done.append(agent)
+                        o[agent] = obs.get(agent, self.fill_value)
+                        r[agent] = rewards.get(agent, 0)
+                        self._agent_scores[agent] += rewards.get(agent, 0)
+                        self._agent_steps[agent] += 1
+
+                if self.agent_done_independent:
+                    d[agent] = dones[agent]
+                else:
+                    d[agent] = dones["__all__"]
 
             action_dict = {}  # reset action dict for cases where we do multiple envs steps
             obs_or_done = len(o) > 0 or d['__all__']  # step through envs as long as there are no obs/all agents done
@@ -44,7 +60,7 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
             'agent_done': d.get(agent, False) and agent not in self.rail_env.active_agents,
             'agent_score': self._agent_scores.get(agent, 0),
             'agent_step': self._agent_steps.get(agent, 0),
-        } for agent in self.agent_keys})
+        } for agent in o.keys()})
 
     def reset(self, random_seed: Optional[int] = None) -> Dict[int, Any]:
         self._agents_done = []
