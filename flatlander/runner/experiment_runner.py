@@ -26,6 +26,7 @@ ray_results.DEFAULT_RESULTS_DIR = os.path.join(os.getcwd(), "..", "..", "..", "f
 
 
 class ExperimentRunner:
+    group_algorithms = ["QMIX", "QMIXApex"]
 
     def __init__(self):
         self.tf = try_import_tf()
@@ -119,9 +120,7 @@ class ExperimentRunner:
         }
 
         obs_space = Tuple([make_obs(config["env_config"]["observation"],
-                                    {"max_depth": config["env_config"]["observation_config"]["max_depth"],
-                                     "shortest_path_max_depth": config["env_config"]["observation_config"][
-                                         "shortest_path_max_depth"]}).observation_space()
+                                    config["env_config"]["observation_config"]).observation_space()
                            for _ in range(config["env_config"]["n_agents"])])
 
         act_space = Tuple([FillingFlatlandGymEnv.action_space for _ in range(config["env_config"]["n_agents"])])
@@ -192,7 +191,7 @@ class ExperimentRunner:
                         input_file = rllib_dir.absolute().joinpath(exp["config"]["input"])
                         exp["config"]["input"] = str(input_file)
 
-            if exp["run"] == "QMIX":
+            if exp["run"] in self.group_algorithms:
                 self.setup_grouping(exp.get("config"))
 
             if args is not None:
