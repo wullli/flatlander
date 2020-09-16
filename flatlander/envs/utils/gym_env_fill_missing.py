@@ -1,19 +1,18 @@
 from collections import defaultdict
-from typing import Dict, NamedTuple, Any, Optional
+from typing import Dict, Any, Optional
 
-import gym
-
-from flatland.envs.rail_env import RailEnv, RailEnvActions
-from flatlander.envs.utils.gym_env import FlatlandGymEnv, StepOutput
 import numpy as np
+
+from flatland.envs.rail_env import RailEnvActions
+from flatlander.envs.utils.gym_env import FlatlandGymEnv, StepOutput
 
 
 class FillingFlatlandGymEnv(FlatlandGymEnv):
-    def __init__(self, num_agents, agents_done_independent, **kwargs):
+    def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
-        self.fill_value = np.full(shape=self.observation_space.shape, fill_value=0)
-        self.agent_keys = list(range(num_agents))
-        self.agent_done_independent = agents_done_independent
+        self.fill_value = np.full(shape=self.observation_space.shape, fill_value=config.get("fill_value", 0))
+        self.agent_keys = list(range(config.get("n_agents", 5)))
+        self.agent_done_independent = config.get("agents_done_independent", False)
 
     def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:
         d, r, o = None, None, None
@@ -34,13 +33,19 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
                         if agent not in self._agents_done:
                             self._agents_done.append(agent)
                     if self.agent_done_independent and agent not in self._agents_done:
-                        o[agent] = obs.get(agent, self.fill_value)
+                        if agent in self._agents_done:
+                            o[agent] = self.fill_value - 1.
+                        else:
+                            o[agent] = obs.get(agent, self.fill_value)
                         r[agent] = rewards.get(agent, 0)
                         self._agent_scores[agent] += rewards.get(agent, 0)
                         self._agent_steps[agent] += 1
 
                     elif not self.agent_done_independent:
-                        o[agent] = obs.get(agent, self.fill_value)
+                        if agent in self._agents_done:
+                            o[agent] = self.fill_value - 1.
+                        else:
+                            o[agent] = obs.get(agent, self.fill_value)
                         r[agent] = rewards.get(agent, 0)
                         self._agent_scores[agent] += rewards.get(agent, 0)
                         self._agent_steps[agent] += 1
