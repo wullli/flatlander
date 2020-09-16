@@ -47,7 +47,8 @@ class FlatlandSparse(FlatlandBase):
             observation_space=self._observation.observation_space(),
             render=env_config.get('render'),
             regenerate_rail_on_reset=self._config['regenerate_rail_on_reset'],
-            regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset']
+            regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset'],
+            num_agents=env_config["n_agents"]
         )
         if env_config['observation'] == 'shortest_path':
             self._env = ShortestPathActionWrapper(self._env)

@@ -2,7 +2,7 @@ flatland-sparse-small-tree-fc-qmix-global:
     run: QMIX
     env: flatland_sparse_grouped
     stop:
-        timesteps_total: 20000000 # 2e7
+        timesteps_total: 15000000 # 2e7
     checkpoint_freq: 10
     checkpoint_at_end: True
     keep_checkpoints_num: 5
@@ -12,7 +12,18 @@ flatland-sparse-small-tree-fc-qmix-global:
         num_envs_per_worker: 5
         num_gpus: 1
 
+        rollout_fragment_length: 50
+        train_batch_size: 1000
+
+        exploration_config:
+            epsilon_timesteps: 5000
+            final_epsilon: 0.05
+
+        mixer: qmix
+        mixing_embed_dim: 32
+
         env_config:
+            n_agents: 5
             observation: tree
             observation_config:
                 max_depth: 2
@@ -22,16 +33,12 @@ flatland-sparse-small-tree-fc-qmix-global:
             generator_config: small_v0
 
             global_reward: True
-
+            gym_env: fill_missing
 
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "baseline", "global_reward"]
+                tags: ["small_v0", "tree_obs", "qmix", "custom", "global_reward"]
 
-        model:
-            fcnet_activation: relu
-            fcnet_hiddens: [256, 256, 256]
-            vf_share_layers: True
 
 

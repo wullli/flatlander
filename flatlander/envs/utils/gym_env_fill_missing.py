@@ -9,10 +9,10 @@ import numpy as np
 
 
 class FillingFlatlandGymEnv(FlatlandGymEnv):
-    def __init__(self, **kwargs):
+    def __init__(self, num_agents, **kwargs):
         super().__init__(**kwargs)
         self.fill_value = np.full(shape=self.observation_space.shape, fill_value=-1)
-        self.agent_keys = list(range(self.rail_env.get_num_agents()))
+        self.agent_keys = list(range(num_agents))
 
     def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:
         d, r, o = None, None, None
@@ -25,17 +25,13 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
             d, r, o = dict(), dict(), dict()
             for agent in self.agent_keys + ["__all__"]:
                 if agent != '__all__':
-                    continue
-
-                if agent not in self._agents_done:
-                    if agent != '__all__':
-                        if dones.get(agent, False):
-                            self._agents_done.append(agent)
-                        o[agent] = obs.get(agent, self.fill_value)
-                        r[agent] = rewards.get(agent, 0)
-                        self._agent_scores[agent] += rewards.get(agent, 0)
-                        self._agent_steps[agent] += 1
-                    d[agent] = dones[agent]
+                    if dones.get(agent, False):
+                        self._agents_done.append(agent)
+                    o[agent] = obs.get(agent, self.fill_value)
+                    r[agent] = rewards.get(agent, 0)
+                    self._agent_scores[agent] += rewards.get(agent, 0)
+                    self._agent_steps[agent] += 1
+                d[agent] = dones[agent]
 
             action_dict = {}  # reset action dict for cases where we do multiple envs steps
             obs_or_done = len(o) > 0 or d['__all__']  # step through envs as long as there are no obs/all agents done

@@ -3,20 +3,24 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import ray
+import ray.tune.result as ray_results
 import yaml
+from gym.spaces import Tuple
 from ray.cluster_utils import Cluster
 from ray.rllib.evaluation import MultiAgentEpisode
 from ray.rllib.utils import try_import_tf, try_import_torch
-from ray.tune import run_experiments
+from ray.tune import run_experiments, register_env
 from ray.tune.logger import TBXLogger
 from ray.tune.resources import resources_to_json
-import ray.tune.result as ray_results
 from ray.tune.tune import _make_scheduler
 from ray.tune.utils import merge_dicts
 
 from flatlander.envs import get_eval_config
-from flatlander.utils.loader import load_envs, load_models
+from flatlander.envs.flatland_sparse import FlatlandSparse
+from flatlander.envs.observations import make_obs
+from flatlander.envs.utils.gym_env_fill_missing import FillingFlatlandGymEnv
 from flatlander.logging.wandb_logger import WandbLogger
+from flatlander.utils.loader import load_envs, load_models
 
 ray_results.DEFAULT_RESULTS_DIR = os.path.join(os.getcwd(), "..", "..", "..", "flatland-challenge-data/results")
 
@@ -40,19 +44,28 @@ class ExperimentRunner:
         episode_done_agents = 0
         episode_num_swaps = 0
 
-        for agent, agent_info in episode._agent_to_last_info.items():
-            if episode_max_steps == 0:
-                episode_max_steps = agent_info["max_episode_steps"]
-                episode_num_agents = agent_info["num_agents"]
-            episode_steps = max(episode_steps, agent_info["agent_step"])
-            episode_score += agent_info["agent_score"]
-            if "num_swaps" in agent_info:
-                episode_num_swaps += agent_info["num_swaps"]
-            if agent_info["agent_done"]:
-                episode_done_agents += 1
-
-        # Not a valid check when considering a single policy for multiple agents
-        # assert len(episode._agent_to_last_info) == episode_num_agents
+        try:
+            for agent, agent_info in episode._agent_to_last_info.items():
+                if episode_max_steps == 0:
+                    episode_max_steps = agent_info["max_episode_steps"]
+                    episode_num_agents = agent_info["num_agents"]
+                episode_steps = max(episode_steps, agent_info["agent_step"])
+                episode_score += agent_info["agent_score"]
+                if "num_swaps" in agent_info:
+                    episode_num_swaps += agent_info["num_swaps"]
+                if agent_info["agent_done"]:
+                    episode_done_agents += 1
+        except:
+            for agent, agent_info in enumerate(episode._agent_to_last_info["group_1"]["_group_info"]):
+                if episode_max_steps == 0:
+                    episode_max_steps = agent_info["max_episode_steps"]
+                    episode_num_agents = agent_info["num_agents"]
+                episode_steps = max(episode_steps, agent_info["agent_step"])
+                episode_score += agent_info["agent_score"]
+                if "num_swaps" in agent_info:
+                    episode_num_swaps += agent_info["num_swaps"]
+                if agent_info["agent_done"]:
+                    episode_done_agents += 1
 
         norm_factor = 1.0 / (episode_max_steps * episode_num_agents)
         percentage_complete = float(episode_done_agents) / episode_num_agents
@@ -99,6 +112,25 @@ class ExperimentRunner:
 
         return experiments
 
+    @staticmethod
+    def setup_grouping(config: dict):
+        grouping = {
+            "group_1": list(range(config["env_config"]["n_agents"])),
+        }
+
+        obs_space = Tuple([make_obs(config["env_config"]["observation"],
+                                    {"max_depth": config["env_config"]["observation_config"]["max_depth"],
+                                     "shortest_path_max_depth": config["env_config"]["observation_config"][
+                                         "shortest_path_max_depth"]}).observation_space()
+                           for _ in range(config["env_config"]["n_agents"])])
+
+        act_space = Tuple([FillingFlatlandGymEnv.action_space for _ in range(config["env_config"]["n_agents"])])
+
+        register_env(
+            "flatland_sparse_grouped",
+            lambda config: FlatlandSparse(config).with_agent_groups(
+                grouping, obs_space=obs_space, act_space=act_space))
+
     def apply_args(self, run_args, experiments: dict):
         verbose = 1
         webui_host = '127.0.0.1'
@@ -123,7 +155,7 @@ class ExperimentRunner:
                 exp['config']['callbacks'] = {
                     'on_episode_end': self.on_episode_end,
                 }
-            return experiments, verbose, webui_host
+            return experiments, verbose
 
     @staticmethod
     def evaluate(exp):
@@ -160,8 +192,11 @@ class ExperimentRunner:
                         input_file = rllib_dir.absolute().joinpath(exp["config"]["input"])
                         exp["config"]["input"] = str(input_file)
 
+            if exp["run"] == "QMIX":
+                self.setup_grouping(exp.get("config"))
+
             if args is not None:
-                experiments, verbose, webui_host = self.apply_args(run_args=args, experiments=experiments)
+                experiments, verbose = self.apply_args(run_args=args, experiments=experiments)
 
                 if args.eval:
                     self.evaluate(exp)
@@ -197,8 +232,7 @@ class ExperimentRunner:
                 memory=args.ray_memory,
                 redis_max_memory=args.ray_redis_max_memory,
                 num_cpus=args.ray_num_cpus if args.ray_num_cpus is not None else n_cpu,
-                num_gpus=args.ray_num_gpus if args.ray_num_gpus is not None else n_gpu,
-                webui_host=webui_host)
+                num_gpus=args.ray_num_gpus if args.ray_num_gpus is not None else n_gpu)
 
         run_experiments(
             experiments,

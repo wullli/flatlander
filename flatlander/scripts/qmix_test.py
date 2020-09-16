@@ -22,7 +22,6 @@ parser.add_argument("--run", type=str, default="QMIX")
 parser.add_argument("--num-cpus", type=int, default=0)
 parser.add_argument("--as-test", action="store_true")
 parser.add_argument("--torch", action="store_true")
-parser.add_argument("--stop-reward", type=float, default=7.0)
 parser.add_argument("--stop-timesteps", type=int, default=50000)
 
 if __name__ == "__main__":
@@ -37,20 +36,21 @@ if __name__ == "__main__":
     act_space = Tuple([FlatlandGymEnv.action_space for i in range(5)])
 
     register_env(
-        "grouped_twostep",
+        "flatland_sparse_grouped",
         lambda config: FlatlandSparse(config).with_agent_groups(
             grouping, obs_space=obs_space, act_space=act_space))
 
     config = {
-        "eager": True,
-        "rollout_fragment_length": 4,
-        "train_batch_size": 32,
+        "rollout_fragment_length": 50,
+        "train_batch_size": 1000,
         "exploration_config": {
             "epsilon_timesteps": 5000,
             "final_epsilon": 0.05,
         },
         "num_workers": 0,
-        "mixer": grid_search([None, "qmix", "vdn"]),
+        "num_gpus": 1,
+        "num_envs_per_worker": 1,
+        "mixer": "qmix",
         "env_config": {
             "observation": "tree",
             "observation_config": {"max_depth": 2,
@@ -62,17 +62,15 @@ if __name__ == "__main__":
             "gym_env": "fill_missing"
         },
     }
-    group = True
 
-    ray.init(num_cpus=args.num_cpus or None, local_mode=True)
+    ray.init(num_cpus=args.num_cpus or None)
 
     stop = {
-        "episode_reward_mean": args.stop_reward,
         "timesteps_total": args.stop_timesteps,
     }
 
     config = dict(config, **{
-        "env": "grouped_twostep",
+        "env": "flatland_sparse_grouped",
     })
 
     results = tune.run(args.run, stop=stop, config=config, verbose=1)
