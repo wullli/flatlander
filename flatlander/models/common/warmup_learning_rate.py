@@ -8,6 +8,7 @@ from ray.rllib.policy.tf_policy import EntropyCoeffSchedule, LearningRateSchedul
 from ray.rllib.utils import override, DeveloperAPI, try_import_tf
 from ray.tune import register_trainable
 import numpy as np
+
 tf = try_import_tf()
 
 
@@ -55,7 +56,6 @@ TTFPPOPolicy = PPOTFPolicy.with_updates(
         ValueNetworkMixin
     ])
 
-
 TTFPPOPolicyInfer = PPOTFPolicy.with_updates(
     name="TTFPPOPolicyInfer",
     before_loss_init=setup_mixins,
@@ -64,11 +64,10 @@ TTFPPOPolicyInfer = PPOTFPolicy.with_updates(
         ValueNetworkMixin
     ])
 
+
 register_trainable(
     "TTFPPO",
     PPOTrainer.with_updates(
         name="TTFPPOTrainer", get_policy_class=lambda c: TTFPPOPolicy
     ),
 )
-
-
