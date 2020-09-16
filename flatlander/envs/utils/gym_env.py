@@ -14,6 +14,8 @@ class StepOutput(NamedTuple):
 
 
 class FlatlandGymEnv(gym.Env):
+    action_space = gym.spaces.Discrete(5)
+
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second': 10,
@@ -33,7 +35,6 @@ class FlatlandGymEnv(gym.Env):
         self._regenerate_rail_on_reset = regenerate_rail_on_reset
         self._regenerate_schedule_on_reset = regenerate_schedule_on_reset
         self.rail_env = rail_env
-        self.action_space = gym.spaces.Discrete(5)
         self.observation_space = observation_space
         if render:
             self.rail_env.set_renderer(render)

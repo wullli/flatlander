@@ -11,6 +11,7 @@ from flatlander.envs import get_generator_config
 from flatlander.envs.flatland_base import FlatlandBase
 from flatlander.envs.observations import make_obs
 from flatlander.envs.utils.gym_env import FlatlandGymEnv
+from flatlander.envs.utils.gym_env_fill_missing import FillingFlatlandGymEnv
 from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, SkipNoChoiceCellsWrapper, \
     SparseRewardWrapper, \
     DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper, CooperationRewardWrapper, GlobalRewardWrapper
@@ -19,6 +20,7 @@ from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as Rail
 
 
 class FlatlandSparse(FlatlandBase):
+    _gym_envs = {"default": FlatlandGymEnv, "fill_missing": FillingFlatlandGymEnv}
 
     def __init__(self, env_config) -> None:
         super().__init__()
@@ -38,7 +40,9 @@ class FlatlandSparse(FlatlandBase):
             pprint(self._config)
             print("=" * 50)
 
-        self._env = FlatlandGymEnv(
+        self._gym_env_class = self._gym_envs[env_config.get("gym_env", "default")]
+
+        self._env = self._gym_env_class(
             rail_env=self._launch(),
             observation_space=self._observation.observation_space(),
             render=env_config.get('render'),
@@ -63,6 +67,8 @@ class FlatlandSparse(FlatlandBase):
             self._env = SkipNoChoiceCellsWrapper(self._env, env_config.get('accumulate_skipped_rewards', False),
                                                  discounting=env_config.get('discounting', 1.))
         if env_config.get('available_actions_obs', False):
+            self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
+        if env_config.get('fill_unavailable_actions', False):
             self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
 
     @property

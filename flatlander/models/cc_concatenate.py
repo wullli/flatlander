@@ -11,7 +11,7 @@ from ray.rllib.agents.ppo.ppo_tf_policy import KLCoeffMixin, PPOLoss, PPOTFPolic
 from ray.rllib.evaluation.postprocessing import Postprocessing, compute_advantages
 from ray.rllib.policy.sample_batch import SampleBatch
 from ray.rllib.policy.tf_policy import EntropyCoeffSchedule, LearningRateSchedule
-from ray.rllib.utils.explained_variance import explained_variance
+from ray.rllib.utils.tf_ops import explained_variance
 from ray.tune import register_trainable
 
 OTHER_AGENT = "other_agent"

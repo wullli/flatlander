@@ -6,7 +6,7 @@ from ray.rllib.utils import try_import_tf
 
 from flatlander.models.common.transformer import Transformer
 
-tf = try_import_tf()
+import tensorflow as tf
 
 
 class FixedTreeTransformer(TFModelV2):

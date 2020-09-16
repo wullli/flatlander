@@ -1,0 +1,22 @@
+env: flatland_sparse
+num_workers: 0
+num_envs_per_worker: 0
+num_gpus: 0
+
+env_config:
+    observation: tree
+    observation_config:
+        max_depth: 2
+        shortest_path_max_depth: 30
+
+    generator: sparse_rail_generator
+    generator_config: small_v0
+
+    global_reward: True
+
+model:
+    fcnet_activation: relu
+    fcnet_hiddens: [256, 256, 256]
+    vf_share_layers: True
+
+
