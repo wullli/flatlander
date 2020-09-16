@@ -181,4 +181,5 @@ dependencies:
     - yarl==1.5.1
     - zipp==0.5.2
     - torch
+    - tensorflow-probability
 
