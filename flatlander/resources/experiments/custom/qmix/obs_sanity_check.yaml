@@ -27,8 +27,8 @@ flatland-sparse-small-tree-fc-apex-global:
             global_reward: True
             agents_done_independent: False
             gym_env: fill_missing
-            missing_fill_value: -1
-            done_fill_value: 1
+            missing_fill_value: 0
+            done_fill_value: 0
 
             wandb:
                 project: flatland
