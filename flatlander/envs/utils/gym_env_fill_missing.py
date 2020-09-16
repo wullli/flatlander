@@ -10,7 +10,8 @@ from flatlander.envs.utils.gym_env import FlatlandGymEnv, StepOutput
 class FillingFlatlandGymEnv(FlatlandGymEnv):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
-        self.missing_fill_value = np.full(shape=self.observation_space.shape, fill_value=config.get("missing_fill_value", -1))
+        self.missing_fill_value = np.full(shape=self.observation_space.shape,
+                                          fill_value=config.get("missing_fill_value", -1))
         self.done_fill_value = np.full(shape=self.observation_space.shape, fill_value=config.get("done_fill_value", 1))
         self.agent_keys = list(range(config.get("n_agents", 5)))
         self.agent_done_independent = config.get("agents_done_independent", False)
@@ -76,7 +77,7 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
         obs, infos = self.rail_env.reset(regenerate_rail=self._regenerate_rail_on_reset,
                                          regenerate_schedule=self._regenerate_schedule_on_reset,
                                          random_seed=random_seed)
-        return {k: obs.get(k, self.fill_value)
+        return {k: obs.get(k, self.missing_fill_value)
                 for k in self.agent_keys}
 
     def render(self, mode='human'):
