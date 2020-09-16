@@ -9,7 +9,7 @@ from flatlander.envs.utils.gym_env import FlatlandGymEnv, StepOutput
 
 class FillingFlatlandGymEnv(FlatlandGymEnv):
     def __init__(self, config, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(config=config, **kwargs)
         self.missing_fill_value = np.full(shape=self.observation_space.shape,
                                           fill_value=config.get("missing_fill_value", -1))
         self.done_fill_value = np.full(shape=self.observation_space.shape, fill_value=config.get("done_fill_value", 1))
@@ -37,13 +37,13 @@ class FillingFlatlandGymEnv(FlatlandGymEnv):
                             self._agents_done.append(agent)
                     if self.agent_done_independent and agent not in self._agents_done:
                         o[agent] = obs.get(agent, self.prev_obs[agent])
-                        r[agent] = rewards.get(agent, 0)
+                        r[agent] = rewards.get(agent, 0 if agent in self._agents_done else -1)
                         self._agent_scores[agent] += rewards.get(agent, 0)
                         self._agent_steps[agent] += 1
 
                     elif not self.agent_done_independent:
                         o[agent] = obs.get(agent, self.prev_obs[agent])
-                        r[agent] = rewards.get(agent, 0)
+                        r[agent] = rewards.get(agent, 0 if agent in self._agents_done else -1)
                         self._agent_scores[agent] += rewards.get(agent, 0)
                         self._agent_steps[agent] += 1
 
