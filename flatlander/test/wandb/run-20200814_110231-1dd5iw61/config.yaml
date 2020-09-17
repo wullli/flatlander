@@ -159,7 +159,7 @@ model:
     conv_filters: null
     custom_action_dist: null
     custom_model: global_obs_model
-    custom_options:
+    custom_model_config:
       architecture: impala
       architecture_options:
         residual_layers:

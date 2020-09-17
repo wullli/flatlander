@@ -33,7 +33,7 @@ flatland-sparse-small-density-cnn-apex:
 
         model:
             custom_model: global_dens_obs_model
-            custom_options:
+            custom_model_config:
                 architecture: impala
                 architecture_options:
                     residual_layers: [[16, 2], [32, 4]]

@@ -42,5 +42,5 @@ flatland-random-sparse-small-global-conv-ppo:
 
     model:
       custom_model: global_obs_model
-      custom_options:
+      custom_model_config:
         architecture: impala

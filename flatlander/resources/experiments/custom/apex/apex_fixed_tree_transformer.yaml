@@ -33,7 +33,7 @@ flatland-sparse-fixed-tree-transformer-apex:
 
         model:
             custom_model: fixed_tree_transformer
-            custom_options:
+            custom_model_config:
                 warmup_steps: 100000
                 n_features_per_node: 11
                 tree_depth: 2

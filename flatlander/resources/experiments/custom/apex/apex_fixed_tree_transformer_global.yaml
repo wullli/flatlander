@@ -11,7 +11,7 @@ flatland-sparse-fixed-tree-transformer-apex:
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
         env_config:
             observation: fixed_tree
@@ -33,16 +33,10 @@ flatland-sparse-fixed-tree-transformer-apex:
                 tags: ["apex", "small_v0", "fixed", "tree", "transformer", "custom", "global_reward"]
 
         model:
-            custom_model: fixed_tree_transformer
-            custom_options:
-                warmup_steps: 100000
+            custom_model: dqn_fixed_tree_transformer
+            custom_model_config:
                 transformer:
-                    use_cnn_decoding: False
-                    policy_layers:
-                        - 512
-                        - 512
-                        - 512
-                    value_layers:
+                    hidden_layers:
                         - 512
                         - 512
                         - 512

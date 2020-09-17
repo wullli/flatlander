@@ -32,7 +32,7 @@ flatland-random-sparse-small-tree-fc-ppo:
 
         model:
             custom_model: custom_loss_model
-            custom_options:
+            custom_model_config:
                 input_files: /tmp/flatland-out
                 lambda1: 1
                 lambda2: 1

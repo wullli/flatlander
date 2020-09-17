@@ -42,7 +42,7 @@ flatland-sparse-fixed-tree-cnn-ppo:
 
         model:
             custom_model: fixed_tree_cnn
-            custom_options:
+            custom_model_config:
                 cnn:
                     policy_layers:
                         - 512

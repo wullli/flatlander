@@ -16,7 +16,7 @@ class FixedTreeTransformer(TFModelV2):
         assert isinstance(action_space, gym.spaces.Discrete), \
             "Currently, only 'gym.spaces.Discrete' action spaces are supported."
 
-        self._options = model_config['custom_options']
+        self._options = model_config['custom_model_config']
         self._baseline = tf.expand_dims([0], 0)
 
         self._padded_obs_seq = None
@@ -24,8 +24,9 @@ class FixedTreeTransformer(TFModelV2):
 
         self._logger = logging.getLogger(FixedTreeTransformer.__name__)
 
+        self.inputs = tf.keras.layers.Input(shape=obs_space.shape, name="observations")
         self.transformer = Transformer(d_model=self.obs_space.shape[1],
-                                       use_positional_encoding=False, **self._options["transformer"])
+                                       use_positional_encoding=False, **self._options["transformer"])(self.inputs)
 
         self.policy_out = tf.keras.layers.Dense(action_space.n, activation="relu")
         self.value_out = tf.keras.layers.Dense(1, activation="relu")

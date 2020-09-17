@@ -37,7 +37,7 @@ env_config:
 
 model:
     custom_model: fixed_tree_transformer
-    custom_options:
+    custom_model_config:
         warmup_steps: 50000
         transformer:
             use_cnn_decoding: False

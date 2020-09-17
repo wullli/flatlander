@@ -44,7 +44,7 @@ flatland-random-sparse-small-tree-fc-cctransformer:
 
         model:
             custom_model: cc_transformer
-            custom_options:
+            custom_model_config:
                 max_num_agents: 15
                 actor:  
                     activation_fn: relu

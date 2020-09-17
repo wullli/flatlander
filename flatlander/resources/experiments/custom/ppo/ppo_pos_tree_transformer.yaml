@@ -42,7 +42,7 @@ flatland-sparse-positional-tree-transformer-ppo:
 
         model:
             custom_model: positional_tree_transformer
-            custom_options:
+            custom_model_config:
                 n_features_per_node: 11
                 tree_depth: 2
                 transformer:

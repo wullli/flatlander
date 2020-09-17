@@ -42,7 +42,7 @@ flatland-sparse-single-global-conv-ppo:
 
         model:
             custom_model: global_obs_model
-            custom_options:
+            custom_model_config:
                 architecture: impala
                 architecture_options:
                     residual_layers: [[16, 2], [32, 4]]

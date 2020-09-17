@@ -43,7 +43,7 @@ sparse-mask-ppo-tree-obs-small-v0:
 
         model:
             custom_model: fully_connected_model
-            custom_options:
+            custom_model_config:
                 layers: [256, 256]
                 activation: relu
                 layer_norm: False

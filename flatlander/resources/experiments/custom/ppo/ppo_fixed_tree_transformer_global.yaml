@@ -46,7 +46,7 @@ flatland-sparse-fixed-tree-transformer-ppo-global:
 
         model:
             custom_model: fixed_tree_transformer
-            custom_options:
+            custom_model_config:
                 warmup_steps: 100000
                 transformer:
                     use_cnn_decoding: False

@@ -35,7 +35,7 @@ flatland-random-sparse-small-tree-fc-apex-il-loss:
             fcnet_activation: relu
             fcnet_hiddens: [256, 256]
             vf_share_layers: True  # False
-            custom_options:
+            custom_model_config:
                 input_files: /tmp/flatland-out
                 expert_size: 1
                 loss:

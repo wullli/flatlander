@@ -53,7 +53,7 @@ flatland-sparse-small-action-mask-tree-fc-ppo:
             fcnet_hiddens: [256, 256]
             vf_share_layers: True  # False
             # custom_model: fully_connected_model
-            # custom_options:
+            # custom_model_config:
             #     layers: [256, 256, 256]
             #     activation: relu
             #     layer_norm: False

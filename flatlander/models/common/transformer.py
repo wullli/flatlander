@@ -17,16 +17,14 @@ class Transformer(tf.keras.layers.Layer):
                  encoder_layer_neurons,
                  hidden_layers: List[int],
                  dropout_rate=0.1,
-                 out_dim=None,
-                 use_cnn_decoding=False,
-                 use_positional_encoding=True):
+                 out_dim=512,
+                 use_positional_encoding=False):
         super(Transformer, self).__init__()
 
         if hidden_layers is None:
             hidden_layers = [512, 512]
 
         self.use_positional_encoding = use_positional_encoding
-        self.use_cnn_decoding = use_cnn_decoding
         self.num_outputs = out_dim
 
         self.encoder = Encoder(num_encoder_layers,
@@ -46,10 +44,6 @@ class Transformer(tf.keras.layers.Layer):
         self.out = tf.keras.layers.Dense(self.num_outputs)
         self.flatten = tf.keras.layers.Flatten()
 
-        if self.use_cnn_decoding:
-            self.conv_1 = tf.keras.layers.Conv1D(64, activation="relu", kernel_size=3)
-            self.conv_2 = tf.keras.layers.Conv1D(128, activation="relu", kernel_size=3)
-
         if use_positional_encoding:
             self.pos_encoding = ShivQuirkPositionalEncoding(d_model=d_model)
 
@@ -58,17 +52,12 @@ class Transformer(tf.keras.layers.Layer):
             positional_encoding = self.pos_encoding(positional_encoding)
         enc_output = self.encoder(input, train_mode, positional_encoding, encoder_mask=encoder_mask)
 
-        x = enc_output
-        if self.use_cnn_decoding:
-            x = self.conv_1(x)
-            x = self.conv_2(x)
-            x = self.dropout_1(x, training=train_mode)
-        x = self.flatten(x)
+        x = self.flatten(enc_output)
 
-        for i in range(len(self.policy_layers)):
-            x = self.policy_layers[i](x)
+        for i in range(len(self.hidden_layers)):
+            x = self.hidden_layers[i](x)
         x = self.dropout_2(x, training=train_mode)
-        out = self.policy(x)
+        out = self.out(x)
 
         return out
 
