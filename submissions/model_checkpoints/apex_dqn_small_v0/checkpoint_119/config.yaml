@@ -1,0 +1,27 @@
+env: flatland_sparse
+num_workers: 0
+num_envs_per_worker: 0
+num_gpus: 1
+
+env_config:
+    n_agents: 5
+    observation: tree
+    observation_config:
+        max_depth: 2
+        shortest_path_max_depth: 100
+        concat_agent_id: True
+
+    generator: sparse_rail_generator
+    generator_config: small_v0
+
+    global_reward: True
+
+    wandb:
+        project: flatland
+        entity: wullli
+        tags: ["small_v0", "tree_obs", "apex", "global_reward"]
+
+model:
+    fcnet_activation: relu
+    fcnet_hiddens: [256, 256, 256]
+    vf_share_layers: True

@@ -31,7 +31,7 @@ runs = {
     "apex_dqn_1": {
         "checkpoint_path": os.path.abspath(
             os.path.join(os.path.dirname(__file__),
-                         "model_checkpoints/apex_dqn_small_v0/checkpoint_230/checkpoint-230")),
+                         "model_checkpoints/apex_dqn_small_v0/checkpoint_119/checkpoint-119")),
         "agent": agent_map["dqn"]
     },
     "sac_small_v0": {

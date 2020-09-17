@@ -134,7 +134,7 @@ def normalize_observation_with_agent_id(observation: Node, tree_depth: int, obse
         distance = norm_obs_clip(distance, normalize_to_range=True)
     agent_data = np.clip(agent_data, -1, 1)
     agent_one_hot = np.zeros(num_agents)
-    agent_one_hot[handle] = 1
+    agent_one_hot[handle % num_agents] = 1
     normalized_obs = np.concatenate((np.concatenate((data, distance)), agent_data, agent_one_hot))
     return normalized_obs
 
