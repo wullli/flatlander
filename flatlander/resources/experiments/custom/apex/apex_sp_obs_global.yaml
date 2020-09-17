@@ -8,8 +8,8 @@ flatland-sparse-small-tree-fc-apex-global:
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     config:
-        num_workers: 4
-        num_envs_per_worker: 5
+        num_workers: 0
+        num_envs_per_worker: 0
         num_gpus: 1
 
         env_config:

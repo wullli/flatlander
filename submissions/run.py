@@ -1,5 +1,7 @@
 import os
 
+from flatland.utils.rendertools import RenderTool
+
 from flatlander.utils.deadlock_check import check_if_all_blocked
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -35,7 +37,7 @@ runs = {
     "sac_small_v0": {
         "checkpoint_path": os.path.abspath(
             os.path.join(os.path.dirname(__file__),
-                         "model_checkpoints/sac_medium_v0/checkpoint_58785/checkpoint-58785")),
+                         "model_checkpoints/sac_small_v0/checkpoint-51089/checkpoint-51089")),
         "agent": agent_map["sac"]
     },
     "ttf_1": {
@@ -46,7 +48,6 @@ runs = {
     }}
 
 RUN = "sac_small_v0"
-
 
 def init():
     run = runs[RUN]

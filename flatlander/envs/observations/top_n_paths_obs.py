@@ -1,5 +1,8 @@
+from typing import Optional, List
+
 import gym
 import numpy as np
+from flatland.core.grid.grid_utils import coordinate_to_position
 
 from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.core.env_prediction_builder import PredictionBuilder
@@ -34,9 +37,32 @@ class TopNPathsBuilder(ObservationBuilder):
         self._directions = list(range(4))
         self._path_size = len(self._directions) + 2
         self._predictor = predictor
+        self.predicted_pos = None
+
 
     def reset(self):
         pass
+
+    def get_many(self, handles: Optional[List[int]] = None):
+        if handles is None:
+            handles = []
+        if self.predictor:
+            self.max_prediction_depth = 0
+            self.predicted_pos = {}
+            self.predicted_dir = {}
+            self.predictions = self.predictor.get()
+            if self.predictions:
+                for t in range(self.predictor.max_depth + 1):
+                    pos_list = []
+                    dir_list = []
+                    for a in handles:
+                        if self.predictions[a] is None:
+                            continue
+                        pos_list.append(self.predictions[a][t][1:3])
+                        dir_list.append(self.predictions[a][t][3])
+                    self.predicted_pos.update({t: coordinate_to_position(self.env.width, pos_list)})
+                    self.predicted_dir.update({t: dir_list})
+                self.max_prediction_depth = len(self.predicted_pos)
 
     def get(self, handle: int = 0):
         self.env: RailEnv = self.env
