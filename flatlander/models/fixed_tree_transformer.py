@@ -1,12 +1,10 @@
 import logging
 
 import gym
+import tensorflow as tf
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
-from ray.rllib.utils import try_import_tf
 
 from flatlander.models.common.transformer import Transformer
-
-import tensorflow as tf
 
 
 class FixedTreeTransformer(TFModelV2):

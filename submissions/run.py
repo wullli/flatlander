@@ -47,7 +47,7 @@ runs = {
         "agent": agent_map["sac"]
     }}
 
-RUN = "sac_small_v0"
+RUN = "apex_dqn_1"
 
 def init():
     run = runs[RUN]

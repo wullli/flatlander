@@ -133,8 +133,6 @@ class ExperimentRunner:
     def setup_policy_map(self, config: dict):
         obs_space = make_obs(config["env_config"]["observation"],
                              config["env_config"]["observation_config"]).observation_space()
-        config["env_config"]["learning_starts"] = 100
-        config["env_config"]["actions_are_logits"] = True
         config["multiagent"] = {
             "policies": {"pol_" + str(i): (None, obs_space, FillingFlatlandGymEnv.action_space, {"agent_id": i})
                          for i in range(config["env_config"]["n_agents"])},
@@ -204,8 +202,13 @@ class ExperimentRunner:
             if exp["run"] in self.group_algorithms:
                 self.setup_grouping(exp.get("config"))
 
-            if exp["run"] == "contrib/MADDPG":
+            if exp["run"] == "contrib/MADDPG" or exp["config"].get("individual_policies", False):
                 self.setup_policy_map(exp.get("config"))
+                if exp["config"].get("individual_policies", False):
+                    del exp["config"]["individual_policies"]
+            if exp["run"] == "contrib/MADDPG":
+                exp.get("config")["env_config"]["learning_starts"] = 100
+                exp.get("config")["env_config"]["actions_are_logits"] = True
 
             if args is not None:
                 experiments, verbose = self.apply_args(run_args=args, experiments=experiments)
