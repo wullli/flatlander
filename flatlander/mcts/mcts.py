@@ -1,5 +1,9 @@
+import itertools
+import sys
 import time
+import traceback
 from copy import deepcopy
+from typing import Callable
 
 import numpy as np
 
@@ -8,44 +12,57 @@ from flatland.envs.rail_env import RailEnv
 from flatlander.mcts.node import Node
 
 
-class Mcts:
-    def __init__(self, time_budget: float, nr_threads=8, n_agents=5, epsilon=1):
+def get_random_actions(obs: dict):
+    return {i: np.random.randint(0, 5) for i in range(len(obs.keys()))}
+
+
+class MonteCarloTreeSearch:
+    def __init__(self, time_budget: float,
+                 epsilon=1,
+                 rollout_depth=10,
+                 rollout_policy: Callable = get_random_actions):
         self.time_budget = time_budget
-        self.nr_threads = nr_threads
         self.count = 0
-        self.n_agents = n_agents
         self.epsilon = epsilon
+        self.rollout_policy = rollout_policy
+        self.root = None
+        self.rollout_depth = rollout_depth
+        self.last_action = None
 
-    def get_best_actions(self, env: RailEnv):
+    def get_best_actions(self, env: RailEnv, obs):
         end_time = time.time() + self.time_budget
-        self.root = Node()
-        self.iterate(env, budget=end_time)
+        if self.root is None:
+            self.root = Node(None, None, self.get_possible_moves(env, obs))
+        else:
+            self.root = list(filter(lambda child: child.action == self.last_action, self.root.children))[0]
+        self.iterate(env, obs=obs, budget=end_time)
 
-        lengths = [len(root.children) for root in self.roots[player_round.player]]
-        best_index = self.best_child_index(lengths, player_round)
-        best_action = self.roots[player_round.player][int(np.argmax(lengths))].children[best_index].action
+        print("Total visits:", np.sum(list(map(lambda c: c.times_visited, self.root.children))))
+
+        best_child = max(self.root.children, key=lambda n: n.times_visited)
+        best_action = best_child.action
+        self.last_action = best_action
         return best_action
 
-    def iterate(self, env: RailEnv, budget: float = 0.):
+    def iterate(self, env: RailEnv, obs: dict, budget: float = 0.):
         try:
             while time.time() < budget:
                 new_env = deepcopy(env)
-                node = self.select(new_env, self.root)
-                new_node = self.expand(node, new_env)
-                reward = self.simulate(new_env)
+                node, obs = self.select(new_env, self.root, obs)
+                new_node, obs = self.expand(node, new_env, obs)
+                reward = self.simulate(new_env, obs)
                 new_node.propagate_reward(reward)
-        except:
-            pass
+        except Exception as e:
+            traceback.print_exc(file=sys.stderr)
+            raise e
         return self.root
 
-    def select(self, env: RailEnv, node: Node) -> (Node, dict):
+    def select(self, env: RailEnv, node: Node, o: dict) -> (Node, dict):
         while True:
-            valid_children = self.get_available(node, env)
-
             # calculate UCBs
-            if node.valid_moves.sum() == 0 and valid_children:
-                best_node = max(valid_children, key=self.ucb)
-                o, d, r, _ = env.step(best_node.action)
+            if len(node.valid_moves) == 0 and node.children:
+                best_node = max(node.children, key=self.ucb)
+                o, r, d, _ = env.step(best_node.action)
                 node = best_node
             else:
                 return node, o
@@ -65,37 +82,46 @@ class Mcts:
             pos[agent.handle] = agent_virtual_position
         return pos
 
-    @staticmethod
-    def get_available(node: Node, env: RailEnv, obs: dict):
+    @classmethod
+    def get_possible_moves(cls, env: RailEnv, obs: dict):
+        active_agents = []
+        positions = cls.get_agent_positions(env)
+        possible_actions = {}
+        for handle in obs.keys():
+            if positions[handle] is not None:
+                possible_transitions = np.flatnonzero(env.rail.get_transitions(*positions[handle],
+                                                                               env.agents[handle].direction))
+                if len(possible_transitions) != 0:
+                    possible_actions[handle] = possible_transitions
+                    active_agents.append(handle)
 
-        for movement in directions:
-            if possible_transitions[movement]:
-        return valid_children
+        possible_moves = list(itertools.product(*possible_actions.values()))
+        possible_moves = [{handle: action_list[i] for i, handle in enumerate(active_agents)}
+                          for action_list in possible_moves]
 
-    @staticmethod
-    def expand(node: Node, env: RailEnv) -> Node:
-        if node.valid_moves.sum() == 0:
+        return possible_moves
+
+    @classmethod
+    def expand(cls, node: Node, env: RailEnv, obs) -> (Node, dict):
+        if len(node.valid_moves) == 0:
             return node
         else:
-            cards = np.flatnonzero(node.valid_moves)
-            new_node = Node(node, cards[0], )
+            new_node = Node(node, node.valid_moves[0], cls.get_possible_moves(env, obs))
+            node.valid_moves.pop(0)
             node.children.append(new_node)
-            env.step(new_node.action)
-            return new_node
+            o, r, d, _ = env.step(new_node.action)
+            return new_node, o
 
-    def simulate(self, env: RailEnv) -> float:
-        env = deepcopy(env)
+    def simulate(self, env: RailEnv, obs: dict) -> float:
         done = False
-        r = 0
-        while not done:
-            _, d, r, = env.step(self.get_random_actions(self.n_agents))
-            r += r
+        reward = 0.
+        count = 0
+        while not done and count <= self.rollout_depth:
+            o, r, d, _ = env.step(self.rollout_policy(obs))
+            reward += np.sum(list(r.values()))
             done = d["__all__"]
-        return r
-
-    @staticmethod
-    def get_random_actions(n_agents):
-        return {i: np.random.randint(0, 5) for i in range(n_agents)}
+            count += 1
+        return reward
 
     def ucb(self, node: Node):
         return node.reward / node.times_visited + self.epsilon * \
