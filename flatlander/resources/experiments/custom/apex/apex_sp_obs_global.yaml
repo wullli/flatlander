@@ -1,0 +1,36 @@
+flatland-sparse-small-tree-fc-apex-global:
+    run: APEX
+    env: flatland_sparse
+    stop:
+        timesteps_total: 20000000 # 2e7
+    checkpoint_freq: 10
+    checkpoint_at_end: True
+    keep_checkpoints_num: 5
+    checkpoint_score_attr: episode_reward_mean
+    config:
+        num_workers: 4
+        num_envs_per_worker: 5
+        num_gpus: 1
+
+        env_config:
+            n_agents: 5
+            observation: top_n_paths
+            observation_config:
+                max_depth: 30
+
+            generator: sparse_rail_generator
+            generator_config: small_v0
+
+            global_reward: True
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["small_v0", "tree_obs", "apex", "baseline", "global_reward"]
+
+        model:
+            fcnet_activation: relu
+            fcnet_hiddens: [256, 256, 256]
+            vf_share_layers: True
+
+

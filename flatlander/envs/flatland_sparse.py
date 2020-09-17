@@ -50,7 +50,7 @@ class FlatlandSparse(FlatlandBase):
             regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset'],
             config=env_config
         )
-        if env_config['observation'] == 'shortest_path':
+        if env_config['observation'] == 'shortest_path' or env_config['observation'] == "top_n_paths":
             self._env = ShortestPathActionWrapper(self._env)
         if env_config.get('sparse_reward', False):
             self._env = SparseRewardWrapper(self._env, finished_reward=env_config.get('done_reward', 1),
