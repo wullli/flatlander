@@ -26,7 +26,6 @@ flatland-sparse-small-tree-fc-apex-global:
             generator_config: small_v0
 
             global_reward: True
-            gym_env: fill_missing
 
             wandb:
                 project: flatland
