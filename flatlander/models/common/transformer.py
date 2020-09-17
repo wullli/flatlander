@@ -6,7 +6,7 @@ from flatlander.models.common.attention import MultiHeadAttention
 from flatlander.models.common.positional_tree_encoding import ShivQuirkPositionalEncoding
 
 
-class Transformer(tf.keras.Model):
+class Transformer(tf.keras.layers.Layer):
 
     def get_config(self):
         pass
@@ -15,21 +15,19 @@ class Transformer(tf.keras.Model):
                  d_model,
                  num_heads,
                  encoder_layer_neurons,
-                 value_layers: List[int],
-                 policy_layers: List[int],
-                 n_actions,
+                 hidden_layers: List[int],
                  dropout_rate=0.1,
-                 sequential=False,
+                 out_dim=None,
                  use_cnn_decoding=False,
                  use_positional_encoding=True):
         super(Transformer, self).__init__()
-        if value_layers is None:
-            value_layers = [512, 512]
 
-        if policy_layers is None:
-            policy_layers = [512, 512]
+        if hidden_layers is None:
+            hidden_layers = [512, 512]
+
         self.use_positional_encoding = use_positional_encoding
         self.use_cnn_decoding = use_cnn_decoding
+        self.num_outputs = out_dim
 
         self.encoder = Encoder(num_encoder_layers,
                                d_model,
@@ -42,15 +40,11 @@ class Transformer(tf.keras.Model):
         self.dropout_2 = tf.keras.layers.Dropout(dropout_rate)
         self.dropout_3 = tf.keras.layers.Dropout(dropout_rate)
 
-        self.value_layers = [tf.keras.layers.Dense(neurons, activation="relu")
-                             for neurons in value_layers]
-        self.policy_layers = [tf.keras.layers.Dense(neurons, activation="relu")
-                              for neurons in policy_layers]
+        self.hidden_layers = [tf.keras.layers.Dense(neurons, activation="relu")
+                              for neurons in hidden_layers]
 
-        self.policy = tf.keras.layers.Dense(n_actions)
-        self.value = tf.keras.layers.Dense(1)
+        self.out = tf.keras.layers.Dense(self.num_outputs)
         self.flatten = tf.keras.layers.Flatten()
-        self.max_pool = tf.keras.layers.MaxPooling1D(pool_size=2)
 
         if self.use_cnn_decoding:
             self.conv_1 = tf.keras.layers.Conv1D(64, activation="relu", kernel_size=3)
@@ -71,19 +65,12 @@ class Transformer(tf.keras.Model):
             x = self.dropout_1(x, training=train_mode)
         x = self.flatten(x)
 
-        p_x = x
         for i in range(len(self.policy_layers)):
-            p_x = self.policy_layers[i](p_x)
-        p_x = self.dropout_2(p_x, training=train_mode)
-        policy_out = self.policy(p_x)
+            x = self.policy_layers[i](x)
+        x = self.dropout_2(x, training=train_mode)
+        out = self.policy(x)
 
-        v_x = x
-        for i in range(len(self.value_layers)):
-            v_x = self.value_layers[i](v_x)
-        v_x = self.dropout_3(v_x, training=train_mode)
-        value_out = self.value(v_x)
-
-        return policy_out, value_out
+        return out
 
 
 class Encoder(tf.keras.layers.Layer):

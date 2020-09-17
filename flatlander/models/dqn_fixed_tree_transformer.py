@@ -2,35 +2,76 @@ import logging
 
 import gym
 import tensorflow as tf
-from ray.rllib.models.tf.tf_modelv2 import TFModelV2
+from ray.rllib.agents.dqn.distributional_q_tf_model import DistributionalQTFModel
+from ray.rllib.models.tf.misc import normc_initializer
 
 from flatlander.models.common.transformer import Transformer
 
+class MyKerasQModel(DistributionalQTFModel):
+    """Custom model for DQN."""
 
-class FixedTreeTransformer(TFModelV2):
+    def __init__(self, obs_space, action_space, num_outputs, model_config,
+                 name, **kw):
+        super(MyKerasQModel, self).__init__(
+            obs_space, action_space, num_outputs, model_config, name, **kw)
+
+        # Define the core model layers which will be used by the other
+        # output heads of DistributionalQModel
+        self.inputs = tf.keras.layers.Input(
+            shape=obs_space.shape, name="observations")
+        layer_1 = tf.keras.layers.Dense(
+            128,
+            name="my_layer1",
+            activation=tf.nn.relu,
+            kernel_initializer=normc_initializer(1.0))(self.inputs)
+        layer_out = tf.keras.layers.Dense(
+            num_outputs,
+            name="my_out",
+            activation=tf.nn.relu,
+            kernel_initializer=normc_initializer(1.0))(layer_1)
+        self.base_model = tf.keras.Model(self.inputs, layer_out)
+        self.register_variables(self.base_model.variables)
+
+    # Implement the core forward method
+    def forward(self, input_dict, state, seq_lens):
+        model_out = self.base_model(input_dict["obs"])
+        return model_out, state
+
+    def metrics(self):
+        return {"foo": tf.constant(42.0)}
+
+
+class DqnFixedTreeTransformer(DistributionalQTFModel):
     def import_from_h5(self, h5_file):
         pass
 
-    def __init__(self, obs_space, action_space, num_outputs, model_config, name):
-        super().__init__(obs_space, action_space, num_outputs, model_config, name)
+    def __init__(self, obs_space, action_space, num_outputs, model_config,
+                 name, **kw):
+        super(DqnFixedTreeTransformer, self).__init__(
+            obs_space, action_space, num_outputs, model_config, name, **kw)
+
         assert isinstance(action_space, gym.spaces.Discrete), \
             "Currently, only 'gym.spaces.Discrete' action spaces are supported."
 
+        self._num_outputs = num_outputs
+
         self._options = model_config['custom_options']
         self._baseline = tf.expand_dims([0], 0)
-
         self._padded_obs_seq = None
         self._z = None
 
-        self._logger = logging.getLogger(FixedTreeTransformer.__name__)
+        self._logger = logging.getLogger(DqnFixedTreeTransformer.__name__)
 
         self.transformer = Transformer(d_model=self.obs_space.shape[1],
                                        use_positional_encoding=False, **self._options["transformer"])
 
-        self.policy_out = tf.keras.layers.Dense(action_space.n, activation="relu")
-        self.value_out = tf.keras.layers.Dense(1, activation="relu")
+        self.layer_out = tf.keras.layers.Dense(
+            num_outputs,
+            name="dqn_ttf_out",
+            activation=tf.nn.relu,
+            kernel_initializer=normc_initializer(1.0))(self.transformer)
 
-        self.model = tf.keras.Model(self.inputs, [self.policy_out, self.value_out])
+        self.model = tf.keras.Model(self.inputs, self.layer_out)
 
         self._test_transformer()
         self.register_variables(self.transformer.variables)

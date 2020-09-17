@@ -7,7 +7,7 @@ from ray.rllib.policy.tf_policy import EntropyCoeffSchedule, LearningRateSchedul
 from ray.rllib.utils import override, DeveloperAPI, try_import_tf
 from ray.tune import register_trainable
 
-tf = try_import_tf()
+tf, _, _ = try_import_tf()
 
 
 @DeveloperAPI

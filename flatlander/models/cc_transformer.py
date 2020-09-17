@@ -14,6 +14,8 @@ from ray.rllib.policy.tf_policy import EntropyCoeffSchedule, LearningRateSchedul
 from ray.rllib.utils.tf_ops import explained_variance
 from ray.tune import register_trainable
 
+from flatlander.trainers.ppo import TransformerLearningRateSchedule
+
 OTHER_AGENT = "other_agent"
 
 
@@ -28,17 +30,17 @@ class CentralizedCriticModel(ABC, TFModelV2):
         # env parameters
         self.obs_space_shape = obs_space.shape[0]
         self.act_space_shape = action_space.n
-        self.centralized = model_config["custom_options"]["critic"]["centralized"]
-        self.max_num_agents = model_config["custom_options"]["max_num_agents"]
+        self.centralized = model_config["custom_model_config"]["critic"]["centralized"]
+        self.max_num_agents = model_config["custom_model_config"]["max_num_agents"]
         self.max_num_opponents = self.max_num_agents - 1
         self.debug_mode = True
 
         # Build the actor network
-        self.actor = self._build_actor(**model_config["custom_options"]["actor"])
+        self.actor = self._build_actor(**model_config["custom_model_config"]["actor"])
         self.register_variables(self.actor.variables)
 
         # Central Value Network
-        self.critic = self._build_critic(**model_config["custom_options"]["critic"])
+        self.critic = self._build_critic(**model_config["custom_model_config"]["critic"])
         self.register_variables(self.critic.variables)
 
         # summaries
@@ -564,8 +566,10 @@ def setup_mixins(policy, obs_space, action_space, config):
     EntropyCoeffSchedule.__init__(
         policy, config["entropy_coeff"], config["entropy_coeff_schedule"]
     )
-    LearningRateSchedule.__init__(policy, config["lr"], config["lr_schedule"])
-
+    warmup_steps = config["model"]["custom_model_config"].get("warmup_steps", 100000)
+    TransformerLearningRateSchedule.__init__(policy,
+                                             config["model"]["custom_model_config"]["critic"]["d_model"],
+                                             warmup_steps)
 
 def central_vf_stats(policy, train_batch, grads):
     # Report the explained variance of the central value function.
@@ -629,7 +633,7 @@ CCPPOPolicy = PPOTFPolicy.with_updates(
     before_loss_init=setup_mixins,
     grad_stats_fn=central_vf_stats,
     mixins=[
-        LearningRateSchedule,
+        TransformerLearningRateSchedule,
         EntropyCoeffSchedule,
         KLCoeffMixin,
         CentralizedValueMixin,

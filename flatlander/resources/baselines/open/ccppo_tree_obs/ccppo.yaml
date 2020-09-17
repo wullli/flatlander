@@ -17,10 +17,10 @@ flatland-random-sparse-small-tree-fc-cctransformer:
         rollout_fragment_length: 50  # 100
         sgd_minibatch_size: 100  # 500
         num_sgd_iter: 10
-        num_workers: 2
+        num_workers: 4
         num_envs_per_worker: 5
         batch_mode: complete_episodes
-        vf_share_layers: True
+        vf_share_layers: False
         num_gpus: 1
 
         env_config:
@@ -38,9 +38,9 @@ flatland-random-sparse-small-tree-fc-cctransformer:
             eval_generator: enable_explore
 
             wandb:
-                project: flatland-paper
-                entity: aicrowd
-                tags: ["small_v0", "tree_obs","ccppo"] # TODO should be set programmatically
+                project: flatland
+                entity: wullli
+                tags: ["small_v0", "baseline", "tree_obs","ccppo"] # TODO should be set programmatically
 
         model:
             custom_model: cc_transformer

@@ -72,9 +72,10 @@ class SingleAgentNavigationObs(TreeObsForRailEnv):
         return observation
 
 
+n_agents = 5
 env = RailEnv(width=25, height=25,
               rail_generator=sparse_rail_generator(),
-              number_of_agents=5,
+              number_of_agents=n_agents,
               obs_builder_object=SingleAgentNavigationObs())
 
 env_renderer = None
@@ -90,6 +91,8 @@ for _ in range(100):
         action = {i: np.argmax(o) for i, o in obs.items()}
         obs, all_rewards, done, _ = env.step(action)
         print("Rewards: ", all_rewards, "  [done=", done, "]")
+        print("Observations: ", obs)
+        assert len(obs.keys()) == n_agents
 
         env_renderer.render_env(show=True, frames=True, show_observations=False)
         time.sleep(0.1)

@@ -35,9 +35,9 @@ flatland-random-sparse-small-tree-fc-cctransformer:
             eval_generator: enable_explore
 
             wandb:
-                project: flatland-paper
-                entity: aicrowd
-                tags: ["small_v0", "tree_obs", "ccppo", "transformer"] # TODO should be set programmatically
+                project: flatland
+                entity: wullli
+                tags: ["small_v0", "baseline", "tree_obs", "ccppo", "transformer"] # TODO should be set programmatically
 
         model:
             custom_model: cc_concatenate

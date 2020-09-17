@@ -28,17 +28,17 @@ class CentralizedCriticModel(ABC, TFModelV2):
         # env parameters
         self.obs_space_shape = obs_space.shape[0]
         self.act_space_shape = action_space.n
-        self.centralized = model_config["custom_options"]["critic"]["centralized"]
-        self.max_num_agents = model_config["custom_options"]["max_num_agents"]
+        self.centralized = model_config["custom_model_config"]["critic"]["centralized"]
+        self.max_num_agents = model_config["custom_model_config"]["max_num_agents"]
         self.max_num_opponents = self.max_num_agents - 1
         self.debug_mode = True
 
         # Build the actor network
-        self.actor = self._build_actor(**model_config["custom_options"]["actor"])
+        self.actor = self._build_actor(**model_config["custom_model_config"]["actor"])
         self.register_variables(self.actor.variables)
 
         # Central Value Network
-        self.critic = self._build_critic(**model_config["custom_options"]["critic"])
+        self.critic = self._build_critic(**model_config["custom_model_config"]["critic"])
         self.register_variables(self.critic.variables)
 
         # summaries
