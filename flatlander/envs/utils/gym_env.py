@@ -27,7 +27,7 @@ class FlatlandGymEnv(gym.Env):
                  observation_space: gym.spaces.Space,
                  render: bool = False,
                  regenerate_rail_on_reset: bool = True,
-                 regenerate_schedule_on_reset: bool = True, config=None, **kwargs) -> None:
+                 regenerate_schedule_on_reset: bool = True) -> None:
         super().__init__()
         self._agents_done = []
         self._agent_scores = defaultdict(float)
@@ -36,7 +36,6 @@ class FlatlandGymEnv(gym.Env):
         self._regenerate_schedule_on_reset = regenerate_schedule_on_reset
         self.rail_env = rail_env
         self.observation_space = observation_space
-        self.agent_done_independent = config.get("agent_done_independent", True)
         if render:
             self.rail_env.set_renderer(render)
 
@@ -55,6 +54,7 @@ class FlatlandGymEnv(gym.Env):
 
                 # Use this if using a single policy for multiple agents
                 # TODO find better way to handle this
+                # if True or agent not in self._agents_done:
                 if agent not in self._agents_done:
                     if agent != '__all__':
                         if done:
@@ -63,10 +63,7 @@ class FlatlandGymEnv(gym.Env):
                         r[agent] = rewards[agent]
                         self._agent_scores[agent] += rewards[agent]
                         self._agent_steps[agent] += 1
-                    if self.agent_done_independent:
-                        d[agent] = dones[agent]
-                    else:
-                        d[agent] = dones["__all__"]
+                    d[agent] = dones[agent]
 
             action_dict = {}  # reset action dict for cases where we do multiple envs steps
             obs_or_done = len(o) > 0 or d['__all__']  # step through envs as long as there are no obs/all agents done

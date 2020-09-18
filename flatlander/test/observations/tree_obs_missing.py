@@ -50,8 +50,6 @@ for _ in range(100):
     if env_renderer is not None:
         env_renderer.close_window()
     obs, _ = env.reset()
-    env_renderer = RenderTool(env)
-    env_renderer.render_env(show=True, frames=True, show_observations=False)
     done = {"__all__": False}
     while not done["__all__"]:
         action = {}
@@ -59,6 +57,3 @@ for _ in range(100):
         print("Rewards: ", all_rewards, "  [done=", done, "]")
         print("Observations: ", obs)
         assert len(obs.keys()) == n_agents
-
-        env_renderer.render_env(show=True, frames=True, show_observations=False)
-        time.sleep(0.1)

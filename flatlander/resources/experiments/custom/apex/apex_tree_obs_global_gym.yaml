@@ -1,8 +1,9 @@
-flatland-sparse-small-tree-fc-qmix-global:
-    run: QMIX
-    env: flatland_sparse_grouped
+# to check whether the filling obs can even be used to learn meaningful policies
+flatland-sparse-small-tree-fc-apex-global:
+    run: APEX
+    env: flatland_sparse
     stop:
-        timesteps_total: 15000000 # 2e7
+        timesteps_total: 20000000 # 2e7
     checkpoint_freq: 10
     checkpoint_at_end: True
     keep_checkpoints_num: 5
@@ -12,21 +13,10 @@ flatland-sparse-small-tree-fc-qmix-global:
         num_envs_per_worker: 5
         num_gpus: 1
 
-        rollout_fragment_length: 4
-        train_batch_size: 32
-
-        exploration_config:
-            epsilon_timesteps: 1000000
-            final_epsilon: 0.05
-
-        mixer: qmix
-        mixing_embed_dim: 32
-
         env_config:
             n_agents: 5
             observation: tree
             observation_config:
-                num_agents: 5
                 max_depth: 2
                 shortest_path_max_depth: 30
                 concat_agent_id: True
@@ -34,14 +24,16 @@ flatland-sparse-small-tree-fc-qmix-global:
             generator: sparse_rail_generator
             generator_config: small_v0
 
-            available_actions_obs: True
-            agents_done_independent: False
             gym_env: global
 
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "qmix", "custom", "global_reward"]
+                tags: ["small_v0", "tree_obs", "apex", "baseline", "global_reward"]
 
+        model:
+            fcnet_activation: relu
+            fcnet_hiddens: [256, 256, 256]
+            vf_share_layers: True
 
 

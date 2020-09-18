@@ -18,6 +18,7 @@ from ray.tune.utils import merge_dicts
 from flatlander.envs import get_eval_config
 from flatlander.envs.flatland_sparse import FlatlandSparse
 from flatlander.envs.observations import make_obs
+from flatlander.envs.utils.global_gym_env import GlobalFlatlandGymEnv
 from flatlander.envs.utils.gym_env_fill_missing import FillingFlatlandGymEnv
 from flatlander.logging.wandb_logger import WandbLogger
 from flatlander.utils.loader import load_envs, load_models
@@ -123,7 +124,7 @@ class ExperimentRunner:
                                     config["env_config"]["observation_config"]).observation_space()
                            for _ in range(config["env_config"]["n_agents"])])
 
-        act_space = Tuple([FillingFlatlandGymEnv.action_space for _ in range(config["env_config"]["n_agents"])])
+        act_space = Tuple([GlobalFlatlandGymEnv.action_space for _ in range(config["env_config"]["n_agents"])])
 
         register_env(
             "flatland_sparse_grouped",

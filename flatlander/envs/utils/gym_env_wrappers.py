@@ -172,28 +172,6 @@ class SparseRewardWrapper(gym.Wrapper):
         return self.env.reset(random_seed)
 
 
-class CooperationRewardWrapper(gym.Wrapper):
-
-    def __init__(self, env) -> None:
-        super().__init__(env)
-
-    def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:
-        obs, reward, done, info = self.env.step(action_dict)
-
-        o, r, d, i = {}, {}, {}, {}
-        for agent_id, agent_obs in obs.items():
-            o[agent_id] = obs[agent_id]
-            d[agent_id] = done[agent_id]
-            i[agent_id] = info[agent_id]
-            r[agent_id] = (reward[agent_id] + np.mean(reward.values())) / 2
-
-        d['__all__'] = done['__all__'] or all(d.values())
-        return StepOutput(o, r, d, i)
-
-    def reset(self, random_seed: Optional[int] = None) -> Dict[int, Any]:
-        return self.env.reset(random_seed)
-
-
 class GlobalRewardWrapper(gym.Wrapper):
 
     def __init__(self, env) -> None:

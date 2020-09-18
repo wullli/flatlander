@@ -10,17 +10,20 @@ from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatlander.envs import get_generator_config
 from flatlander.envs.flatland_base import FlatlandBase
 from flatlander.envs.observations import make_obs
+from flatlander.envs.utils.global_gym_env import GlobalFlatlandGymEnv
 from flatlander.envs.utils.gym_env import FlatlandGymEnv
 from flatlander.envs.utils.gym_env_fill_missing import FillingFlatlandGymEnv
 from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, SkipNoChoiceCellsWrapper, \
     SparseRewardWrapper, \
-    DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper, CooperationRewardWrapper, GlobalRewardWrapper
+    DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper, GlobalRewardWrapper
 
 from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as RailEnv
 
 
 class FlatlandSparse(FlatlandBase):
-    _gym_envs = {"default": FlatlandGymEnv, "fill_missing": FillingFlatlandGymEnv}
+    _gym_envs = {"default": FlatlandGymEnv,
+                 "fill_missing": FillingFlatlandGymEnv,
+                 "global": GlobalFlatlandGymEnv}
 
     def __init__(self, env_config) -> None:
         super().__init__(env_config.get("actions_are_logits", False))
@@ -55,8 +58,6 @@ class FlatlandSparse(FlatlandBase):
         if env_config.get('sparse_reward', False):
             self._env = SparseRewardWrapper(self._env, finished_reward=env_config.get('done_reward', 1),
                                             not_finished_reward=env_config.get('not_finished_reward', -1))
-        if env_config.get('cooperation_reward', False):
-            self._env = CooperationRewardWrapper(self._env)
         if env_config.get('global_reward', False):
             self._env = GlobalRewardWrapper(self._env)
         if env_config.get('deadlock_reward', 0) != 0:
@@ -71,7 +72,6 @@ class FlatlandSparse(FlatlandBase):
             self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
         if env_config.get('fill_unavailable_actions', False):
             self._env = AvailableActionsWrapper(self._env, env_config.get('allow_noop', True))
-
 
     @property
     def observation_space(self) -> gym.spaces.Space:

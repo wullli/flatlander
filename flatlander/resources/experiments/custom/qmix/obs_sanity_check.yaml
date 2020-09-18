@@ -9,7 +9,7 @@ flatland-sparse-small-tree-fc-apex-global:
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     config:
-        num_workers: 7
+        num_workers: 4
         num_envs_per_worker: 5
         num_gpus: 1
 
@@ -24,11 +24,9 @@ flatland-sparse-small-tree-fc-apex-global:
             generator: sparse_rail_generator
             generator_config: small_v0
 
-            global_reward: True
-            agents_done_independent: False
-            gym_env: fill_missing
-            missing_fill_value: 0
-            done_fill_value: 0
+            obs_sanity_check:
+                yaml:
+            gym_env: global
 
             wandb:
                 project: flatland
