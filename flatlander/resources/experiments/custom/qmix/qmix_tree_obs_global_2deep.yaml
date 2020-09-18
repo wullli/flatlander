@@ -23,13 +23,13 @@ flatland-sparse-small-tree-fc-qmix-global:
         mixing_embed_dim: 32
 
         env_config:
-            n_agents: 5
-            observation: tree
+            max_n_agents: 5
+            observation: agent_id_tree
             observation_config:
-                num_agents: 5
                 max_depth: 2
                 shortest_path_max_depth: 30
                 concat_agent_id: True
+                max_n_agents: 5
 
             generator: sparse_rail_generator
             generator_config: small_v0
