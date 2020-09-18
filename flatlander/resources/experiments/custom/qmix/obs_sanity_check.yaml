@@ -14,19 +14,19 @@ flatland-sparse-small-tree-fc-apex-global:
         num_gpus: 1
 
         env_config:
-            n_agents: 5
-            observation: tree
+            max_n_agents: 5
+            observation: agent_id_tree
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
                 concat_agent_id: True
+                max_n_agents: 5
 
             generator: sparse_rail_generator
             generator_config: small_v0
 
-            obs_sanity_check:
-                yaml:
             gym_env: global
+            agents_done_independent: False
 
             wandb:
                 project: flatland

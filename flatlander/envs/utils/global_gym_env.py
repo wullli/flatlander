@@ -30,7 +30,7 @@ class GlobalFlatlandGymEnv(gym.Env):
         self._regenerate_schedule_on_reset = regenerate_schedule_on_reset
         self.rail_env = rail_env
         self.observation_space = observation_space
-        self.agent_done_independent = config.get("agent_done_independent", True)
+        self.agent_done_independent = config.get("agents_done_independent", True)
         self._step_out: Callable = self.get_independent_done_observations if self.agent_done_independent \
             else self.get_global_done_observations
 
@@ -66,7 +66,7 @@ class GlobalFlatlandGymEnv(gym.Env):
             else:
                 d[handle] = done
 
-        global_reward = np.sum(list(r.values()), dtype=np.float) if not d["__all__"] else 100
+        global_reward = np.sum(list(r.values()), dtype=np.float) if not d["__all__"] else 1.
         r = {handle: global_reward for handle in r.keys()}
         return o, r, d
 
@@ -76,13 +76,15 @@ class GlobalFlatlandGymEnv(gym.Env):
             if handle != "__all__":
                 if done:
                     r[handle] = 0
+                    o[handle] = np.zeros(shape=self.observation_space.shape)
                 else:
                     r[handle] = -1
-                o[handle] = obs[handle]
+                    o[handle] = obs[handle]
             d[handle] = dones["__all__"]
 
-        global_reward = np.sum(list(r.values()), dtype=np.float) if not d["__all__"] else 100
+        global_reward = np.mean(list(r.values()), dtype=np.float) if not d["__all__"] else 1.
         r = {handle: global_reward for handle in r.keys()}
+        assert len(o.keys()) == self.rail_env.get_num_agents()
         return o, r, d
 
     def reset(self, random_seed: Optional[int] = None) -> Dict[int, Any]:

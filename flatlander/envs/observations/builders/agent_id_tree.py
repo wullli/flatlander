@@ -11,18 +11,27 @@ from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.agent_utils import RailAgentStatus
 from flatland.utils.ordered_set import OrderedSet
 
-CoopNode = collections.namedtuple('Node',
-                                  'dist_own_target_encountered '
-                                  'dist_potential_conflict '
-                                  'potential_conflict_handle '
-                                  'dist_unusable_switch '
-                                  'dist_min_to_target '
-                                  'num_agents_malfunctioning '
-                                  'childs')
+AgentIdNode = collections.namedtuple('AgentIdNode', 'dist_own_target_encountered '
+                                                    'dist_other_target_encountered '
+                                                    'dist_other_agent_encountered '
+                                                    'dist_potential_conflict '
+                                                    'handle_potential_conflict '
+                                                    'dist_unusable_switch '
+                                                    'dist_to_next_branch '
+                                                    'dist_min_to_target '
+                                                    'num_agents_same_direction '
+                                                    'num_agents_opposite_direction '
+                                                    'num_agents_ready_to_depart '
+                                                    'num_agents_malfunctioning '
+                                                    'speed_min_fractional '
+                                                    'available_transitions '
+                                                    'childs')
 
 
-class CoopTreeObs(ObservationBuilder):
+class AgentIdTreeObservationBuilder(ObservationBuilder):
     """
+    TreeObsForRailEnv object.
+
     This object returns observation vectors for agents in the RailEnv environment.
     The information is local to each agent and exploits the graph structure of the rail
     network to simplify the representation of the state of the environment for each agent.
@@ -32,26 +41,20 @@ class CoopTreeObs(ObservationBuilder):
 
     tree_explored_actions_char = ['L', 'F', 'R', 'B']
 
-    def __init__(self, max_depth: int, predictor: PredictionBuilder = None):
+    def __init__(self, max_depth: int, predictor: PredictionBuilder = None, max_n_agents=10):
         super().__init__()
         self.max_depth = max_depth
-        self.max_agents = 30
-        self.observation_dim = self.max_agents + 4
+        self.observation_dim = 11 + max_n_agents + 4
         self.location_has_agent = {}
         self.location_has_agent_direction = {}
-        self.location_has_agent_malfunction = {}
-        self.location_has_agent_ready_to_depart = {}
-        self.predicted_pos = {}
-        self.predicted_dir = {}
-        self.predictions = None
         self.predictor = predictor
         self.location_has_target = None
-        self.max_prediction_depth = 0
+        self.max_n_agents = max_n_agents
 
     def reset(self):
         self.location_has_target = {tuple(agent.target): 1 for agent in self.env.agents}
 
-    def get_many(self, handles: Optional[List[int]] = None) -> Dict[int, CoopNode]:
+    def get_many(self, handles: Optional[List[int]] = None) -> Dict[int, AgentIdNode]:
         """
         Called whenever an observation has to be computed for the `env` environment, for each agent with handle
         in the `handles` list.
@@ -83,6 +86,7 @@ class CoopTreeObs(ObservationBuilder):
 
         self.location_has_agent = {}
         self.location_has_agent_direction = {}
+        self.location_has_agent_speed = {}
         self.location_has_agent_malfunction = {}
         self.location_has_agent_ready_to_depart = {}
 
@@ -91,14 +95,104 @@ class CoopTreeObs(ObservationBuilder):
                     _agent.position:
                 self.location_has_agent[tuple(_agent.position)] = 1
                 self.location_has_agent_direction[tuple(_agent.position)] = _agent.direction
+                self.location_has_agent_speed[tuple(_agent.position)] = _agent.speed_data['speed']
                 self.location_has_agent_malfunction[tuple(_agent.position)] = _agent.malfunction_data[
                     'malfunction']
+
+            if _agent.status in [RailAgentStatus.READY_TO_DEPART] and \
+                    _agent.initial_position:
+                self.location_has_agent_ready_to_depart[tuple(_agent.initial_position)] = \
+                    self.location_has_agent_ready_to_depart.get(tuple(_agent.initial_position), 0) + 1
 
         observations = super().get_many(handles)
 
         return observations
 
-    def get(self, handle: int = 0) -> CoopNode:
+    def one_hot_handles(self, handles: List[int]) -> np.ndarray:
+        oh = np.zeros(self.max_n_agents)
+        if len(handles) != 0 and not handles[0] == np.inf:
+            oh[handles] = 1
+        return oh
+
+    def get(self, handle: int = 0) -> AgentIdNode:
+        """
+        Computes the current observation for agent `handle` in env
+
+        The observation vector is composed of 4 sequential parts, corresponding to data from the up to 4 possible
+        movements in a RailEnv (up to because only a subset of possible transitions are allowed in RailEnv).
+        The possible movements are sorted relative to the current orientation of the agent, rather than NESW as for
+        the transitions. The order is::
+
+            [data from 'left'] + [data from 'forward'] + [data from 'right'] + [data from 'back']
+
+        Each branch data is organized as::
+
+            [root node information] +
+            [recursive branch data from 'left'] +
+            [... from 'forward'] +
+            [... from 'right] +
+            [... from 'back']
+
+        Each node information is composed of 9 features:
+
+        #1:
+            if own target lies on the explored branch the current distance from the agent in number of cells is stored.
+
+        #2:
+            if another agents target is detected the distance in number of cells from the agents current location\
+            is stored
+
+        #3:
+            if another agent is detected the distance in number of cells from current agent position is stored.
+
+        #4:
+            possible conflict detected
+            tot_dist = Other agent predicts to pass along this cell at the same time as the agent, we store the \
+             distance in number of cells from current agent position
+
+            0 = No other agent reserve the same cell at similar time
+
+        #5:
+            if an not usable switch (for agent) is detected we store the distance.
+
+        #6:
+            This feature stores the distance in number of cells to the next branching  (current node)
+
+        #7:
+            minimum distance from node to the agent's target given the direction of the agent if this path is chosen
+
+        #8:
+            agent in the same direction
+            n = number of agents present same direction \
+                (possible future use: number of other agents in the same direction in this branch)
+            0 = no agent present same direction
+
+        #9:
+            agent in the opposite direction
+            n = number of agents present other direction than myself (so conflict) \
+                (possible future use: number of other agents in other direction in this branch, ie. number of conflicts)
+            0 = no agent present other direction than myself
+
+        #10:
+            malfunctioning/blokcing agents
+            n = number of time steps the oberved agent remains blocked
+
+        #11:
+            slowest observed speed of an agent in same direction
+            1 if no agent is observed
+
+            min_fractional speed otherwise
+        #12:
+            number of agents ready to depart but no yet active
+
+        Missing/padding nodes are filled in with -inf (truncated).
+        Missing values in present node are filled in with +inf (truncated).
+
+
+        In case of the root node, the values are [0, 0, 0, 0, distance from agent to target, own malfunction, own speed]
+        In case the target node is reached, the values are [0, 0, 0, 0, 0].
+        """
+
         if handle > len(self.env.agents):
             print("ERROR: obs _get - handle ", handle, " len(agents)", len(self.env.agents))
         agent = self.env.agents[handle]  # TODO: handle being treated as index
@@ -118,15 +212,20 @@ class CoopTreeObs(ObservationBuilder):
         # Here information about the agent itself is stored
         distance_map = self.env.distance_map.get()
 
-        # was referring to TreeObsForRailEnv.Node
-        root_node_observation = CoopNode(dist_own_target_encountered=0, dist_potential_conflict=0,
-                                         dist_unusable_switch=0,
-                                         potential_conflict_handle=np.zeros(self.max_agents),
-                                         dist_min_to_target=distance_map[
-                                             (handle, *agent_virtual_position,
-                                              agent.direction)],
-                                         num_agents_malfunctioning=agent.malfunction_data['malfunction'],
-                                         childs={})
+        # was referring to TreeObsForRailEnv.AgentIdNode
+        root_node_observation = AgentIdNode(dist_own_target_encountered=0, dist_other_target_encountered=0,
+                                            dist_other_agent_encountered=0, dist_potential_conflict=0,
+                                            handle_potential_conflict=np.zeros(self.max_n_agents),
+                                            dist_unusable_switch=0, dist_to_next_branch=0,
+                                            dist_min_to_target=distance_map[
+                                                (handle, *agent_virtual_position,
+                                                 agent.direction)],
+                                            num_agents_same_direction=0, num_agents_opposite_direction=0,
+                                            num_agents_malfunctioning=agent.malfunction_data['malfunction'],
+                                            speed_min_fractional=agent.speed_data['speed'],
+                                            num_agents_ready_to_depart=0,
+                                            available_transitions=np.array(possible_transitions),
+                                            childs={})
         # print("root node type:", type(root_node_observation))
 
         visited = OrderedSet()
@@ -183,13 +282,15 @@ class CoopTreeObs(ObservationBuilder):
         other_agent_encountered = np.inf
         other_target_encountered = np.inf
         potential_conflict = np.inf
-        potential_conflict_handle = np.inf
+        handle_conflict = np.inf
         unusable_switch = np.inf
         other_agent_same_direction = 0
         other_agent_opposite_direction = 0
         malfunctioning_agent = 0
+        min_fractional_speed = 1.
         num_steps = 1
         other_agent_ready_to_depart_encountered = 0
+        cell_transitions = np.zeros(4)
         while exploring:
             # #############################
             # #############################
@@ -208,6 +309,11 @@ class CoopTreeObs(ObservationBuilder):
                 if self.location_has_agent_direction[position] == direction:
                     # Cummulate the number of agents on branch with same direction
                     other_agent_same_direction += 1
+
+                    # Check fractional speed of agents
+                    current_fractional_speed = self.location_has_agent_speed[position]
+                    if current_fractional_speed < min_fractional_speed:
+                        min_fractional_speed = current_fractional_speed
 
                 else:
                     # If no agent in the same direction was found all agents in that position are other direction
@@ -239,10 +345,10 @@ class CoopTreeObs(ObservationBuilder):
                                 self._reverse_dir(
                                     self.predicted_dir[predicted_time][ca])] == 1 and tot_dist < potential_conflict:
                                 potential_conflict = tot_dist
-                                potential_conflict_handle = ca
+                                handle_conflict = ca
                             if self.env.agents[ca].status == RailAgentStatus.DONE and tot_dist < potential_conflict:
                                 potential_conflict = tot_dist
-                                potential_conflict_handle = ca
+                                handle_conflict = ca
 
                     # Look for conflicting paths at distance num_step-1
                     elif int_position in np.delete(self.predicted_pos[pre_step], handle, 0):
@@ -252,10 +358,10 @@ class CoopTreeObs(ObservationBuilder):
                                     and cell_transitions[self._reverse_dir(self.predicted_dir[pre_step][ca])] == 1 \
                                     and tot_dist < potential_conflict:  # noqa: E125
                                 potential_conflict = tot_dist
-                                potential_conflict_handle = ca
+                                handle_conflict = ca
                             if self.env.agents[ca].status == RailAgentStatus.DONE and tot_dist < potential_conflict:
                                 potential_conflict = tot_dist
-                                potential_conflict_handle = ca
+                                handle_conflict = ca
 
                     # Look for conflicting paths at distance num_step+1
                     elif int_position in np.delete(self.predicted_pos[post_step], handle, 0):
@@ -265,10 +371,10 @@ class CoopTreeObs(ObservationBuilder):
                                     self.predicted_dir[post_step][ca])] == 1 \
                                     and tot_dist < potential_conflict:  # noqa: E125
                                 potential_conflict = tot_dist
-                                potential_conflict_handle = ca
+                                handle_conflict = ca
                             if self.env.agents[ca].status == RailAgentStatus.DONE and tot_dist < potential_conflict:
                                 potential_conflict = tot_dist
-                                potential_conflict_handle = ca
+                                handle_conflict = ca
 
             if position in self.location_has_target and position != agent.target:
                 if tot_dist < other_target_encountered:
@@ -335,23 +441,31 @@ class CoopTreeObs(ObservationBuilder):
         # Modify here to append new / different features for each visited cell!
 
         if last_is_target:
+            dist_to_next_branch = tot_dist
             dist_min_to_target = 0
         elif last_is_terminal:
+            dist_to_next_branch = np.inf
             dist_min_to_target = self.env.distance_map.get()[handle, position[0], position[1], direction]
         else:
+            dist_to_next_branch = tot_dist
             dist_min_to_target = self.env.distance_map.get()[handle, position[0], position[1], direction]
 
-        # TreeObsForRailEnv.Node
-        conflict_handle = np.zeros(self.max_agents)
-        if potential_conflict_handle != np.inf:
-            conflict_handle[potential_conflict_handle] = 1
-        node = CoopNode(dist_own_target_encountered=own_target_encountered,
-                        dist_potential_conflict=potential_conflict,
-                        dist_unusable_switch=unusable_switch,
-                        dist_min_to_target=dist_min_to_target,
-                        potential_conflict_handle=conflict_handle,
-                        num_agents_malfunctioning=malfunctioning_agent,
-                        childs={})
+        # TreeObsForRailEnv.AgentIdNode
+        node = AgentIdNode(dist_own_target_encountered=own_target_encountered,
+                           dist_other_target_encountered=other_target_encountered,
+                           dist_other_agent_encountered=other_agent_encountered,
+                           dist_potential_conflict=potential_conflict,
+                           handle_potential_conflict=self.one_hot_handles([handle_conflict]),
+                           dist_unusable_switch=unusable_switch,
+                           dist_to_next_branch=dist_to_next_branch,
+                           dist_min_to_target=dist_min_to_target,
+                           num_agents_same_direction=other_agent_same_direction,
+                           num_agents_opposite_direction=other_agent_opposite_direction,
+                           num_agents_malfunctioning=malfunctioning_agent,
+                           speed_min_fractional=min_fractional_speed,
+                           num_agents_ready_to_depart=other_agent_ready_to_depart_encountered,
+                           available_transitions=np.array(cell_transitions),
+                           childs={})
 
         # #############################
         # #############################
@@ -391,7 +505,7 @@ class CoopTreeObs(ObservationBuilder):
             node.childs.clear()
         return node, visited
 
-    def util_print_obs_subtree(self, tree: CoopNode):
+    def util_print_obs_subtree(self, tree: AgentIdNode):
         """
         Utility function to print tree observations returned by this object.
         """
@@ -400,10 +514,13 @@ class CoopTreeObs(ObservationBuilder):
             self.print_subtree(tree.childs[direction], direction, "\t")
 
     @staticmethod
-    def print_node_features(node: CoopNode, label, indent):
+    def print_node_features(node: AgentIdNode, label, indent):
         print(indent, "Direction ", label, ": ", node.dist_own_target_encountered, ", ",
-              node.dist_potential_conflict, ", ", node.dist_unusable_switch, ", ",
-              node.dist_min_to_target, ", ", node.num_agents_malfunctioning, ", ")
+              node.dist_other_target_encountered, ", ", node.dist_other_agent_encountered, ", ",
+              node.dist_potential_conflict, ", ", node.dist_unusable_switch, ", ", node.dist_to_next_branch, ", ",
+              node.dist_min_to_target, ", ", node.num_agents_same_direction, ", ", node.num_agents_opposite_direction,
+              ", ", node.num_agents_malfunctioning, ", ", node.speed_min_fractional, ", ",
+              node.num_agents_ready_to_depart)
 
     def print_subtree(self, node, label, indent):
         if node == -np.inf or not node:
