@@ -40,13 +40,14 @@ RUN wget \
     && rm -f Miniconda3-latest-Linux-x86_64.sh
 
 ENV PATH="${HOME}/miniconda3/bin:${PATH}"
-ENV CUDA_VISIBLE_DEVICES=0
 
 RUN conda env create -f /src/environment-gpu.yml
 
 ENV PATH ${HOME}/miniconda3/envs/flatland-rl/bin:$PATH
 ENV CONDA_DEFAULT_ENV flatland-rl
 ENV CONDA_PREFIX ${HOME}/miniconda3/envs/flatland-rl
+
+ENV CUDA_VISIBLE_DEVICES=1
 
 SHELL ["/bin/bash", "-c"]
 
