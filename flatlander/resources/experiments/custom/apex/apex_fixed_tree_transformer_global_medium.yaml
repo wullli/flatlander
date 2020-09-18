@@ -1,4 +1,4 @@
-flatland-sparse-fixed-tree-transformer-apex:
+flatland-sparse-fixed-tree-transformer-apex-medium:
     run: APEX
     env: flatland_sparse
     stop:
@@ -30,7 +30,7 @@ flatland-sparse-fixed-tree-transformer-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["apex", "small_v0", "fixed", "tree", "transformer", "custom", "global_reward"]
+                tags: ["apex", "medium_v0", "fixed", "tree", "transformer", "custom", "global_reward"]
 
         model:
             custom_model: dqn_fixed_tree_transformer
