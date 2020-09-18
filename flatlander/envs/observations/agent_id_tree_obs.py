@@ -38,7 +38,7 @@ class AgentIdTreeObservation(Observation):
             nr_nodes += np.power(4, i)
         dim = num_features_per_node * nr_nodes
         if self._concat_agent_id:
-            dim += self._max_n_agents
+            dim += self._max_n_agents + 1  # for agent one hot and done flag
         return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim,))
 
 
@@ -162,5 +162,6 @@ class AgentIdTreeObsWrapper(ObservationBuilder):
         agent_data = np.clip(agent_data, -1, 1)
         agent_one_hot = np.zeros(self._max_n_agents)
         agent_one_hot[handle % self._max_n_agents] = 1
-        normalized_obs = np.concatenate((np.concatenate((data, distance)), agent_data, agent_one_hot))
+        done_flag = observation.dist_min_to_target == 0
+        normalized_obs = np.concatenate((data, distance, agent_data, agent_one_hot, [done_flag]))
         return normalized_obs
