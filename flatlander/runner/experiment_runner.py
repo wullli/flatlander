@@ -117,14 +117,14 @@ class ExperimentRunner:
     @staticmethod
     def setup_grouping(config: dict):
         grouping = {
-            "group_1": list(range(config["env_config"]["n_agents"])),
+            "group_1": list(range(config["env_config"]["max_n_agents"])),
         }
 
         obs_space = Tuple([make_obs(config["env_config"]["observation"],
                                     config["env_config"]["observation_config"]).observation_space()
-                           for _ in range(config["env_config"]["n_agents"])])
+                           for _ in range(config["env_config"]["max_n_agents"])])
 
-        act_space = Tuple([GlobalFlatlandGymEnv.action_space for _ in range(config["env_config"]["n_agents"])])
+        act_space = Tuple([GlobalFlatlandGymEnv.action_space for _ in range(config["env_config"]["max_n_agents"])])
 
         register_env(
             "flatland_sparse_grouped",
@@ -136,7 +136,7 @@ class ExperimentRunner:
                              config["env_config"]["observation_config"]).observation_space()
         config["multiagent"] = {
             "policies": {"pol_" + str(i): (None, obs_space, FillingFlatlandGymEnv.action_space, {"agent_id": i})
-                         for i in range(config["env_config"]["n_agents"])},
+                         for i in range(config["env_config"]["max_n_agents"])},
             "policy_mapping_fn": lambda agent_id: "pol_" + str(agent_id)}
 
     def apply_args(self, run_args, experiments: dict):
