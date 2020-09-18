@@ -22,6 +22,8 @@ flatland-sparse-small-tree-fc-qmix-global:
         mixer: qmix
         mixing_embed_dim: 32
 
+        no_done_at_end: True
+
         env_config:
             max_n_agents: 5
             observation: agent_id_tree
@@ -34,7 +36,9 @@ flatland-sparse-small-tree-fc-qmix-global:
             generator: sparse_rail_generator
             generator_config: small_v0
 
-            agents_done_independent: False
+            global_done_signal: False
+            fill_done_agents: True
+            exclude_done_agents: False
             gym_env: global
 
             wandb:

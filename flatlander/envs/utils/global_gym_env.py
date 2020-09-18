@@ -30,8 +30,10 @@ class GlobalFlatlandGymEnv(gym.Env):
         self._regenerate_schedule_on_reset = regenerate_schedule_on_reset
         self.rail_env = rail_env
         self.observation_space = observation_space
-        self.agent_done_independent = config.get("agents_done_independent", True)
-        self._step_out: Callable = self.get_independent_done_observations if self.agent_done_independent \
+        self.exclude_done_agents = config.get("exclude_done_agents", True)
+        self.fill_done_agents = config.get("fill_done_agents", True)
+        self.global_done_signal = config.get("global_done_signal", False)
+        self._step_out: Callable = self.get_independent_done_observations if self.exclude_done_agents \
             else self.get_global_done_observations
 
     def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:
@@ -76,11 +78,14 @@ class GlobalFlatlandGymEnv(gym.Env):
             if handle != "__all__":
                 if done:
                     r[handle] = 0
-                    o[handle] = np.zeros(shape=self.observation_space.shape)
+                    o[handle] = np.zeros(shape=self.observation_space.shape) if self.fill_done_agents else obs[handle]
                 else:
                     r[handle] = -1
                     o[handle] = obs[handle]
-            d[handle] = dones["__all__"]
+            if self.global_done_signal:
+                d[handle] = dones["__all__"]
+            else:
+                d[handle] = done
 
         global_reward = np.mean(list(r.values()), dtype=np.float) if not d["__all__"] else 1.
         r = {handle: global_reward for handle in r.keys()}

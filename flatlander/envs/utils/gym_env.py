@@ -27,7 +27,7 @@ class FlatlandGymEnv(gym.Env):
                  observation_space: gym.spaces.Space,
                  render: bool = False,
                  regenerate_rail_on_reset: bool = True,
-                 regenerate_schedule_on_reset: bool = True) -> None:
+                 regenerate_schedule_on_reset: bool = True, **_) -> None:
         super().__init__()
         self._agents_done = []
         self._agent_scores = defaultdict(float)
