@@ -21,7 +21,7 @@ flatland-sparse-fixed-tree-transformer-apex:
                 small_tree: False
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: medium_v0
 
             global_reward: True
             skip_no_choice_cells: True
