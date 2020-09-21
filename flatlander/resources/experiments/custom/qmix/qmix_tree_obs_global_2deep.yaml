@@ -23,6 +23,7 @@ flatland-sparse-small-tree-fc-qmix-global:
         mixing_embed_dim: 32
 
         no_done_at_end: True
+        buffer_size: 500000
 
         env_config:
             max_n_agents: 5
