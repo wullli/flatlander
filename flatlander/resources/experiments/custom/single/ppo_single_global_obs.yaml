@@ -11,7 +11,7 @@ flatland-sparse-small-tree-fc-ppo-single:
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
         clip_rewards: False
         vf_clip_param: 2500
