@@ -1,5 +1,5 @@
 # to check whether the filling obs can even be used to learn meaningful policies
-flatland-sparse-small-tree-fc-apex-global:
+flatland-sparse-small-tree-fc-ppo-single:
     run: PPO
     env: flatland_single
     stop:
@@ -11,13 +11,13 @@ flatland-sparse-small-tree-fc-apex-global:
     config:
         num_workers: 2
         num_envs_per_worker: 1
-        num_gpus: 1
+        num_gpus: 0
 
         env_config:
             observation: pi_global
             observation_config:
-                max_width: 25
-                max_height: 25
+                max_width: 45
+                max_height: 45
                 max_n_agents: 5
                 global_obs: True
 
