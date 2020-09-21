@@ -17,12 +17,13 @@ flatland-sparse-small-tree-fc-apex-ind-pol:
         individual_policies: True
 
         env_config:
-            n_agents: 5
+            max_n_agents: 5
             observation: agent_id_tree
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
                 concat_agent_id: True
+                max_n_agents: 5
 
             generator: sparse_rail_generator
             generator_config: small_v0
