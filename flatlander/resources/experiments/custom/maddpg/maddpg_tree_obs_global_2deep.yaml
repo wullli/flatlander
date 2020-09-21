@@ -1,4 +1,4 @@
-flatland-sparse-small-tree-fc-maddpg-global:
+flatland-sparse-small-tree-fc-maddpg-global:individual_policies
     run: contrib/MADDPG
     env: flatland_sparse
     stop:

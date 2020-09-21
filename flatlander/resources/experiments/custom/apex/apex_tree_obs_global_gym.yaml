@@ -13,9 +13,12 @@ flatland-sparse-small-tree-fc-apex-global:
         num_envs_per_worker: 5
         num_gpus: 1
 
+        buffer_size: 500000
+        individual_policies: True
+
         env_config:
             n_agents: 5
-            observation: tree
+            observation: agent_id_tree
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
@@ -24,7 +27,7 @@ flatland-sparse-small-tree-fc-apex-global:
             generator: sparse_rail_generator
             generator_config: small_v0
 
-            gym_env: global
+            global_reward: True
 
             wandb:
                 project: flatland
