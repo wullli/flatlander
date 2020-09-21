@@ -8,12 +8,12 @@ flatland-sparse-small-tree-fc-qmix-global:
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     config:
-        num_workers: 4
+        num_workers: 7
         num_envs_per_worker: 5
         num_gpus: 1
 
-        rollout_fragment_length: 4
-        train_batch_size: 32
+        rollout_fragment_length: 50
+        train_batch_size: 1000
 
         exploration_config:
             epsilon_timesteps: 1000000
