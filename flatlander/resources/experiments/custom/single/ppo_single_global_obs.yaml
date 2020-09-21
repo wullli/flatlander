@@ -11,7 +11,7 @@ flatland-sparse-small-tree-fc-ppo-single:
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 1
+        num_gpus: 0
 
         clip_rewards: False
         vf_clip_param: 2500
@@ -28,7 +28,7 @@ flatland-sparse-small-tree-fc-ppo-single:
             observation_config:
                 max_width: 45
                 max_height: 45
-                max_n_agents: 5
+                max_n_agents: 1
                 global_obs: True
 
             generator: sparse_rail_generator
