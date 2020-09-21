@@ -13,6 +13,16 @@ flatland-sparse-small-tree-fc-ppo-single:
         num_envs_per_worker: 5
         num_gpus: 1
 
+        clip_rewards: False
+        vf_clip_param: 2500
+        entropy_coeff: 0.01
+        # effective batch_size: train_batch_size * num_agents_in_each_environment [5, 10]
+        # see https://github.com/ray-project/ray/issues/4628
+        train_batch_size: 1000  # 5000
+        rollout_fragment_length: 50  # 100
+        sgd_minibatch_size: 100  # 500
+        vf_share_layers: False
+
         env_config:
             observation: pi_global
             observation_config:
@@ -22,12 +32,12 @@ flatland-sparse-small-tree-fc-ppo-single:
                 global_obs: True
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: small_v0_1agent
 
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "baseline", "global_reward"]
+                tags: ["small_v0", "tree_obs", "ppo, "custom", "single_agent"]
 
         model:
             custom_model: global_obs_model
