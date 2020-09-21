@@ -9,9 +9,9 @@ flatland-sparse-small-tree-fc-ppo-single:
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     config:
-        num_workers: 7
-        num_envs_per_worker: 5
-        num_gpus: 1
+        num_workers: 0
+        num_envs_per_worker: 0
+        num_gpus: 0
 
         clip_rewards: False
         vf_clip_param: 2500
@@ -37,7 +37,7 @@ flatland-sparse-small-tree-fc-ppo-single:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "ppo, "custom", "single_agent"]
+                tags: ["small_v0", "tree_obs", "ppo", "custom", "single_agent"]
 
         model:
             custom_model: global_obs_model
