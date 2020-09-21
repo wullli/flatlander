@@ -1,7 +1,7 @@
 # to check whether the filling obs can even be used to learn meaningful policies
 flatland-sparse-small-tree-fc-apex-global:
-    run: APEX
-    env: flatland_sparse
+    run: PPO
+    env: flatland_single
     stop:
         timesteps_total: 20000000 # 2e7
     checkpoint_freq: 10
@@ -10,36 +10,29 @@ flatland-sparse-small-tree-fc-apex-global:
     checkpoint_score_attr: episode_reward_mean
     config:
         num_workers: 2
-        num_envs_per_worker: 5
+        num_envs_per_worker: 1
         num_gpus: 1
 
-        no_done_at_end: True
-
         env_config:
-            max_n_agents: 5
-            observation: agent_id_tree
+            observation: pi_global
             observation_config:
-                max_depth: 2
-                shortest_path_max_depth: 30
-                concat_agent_id: True
+                max_width: 25
+                max_height: 25
                 max_n_agents: 5
+                global_obs: True
 
             generator: sparse_rail_generator
             generator_config: small_v0
 
-            global_done_signal: False
-            fill_done_agents: True
-            exclude_done_agents: False
-            gym_env: global
-
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "agent_id_tree", "apex", "sanity_check", "global_reward"]
+                tags: ["small_v0", "tree_obs", "apex", "baseline", "global_reward"]
 
         model:
-            fcnet_activation: relu
-            fcnet_hiddens: [256, 256, 256]
-            vf_share_layers: True
+            custom_model: global_obs_model
+            custom_model_config:
+                architecture: nature
+
 
 

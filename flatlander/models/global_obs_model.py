@@ -12,24 +12,23 @@ class GlobalObsModel(TFModelV2):
 
     def __init__(self, obs_space, action_space, num_outputs, model_config, name):
         super().__init__(obs_space, action_space, num_outputs, model_config, name)
-        assert isinstance(action_space, gym.spaces.Discrete), \
+        assert isinstance(action_space, gym.spaces.Discrete) or isinstance(action_space, gym.spaces.MultiDiscrete), \
             "Currently, only 'gym.spaces.Discrete' action spaces are supported."
         self._action_space = action_space
-        self._options = model_config['custom_options']
+        self._options = model_config['custom_model_config']
         self._mask_unavailable_actions = self._options.get("mask_unavailable_actions", False)
 
         if self._mask_unavailable_actions:
             obs_space = obs_space['obs']
         else:
-            obs_space = obs_space
+            obs_space = self.obs_space
 
-        observations = tf.keras.layers.Input(shape=obs_space.shape)
-        processed_observations = observations  # preprocess_obs(tuple(observations))
+        observations = tf.keras.layers.Input(shape=(None, obs_space.shape[0], obs_space.shape[1], obs_space.shape[2]))
 
         if self._options['architecture'] == 'nature':
-            conv_out = NatureCNN(activation_out=True, **self._options['architecture_options'])(processed_observations)
+            conv_out = NatureCNN(activation_out=True, **self._options.get('architecture_options', {}))(observations)
         elif self._options['architecture'] == 'impala':
-            conv_out = ImpalaCNN(activation_out=True, **self._options['architecture_options'])(processed_observations)
+            conv_out = ImpalaCNN(activation_out=True, **self._options.get('architecture_options', {}))(observations)
         else:
             raise ValueError(f"Invalid architecture: {self._options['architecture']}.")
         logits = tf.keras.layers.Dense(units=action_space.n)(conv_out)
@@ -57,20 +56,3 @@ class GlobalObsModel(TFModelV2):
     def value_function(self):
         return self.baseline
 
-
-def preprocess_obs(obs) -> tf.Tensor:
-    transition_map, agents_state, targets = obs
-
-    processed_agents_state_layers = []
-    for i, feature_layer in enumerate(tf.unstack(agents_state, axis=-1)):
-        if i in {0, 1}:  # agent direction (categorical)
-            feature_layer = tf.one_hot(tf.cast(feature_layer, tf.int32), depth=len(grid4.Grid4TransitionsEnum) + 1,
-                                       dtype=tf.float32)
-        elif i in {2, 4}:  # counts
-            feature_layer = tf.expand_dims(tf.math.log(feature_layer + 1), axis=-1)
-        else:  # well behaved scalars
-            feature_layer = tf.expand_dims(feature_layer, axis=-1)
-        processed_agents_state_layers.append(feature_layer)
-
-    return tf.concat(
-        [tf.cast(transition_map, tf.float32), tf.cast(targets, tf.float32)] + processed_agents_state_layers, axis=-1)

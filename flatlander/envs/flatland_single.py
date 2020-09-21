@@ -21,6 +21,7 @@ class FlatlandSingle(gym.Env):
     def __init__(self, env_config):
         self._observation = make_obs(env_config['observation'], env_config.get('observation_config'))
         self._config = get_generator_config(env_config['generator_config'])
+        self._global_obs = env_config['observation_config'].get('global_obs', False)
 
         # Overwrites with env_config seed if it exists
         if env_config.get('seed'):
@@ -130,16 +131,19 @@ class FlatlandSingle(gym.Env):
 
     @property
     def observation_space(self) -> gym.spaces.Space:
-        observation_space = self._observation.observation_space()
+        observation_space = self._env.observation_space
 
-        if isinstance(observation_space, gym.spaces.Box):
-            return gym.spaces.Box(low=-np.inf, high=np.inf,
-                                  shape=(self._config['number_of_agents'], *observation_space.shape,))
-        elif isinstance(observation_space, gym.spaces.Tuple):
-            spaces = observation_space.spaces * self._config['number_of_agents']
-            return gym.spaces.Tuple(spaces)
+        if not self._global_obs:
+            if isinstance(observation_space, gym.spaces.Box):
+                return gym.spaces.Box(low=-np.inf, high=np.inf,
+                                      shape=(self._config['number_of_agents'], *observation_space.shape,))
+            elif isinstance(observation_space, gym.spaces.Tuple):
+                spaces = observation_space.spaces * self._config['number_of_agents']
+                return gym.spaces.Tuple(spaces)
+            else:
+                raise ValueError("Unhandled space:", observation_space.__class__)
         else:
-            raise ValueError("Unhandled space:", observation_space.__class__)
+            return observation_space
 
     @property
     def action_space(self) -> gym.spaces.Space:

@@ -44,7 +44,7 @@ flatland-sparse-small-tree-fc-qmix-global:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "qmix", "custom", "global_reward"]
+                tags: ["small_v0", "tree_obs", "qmix", "custom", "global_env"]
 
 
 
