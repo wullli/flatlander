@@ -9,9 +9,9 @@ flatland-sparse-small-tree-fc-ppo-single:
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     config:
-        num_workers: 2
-        num_envs_per_worker: 1
-        num_gpus: 0
+        num_workers: 7
+        num_envs_per_worker: 5
+        num_gpus: 1
 
         env_config:
             observation: pi_global
