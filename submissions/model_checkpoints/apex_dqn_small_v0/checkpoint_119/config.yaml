@@ -5,12 +5,15 @@ num_gpus: 0
 
 no_done_at_end: True
 
-learning_starts: 1000
+learning_starts: 5000
 train_batch_size: 512
 rollout_fragment_length: 50
 target_network_update_freq: 1000
 timesteps_per_iteration: 1000
-lr: 0.001
+
+exploration_config:
+    epsilon_timesteps: 10000
+    final_epsilon: 0.05
 
 env_config:
     n_agents: 5
@@ -25,11 +28,6 @@ env_config:
 
     regenerate_rail_on_reset: False
     regenerate_schedule_on_reset: False
-
-    wandb:
-        project: flatland-finetuning
-        entity: wullli
-        tags: ["small_v0", "tree_obs", "apex", "global_reward"]
 
 model:
     fcnet_activation: relu
