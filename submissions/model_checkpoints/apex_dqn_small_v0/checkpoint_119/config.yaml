@@ -1,7 +1,16 @@
 env: flatland_sparse
-num_workers: 4
+num_workers: 0
 num_envs_per_worker: 1
-num_gpus: 1
+num_gpus: 0
+
+no_done_at_end: True
+
+learning_starts: 1000
+train_batch_size: 512
+rollout_fragment_length: 50
+target_network_update_freq: 1000
+timesteps_per_iteration: 1000
+lr: 0.001
 
 env_config:
     n_agents: 5
@@ -18,7 +27,7 @@ env_config:
     regenerate_schedule_on_reset: False
 
     wandb:
-        project: flatland
+        project: flatland-finetuning
         entity: wullli
         tags: ["small_v0", "tree_obs", "apex", "global_reward"]
 

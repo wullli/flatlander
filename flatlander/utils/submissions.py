@@ -28,5 +28,4 @@ SUBMISSIONS = {
     }}
 
 RUN = SUBMISSIONS["apex_dqn_1"]
-FINETUNE_BUDGET_S = 60 * 4
 CURRENT_ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'current_env.pkl'))

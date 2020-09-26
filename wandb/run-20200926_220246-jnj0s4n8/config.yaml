@@ -1,0 +1,392 @@
+wandb_version: 1
+
+_use_trajectory_view_api:
+  desc: null
+  value: false
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.9.2
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    python_version: 3.6.8
+adam_epsilon:
+  desc: null
+  value: 1.0e-08
+batch_mode:
+  desc: null
+  value: truncate_episodes
+before_learn_on_batch:
+  desc: null
+  value: null
+beta_annealing_fraction:
+  desc: null
+  value: -1
+buffer_size:
+  desc: null
+  value: 2000000
+clip_actions:
+  desc: null
+  value: true
+clip_rewards:
+  desc: null
+  value: null
+collect_metrics_timeout:
+  desc: null
+  value: 180
+compress_observations:
+  desc: null
+  value: false
+custom_eval_function:
+  desc: null
+  value: null
+custom_resources_per_worker:
+  desc: null
+  value: {}
+double_q:
+  desc: null
+  value: true
+dueling:
+  desc: null
+  value: true
+eager:
+  desc: null
+  value: -1
+eager_tracing:
+  desc: null
+  value: false
+env:
+  desc: null
+  value: flatland_sparse
+env_config:
+  desc: null
+  value:
+    generator: sparse_rail_generator
+    generator_config: small_v0
+    n_agents: 5
+    observation: tree
+    observation_config:
+      concat_agent_id: true
+      max_depth: 2
+      shortest_path_max_depth: 100
+    regenerate_rail_on_reset: false
+    regenerate_schedule_on_reset: false
+    wandb:
+      entity: wullli
+      project: flatland-finetuning
+      tags:
+      - small_v0
+      - tree_obs
+      - apex
+      - global_reward
+evaluation_config:
+  desc: null
+  value:
+    explore: false
+evaluation_interval:
+  desc: null
+  value: null
+evaluation_num_episodes:
+  desc: null
+  value: 10
+evaluation_num_workers:
+  desc: null
+  value: 0
+exploration_config:
+  desc: null
+  value:
+    epsilon_timesteps: 10000
+    final_epsilon: 0.02
+    initial_epsilon: 1.0
+    type: PerWorkerEpsilonGreedy
+exploration_final_eps:
+  desc: null
+  value: -1
+exploration_fraction:
+  desc: null
+  value: -1
+explore:
+  desc: null
+  value: true
+extra_python_environs_for_driver:
+  desc: null
+  value: {}
+extra_python_environs_for_worker:
+  desc: null
+  value: {}
+fake_sampler:
+  desc: null
+  value: false
+final_prioritized_replay_beta:
+  desc: null
+  value: 0.4
+framework:
+  desc: null
+  value: tf
+gamma:
+  desc: null
+  value: 0.99
+grad_clip:
+  desc: null
+  value: 40
+grad_norm_clipping:
+  desc: null
+  value: -1
+hiddens:
+  desc: null
+  value:
+  - 256
+horizon:
+  desc: null
+  value: null
+ignore_worker_failures:
+  desc: null
+  value: false
+in_evaluation:
+  desc: null
+  value: false
+input:
+  desc: null
+  value: sampler
+input_evaluation:
+  desc: null
+  value:
+  - is
+  - wis
+learning_starts:
+  desc: null
+  value: 10000
+local_tf_session_args:
+  desc: null
+  value:
+    inter_op_parallelism_threads: 8
+    intra_op_parallelism_threads: 8
+log_level:
+  desc: null
+  value: WARN
+log_sys_usage:
+  desc: null
+  value: true
+lr:
+  desc: null
+  value: 0.0005
+lr_schedule:
+  desc: null
+  value: null
+memory:
+  desc: null
+  value: 0
+memory_per_worker:
+  desc: null
+  value: 0
+metrics_smoothing_episodes:
+  desc: null
+  value: 100
+min_iter_time_s:
+  desc: null
+  value: 30
+model:
+  desc: null
+  value:
+    conv_activation: relu
+    conv_filters: null
+    custom_action_dist: null
+    custom_model: null
+    custom_model_config: {}
+    custom_options: -1
+    custom_preprocessor: null
+    dim: 84
+    fcnet_activation: relu
+    fcnet_hiddens:
+    - 256
+    - 256
+    - 256
+    framestack: true
+    free_log_std: false
+    grayscale: false
+    lstm_cell_size: 256
+    lstm_use_prev_action_reward: false
+    max_seq_len: 20
+    no_final_linear: false
+    state_shape: null
+    use_lstm: false
+    vf_share_layers: true
+    zero_mean: true
+monitor:
+  desc: null
+  value: false
+multiagent:
+  desc: null
+  value:
+    observation_fn: null
+    policies: {}
+    policies_to_train: null
+    policy_mapping_fn: null
+    replay_mode: independent
+n_step:
+  desc: null
+  value: 3
+no_done_at_end:
+  desc: null
+  value: true
+no_eager_on_workers:
+  desc: null
+  value: false
+noisy:
+  desc: null
+  value: false
+normalize_actions:
+  desc: null
+  value: false
+num_atoms:
+  desc: null
+  value: 1
+num_cpus_for_driver:
+  desc: null
+  value: 1
+num_cpus_per_worker:
+  desc: null
+  value: 1
+num_envs_per_worker:
+  desc: null
+  value: 2
+num_gpus:
+  desc: null
+  value: 1
+num_gpus_per_worker:
+  desc: null
+  value: 0
+num_workers:
+  desc: null
+  value: 2
+object_store_memory:
+  desc: null
+  value: 0
+object_store_memory_per_worker:
+  desc: null
+  value: 0
+observation_filter:
+  desc: null
+  value: NoFilter
+optimizer:
+  desc: null
+  value:
+    debug: false
+    max_weight_sync_delay: 400
+    num_replay_buffer_shards: 4
+output:
+  desc: null
+  value: null
+output_compress_columns:
+  desc: null
+  value:
+  - obs
+  - new_obs
+output_max_file_size:
+  desc: null
+  value: 67108864
+parameter_noise:
+  desc: null
+  value: -1
+per_worker_exploration:
+  desc: null
+  value: -1
+postprocess_inputs:
+  desc: null
+  value: false
+preprocessor_pref:
+  desc: null
+  value: deepmind
+prioritized_replay:
+  desc: null
+  value: true
+prioritized_replay_alpha:
+  desc: null
+  value: 0.6
+prioritized_replay_beta:
+  desc: null
+  value: 0.4
+prioritized_replay_beta_annealing_timesteps:
+  desc: null
+  value: 20000
+prioritized_replay_eps:
+  desc: null
+  value: 1.0e-06
+remote_env_batch_wait_ms:
+  desc: null
+  value: 0
+remote_worker_envs:
+  desc: null
+  value: false
+replay_sequence_length:
+  desc: null
+  value: 1
+rollout_fragment_length:
+  desc: null
+  value: 50
+sample_async:
+  desc: null
+  value: false
+sample_batch_size:
+  desc: null
+  value: -1
+schedule_max_timesteps:
+  desc: null
+  value: -1
+seed:
+  desc: null
+  value: null
+shuffle_buffer_size:
+  desc: null
+  value: 0
+sigma0:
+  desc: null
+  value: 0.5
+soft_horizon:
+  desc: null
+  value: false
+soft_q:
+  desc: null
+  value: -1
+softmax_temp:
+  desc: null
+  value: -1
+synchronize_filters:
+  desc: null
+  value: true
+target_network_update_freq:
+  desc: null
+  value: 10000
+tf_session_args:
+  desc: null
+  value:
+    allow_soft_placement: true
+    device_count:
+      CPU: 1
+    gpu_options:
+      allow_growth: true
+    inter_op_parallelism_threads: 2
+    intra_op_parallelism_threads: 2
+    log_device_placement: false
+timesteps_per_iteration:
+  desc: null
+  value: 5000
+train_batch_size:
+  desc: null
+  value: 512
+training_intensity:
+  desc: null
+  value: null
+use_pytorch:
+  desc: null
+  value: -1
+v_max:
+  desc: null
+  value: 10.0
+v_min:
+  desc: null
+  value: -10.0
+worker_side_prioritization:
+  desc: null
+  value: true
