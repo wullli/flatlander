@@ -1,19 +1,24 @@
 import os
+from copy import deepcopy
 
-from flatland.utils.rendertools import RenderTool
+from flatland.envs.persistence import RailEnvPersister
 
+from flatland.envs.rail_env import RailEnv
+from ray.tune import register_env
+
+from flatlander.envs.flatland_sparse import FlatlandSparse
 from flatlander.utils.deadlock_check import check_if_all_blocked
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-import time
 
 import numpy as np
 import tensorflow as tf
 import os
+from timeit import default_timer as timer
 
 import ray
 import yaml
-from ray.rllib.agents import sac, ppo, dqn
+from ray.rllib.agents import sac, ppo, dqn, Trainer
 
 from flatlander.envs.observations import make_obs
 from flatlander.utils.loader import load_envs, load_models
@@ -47,7 +52,10 @@ runs = {
         "agent": agent_map["sac"]
     }}
 
-RUN = "sac_small_v0"
+RUN = "apex_dqn_1"
+FINETUNE_BUDGET_MS = 1000
+CURRENT_ENV_PATH = './current_env.pkl'
+
 
 def init():
     run = runs[RUN]
@@ -57,25 +65,22 @@ def init():
 
     load_envs("../flatlander/runner")
 
-    obs_builder = make_obs(config["env_config"]['observation'],
-                           config["env_config"].get('observation_config')).builder()
-
     load_envs(os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../flatlander/runner")))
     load_models(os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../flatlander/runner")))
+    return config, run
 
-    ray.init(local_mode=True, num_cpus=1, num_gpus=1)
+
+def get_agent(config, run) -> Trainer:
+    ray.init(local_mode=True, num_cpus=0, num_gpus=0)
     agent = run["agent"](config=config)
     agent.restore(run["checkpoint_path"])
-    policy = agent.get_policy()
-    return policy, obs_builder
+    return agent
 
 
 def skip():
-    time_start = time.time()
     _, all_rewards, done, info = remote_client.env_step({})
-    step_time = time.time() - time_start
     print('!', end='', flush=True)
 
 
@@ -104,13 +109,36 @@ def episode_end_info(all_rewards,
     return total_reward
 
 
-def evaluate(policy, obs_builder):
+def fine_tune(config, run, env: RailEnv):
+    start_time = timer()
+
+    RailEnvPersister.save(env, CURRENT_ENV_PATH)
+
+    def env_creator(env_config):
+        return FlatlandSparse(env_config, fine_tune_env_path=CURRENT_ENV_PATH)
+
+    register_env("flatland_sparse", env_creator)
+
+    agent = get_agent(config, run)
+
+    while timer() - start_time < FINETUNE_BUDGET_MS:
+        agent.train()
+
+    return agent
+
+
+def evaluate(config, run):
+    obs_builder = make_obs(config["env_config"]['observation'],
+                           config["env_config"].get('observation_config')).builder()
+
     evaluation_number = 0
     total_reward = 0
     while True:
 
-        evaluation_number += 1
         observation, info = remote_client.env_create(obs_builder_object=obs_builder)
+        agent = fine_tune(config, run, env=remote_client.env)
+
+        evaluation_number += 1
 
         if not observation:
             break
@@ -123,7 +151,7 @@ def evaluate(policy, obs_builder):
             if not check_if_all_blocked(env=remote_client.env):
 
                 obs_batch = np.array(list(observation.values()))
-                action_batch = policy.compute_actions(obs_batch, explore=False)
+                action_batch = agent.get_policy().compute_actions(obs_batch, explore=False)
                 actions = dict(zip(observation.keys(), action_batch[0]))
 
                 observation, all_rewards, done, info = remote_client.env_step(actions)
@@ -151,5 +179,5 @@ def evaluate(policy, obs_builder):
 
 
 if __name__ == "__main__":
-    p, o = init()
-    evaluate(p, o)
+    config, run = init()
+    evaluate(config, run)

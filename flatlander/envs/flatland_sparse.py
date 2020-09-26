@@ -2,6 +2,7 @@ import logging
 from pprint import pprint
 
 import gym
+from flatland.envs.persistence import RailEnvPersister
 
 from flatland.envs.malfunction_generators import malfunction_from_params, no_malfunction_generator, ParamMalfunctionGen, \
     NoMalfunctionGen
@@ -25,11 +26,12 @@ class FlatlandSparse(FlatlandBase):
                  "fill_missing": FillingFlatlandGymEnv,
                  "global": GlobalFlatlandGymEnv}
 
-    def __init__(self, env_config) -> None:
+    def __init__(self, env_config, fine_tune_env_path=None, **kwargs) -> None:
         super().__init__(env_config.get("actions_are_logits", False))
 
         assert env_config['generator'] == 'sparse_rail_generator'
         self._env_config = env_config
+        self._fine_tune_env_path = fine_tune_env_path
 
         self._observation = make_obs(env_config['observation'], env_config.get('observation_config'))
         self._config = get_generator_config(env_config['generator_config'])
@@ -112,20 +114,24 @@ class FlatlandSparse(FlatlandBase):
 
         env = None
         try:
-            env = RailEnv(
-                width=self._config['width'],
-                height=self._config['height'],
-                rail_generator=rail_generator,
-                schedule_generator=schedule_generator,
-                number_of_agents=self._config['number_of_agents'],
-                malfunction_generator=malfunction_generator,
-                obs_builder_object=self._observation.builder(),
-                remove_agents_at_target=False,
-                random_seed=self._config['seed'],
-                use_renderer=self._env_config.get('render')
-            )
+            if self._fine_tune_env_path is None:
+                env = RailEnv(
+                    width=self._config['width'],
+                    height=self._config['height'],
+                    rail_generator=rail_generator,
+                    schedule_generator=schedule_generator,
+                    number_of_agents=self._config['number_of_agents'],
+                    malfunction_generator=malfunction_generator,
+                    obs_builder_object=self._observation.builder(),
+                    remove_agents_at_target=False,
+                    random_seed=self._config['seed'],
+                    use_renderer=self._env_config.get('render')
+                )
+                env.reset()
+            else:
+                env, _ = RailEnvPersister.load_new(self._fine_tune_env_path)
+                env.reset(regenerate_rail=False, regenerate_schedule=False)
 
-            env.reset()
         except ValueError as e:
             logging.error("=" * 50)
             logging.error(f"Error while creating env: {e}")
