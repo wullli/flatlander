@@ -2,11 +2,11 @@ import logging
 from pprint import pprint
 
 import gym
-from flatland.envs.persistence import RailEnvPersister
 
-from flatland.envs.malfunction_generators import malfunction_from_params, no_malfunction_generator, ParamMalfunctionGen, \
+from flatland.envs.malfunction_generators import ParamMalfunctionGen, \
     NoMalfunctionGen
-from flatland.envs.rail_generators import sparse_rail_generator, RailGenerator
+from flatland.envs.persistence import RailEnvPersister
+from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatlander.envs import get_generator_config
 from flatlander.envs.flatland_base import FlatlandBase
@@ -17,7 +17,6 @@ from flatlander.envs.utils.gym_env_fill_missing import FillingFlatlandGymEnv
 from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, SkipNoChoiceCellsWrapper, \
     SparseRewardWrapper, \
     DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper, GlobalRewardWrapper
-
 from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as RailEnv
 
 
@@ -131,6 +130,7 @@ class FlatlandSparse(FlatlandBase):
             else:
                 env, _ = RailEnvPersister.load_new(self._fine_tune_env_path)
                 env.reset(regenerate_rail=False, regenerate_schedule=False)
+                env.obs_builder = self._observation.builder()
 
         except ValueError as e:
             logging.error("=" * 50)

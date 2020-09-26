@@ -86,9 +86,3 @@ class FlatlandGymEnv(gym.Env):
                                          regenerate_schedule=self._regenerate_schedule_on_reset,
                                          random_seed=random_seed)
         return {k: o for k, o in obs.items() if not k == '__all__'}
-
-    def render(self, mode='human'):
-        return self.rail_env.render(mode)
-
-    def close(self):
-        self.rail_env.close()

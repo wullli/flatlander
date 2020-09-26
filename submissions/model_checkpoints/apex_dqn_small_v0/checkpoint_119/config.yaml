@@ -1,6 +1,6 @@
 env: flatland_sparse
-num_workers: 0
-num_envs_per_worker: 0
+num_workers: 4
+num_envs_per_worker: 1
 num_gpus: 1
 
 env_config:
@@ -14,7 +14,8 @@ env_config:
     generator: sparse_rail_generator
     generator_config: small_v0
 
-    global_reward: True
+    regenerate_rail_on_reset: False
+    regenerate_schedule_on_reset: False
 
     wandb:
         project: flatland
