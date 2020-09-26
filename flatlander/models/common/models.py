@@ -37,6 +37,8 @@ class NatureCNN(tf.Module):
                 tf.nn.relu,
                 tf.keras.layers.Flatten(),
                 tf.keras.layers.Dense(units=512),
+                tf.keras.layers.Dense(units=512),
+                tf.keras.layers.Dense(units=512),
             ]
             if activation_out:
                 self.layers.append(tf.nn.relu)

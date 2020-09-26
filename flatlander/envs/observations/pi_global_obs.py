@@ -29,7 +29,8 @@ class PerfectInformationGlobalObservation(Observation):
 
     def observation_space(self) -> gym.Space:
         grid_shape = (self._config['max_width'], self._config['max_height'])
-        return gym.spaces.Box(low=0, high=np.inf, shape=grid_shape + (36,), dtype=np.float32)
+        return gym.spaces.Box(low=0, high=1, shape=grid_shape + (21 + 3 * self._config['max_n_agents'],),
+                              dtype=np.float32)
 
 
 class PaddedGlobalObsForRailEnv(ObservationBuilder):

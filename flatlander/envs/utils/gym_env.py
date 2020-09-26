@@ -7,10 +7,10 @@ from flatland.envs.rail_env import RailEnv, RailEnvActions
 
 
 class StepOutput(NamedTuple):
-    obs: Dict[int, Any]  # depends on observation builder
-    reward: Dict[int, float]
-    done: Dict[int, bool]
-    info: Dict[int, Dict[str, Any]]
+    obs: Any  # depends on observation builder
+    reward: Any
+    done: Any
+    info: Any
 
 
 class FlatlandGymEnv(gym.Env):

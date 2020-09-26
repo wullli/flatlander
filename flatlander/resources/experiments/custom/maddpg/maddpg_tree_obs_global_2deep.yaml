@@ -12,21 +12,24 @@ flatland-sparse-small-tree-fc-maddpg-global:
         num_envs_per_worker: 5
         num_gpus: 1
 
+        no_done_at_end: True
+
+        lr: 0.00005
+
         env_config:
-            n_agents: 5
             observation: tree
             observation_config:
                 max_depth: 2
+                max_n_agents: 5
                 shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
             generator_config: small_v0
 
-            global_reward: True
-            agents_done_independent: False
-            gym_env: fill_missing
-            missing_fill_value: 0
-            done_fill_value: 0
+            global_done_signal: False
+            fill_done_agents: True
+            exclude_done_agents: False
+            gym_env: global
 
             wandb:
                 project: flatland

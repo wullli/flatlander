@@ -9,12 +9,17 @@ from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatlander.envs import get_generator_config
 from flatlander.envs.observations import make_obs
+from flatlander.envs.utils.global_gym_env import GlobalFlatlandGymEnv
 from flatlander.envs.utils.gym_env import FlatlandGymEnv, StepOutput
 from flatlander.envs.utils.gym_env_wrappers import SkipNoChoiceCellsWrapper, AvailableActionsWrapper, \
     ShortestPathActionWrapper, SparseRewardWrapper, DeadlockWrapper, DeadlockResolutionWrapper
+from flatlander.envs.utils.single_gym_env import SingleFlatlandGymEnv
 
 
 class FlatlandSingle(gym.Env):
+    _gym_envs = {"default": FlatlandGymEnv,
+                 "single": SingleFlatlandGymEnv}
+
     def render(self, mode='human'):
         pass
 
@@ -27,7 +32,9 @@ class FlatlandSingle(gym.Env):
         if env_config.get('seed'):
             self._config['seed'] = env_config.get('seed')
 
-        self._env = FlatlandGymEnv(
+        self._gym_env_class = self._gym_envs["default"] if not self._global_obs else self._gym_envs["single"]
+
+        self._env = self._gym_env_class(
             rail_env=self._launch(),
             observation_space=self._observation.observation_space(),
             regenerate_rail_on_reset=self._config['regenerate_rail_on_reset'],
@@ -100,34 +107,17 @@ class FlatlandSingle(gym.Env):
         return env
 
     def step(self, action_list):
-        # print("="*50)
-        # print(action_dict)
-
         action_dict = {}
         for i, action in enumerate(action_list):
             action_dict[i] = action
 
         step_r = self._env.step(action_dict)
-        # print(step_r)
-        # print("="*50)
 
-        return StepOutput(
-            obs=[step for step in step_r.obs.values()],
-            reward=np.sum([r for r in step_r.reward.values()]),
-            done=all(step_r.done.values()),
-            info=step_r.info[0]
-        )
-        # return step_r
+        return step_r
 
     def reset(self):
-        foo = self._env.reset()
-
-        # print("="*50)
-        # print(foo)
-        # print("="*50)
-
-        return [step for step in foo.values()]
-        # return foo
+        obs = self._env.reset()
+        return obs
 
     @property
     def observation_space(self) -> gym.spaces.Space:

@@ -3,6 +3,7 @@ import multiprocessing
 import numbers
 import os
 import shutil
+from datetime import datetime
 
 import wandb
 from ray import tune
@@ -165,7 +166,8 @@ class WandbLogger(tune.logger.Logger):
 
 # each logger has to run in a separate process
 def wandb_process(queue, config) -> None:
-    run = wandb.init(reinit=True, **config.get("env_config", {}).get("wandb", {}))
+    run_name = '_'.join(config['env_config']['wandb']['tags']) + '_' + datetime.now().strftime("%m-%d-%Y%_H-%M-%S")
+    run = wandb.init(reinit=True, name=run_name, **config.get("env_config", {}).get("wandb", {}))
 
     if config:
         for k in config.keys():
