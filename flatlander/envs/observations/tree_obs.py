@@ -78,9 +78,9 @@ def _split_subtree_into_feature_groups(node: Node, current_tree_depth: int, max_
         # reference: https://stackoverflow.com/questions/515214/total-number-of-nodes-in-a-tree-data-structure
         num_remaining_nodes = int((4 ** (remaining_depth + 1) - 1) / (4 - 1))
         return [-np.inf] * num_remaining_nodes * 2, \
-               [-np.inf] * num_remaining_nodes * 5, \
+               [-np.inf] * num_remaining_nodes * 4, \
                [-np.inf] * num_remaining_nodes, \
-               [-np.inf] * num_remaining_nodes * 3
+               [-np.inf] * num_remaining_nodes * 2
 
     flags, data, distance, agent_data = _split_node_into_feature_groups(node)
 
