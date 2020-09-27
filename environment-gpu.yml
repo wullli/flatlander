@@ -69,7 +69,7 @@ dependencies:
   - virtualenv==16.7.2
   - toml==0.10.0
   - attrs==19.1.0
-  - importlib-metadata==0.23
+  - importlib-metadata==0.19
   - pip:
     - importlib-resources==1.0.2
     - tox==3.13.2

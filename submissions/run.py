@@ -26,12 +26,15 @@ def evaluate(config, run):
     while True:
 
         observation, info = remote_client.env_create(obs_builder_object=obs_builder)
+
+        if not observation:
+            break
+
         agent = fine_tune(config, run, env=remote_client.env)
 
         evaluation_number += 1
 
-        if not observation:
-            break
+
 
         episode_start_info(evaluation_number, remote_client=remote_client)
 
