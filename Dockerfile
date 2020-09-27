@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.1.0-gpu-py3
+FROM tensorflow/tensorflow:2.3.0-gpu
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LC_ALL=C.UTF-8
@@ -33,10 +33,10 @@ RUN chown -R ${NB_UID}:${NB_UID} ${HOME}
 WORKDIR ${HOME}
 USER ${NB_UID}
 RUN wget \
-    https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+    https://repo.anaconda.com/miniconda/Miniconda3-py38_4.8.3-Linux-x86_64.sh \
     && mkdir ${HOME}/.conda \
-    && bash Miniconda3-latest-Linux-x86_64.sh -b \
-    && rm -f Miniconda3-latest-Linux-x86_64.sh
+    && bash Miniconda3-py38_4.8.3-Linux-x86_64.sh -b \
+    && rm -f Miniconda3-py38_4.8.3-Linux-x86_64.sh
 
 ENV PATH="${HOME}/miniconda3/bin:${PATH}"
 ENV CUDA_VISIBLE_DEVICES=1
