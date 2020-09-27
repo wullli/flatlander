@@ -6,7 +6,7 @@ import gym
 from flatland.envs.malfunction_generators import ParamMalfunctionGen, \
     NoMalfunctionGen
 from flatland.envs.persistence import RailEnvPersister
-from flatland.envs.rail_generators import sparse_rail_generator
+from flatland.envs.rail_generators import sparse_rail_generator, complex_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatlander.envs import get_generator_config
 from flatlander.envs.flatland_base import FlatlandBase
@@ -90,6 +90,7 @@ class FlatlandSparse(FlatlandBase):
             max_rails_between_cities=self._config['max_rails_between_cities'],
             max_rails_in_city=self._config['max_rails_in_city']
         )
+
         return rail_generator
 
     def _launch(self):

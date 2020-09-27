@@ -4,17 +4,18 @@ import os
 import numpy as np
 import ray
 import yaml
+from flatland.envs.persistence import RailEnvPersister
+from flatland.envs.rail_env import RailEnv
 from ray.rllib.agents import Trainer
 from ray.tune import register_env
 from ray.tune.trial import Trial
 
-from flatland.envs.persistence import RailEnvPersister
-from flatland.envs.rail_env import RailEnv
 from flatlander.envs.flatland_sparse import FlatlandSparse
 from flatlander.utils.loader import load_models, load_envs
-from flatlander.utils.submissions import RUN, CURRENT_ENV_PATH
+from flatlander.utils.submissions import RUN, CURRENT_ENV_PATH, get_tune_time
 
 n_cpu = multiprocessing.cpu_count()
+print("***** NUM CPUS AVAILABLE:", n_cpu, "*****")
 
 
 def init_run():
@@ -73,18 +74,20 @@ def fine_tune(config, run, env: RailEnv):
     Fine-tune the agent on a static env at evaluation time
     """
     RailEnvPersister.save(env, CURRENT_ENV_PATH)
+    num_agents = env.get_num_agents()
+    tune_time = get_tune_time(num_agents)
 
     def env_creator(env_config):
         return FlatlandSparse(env_config, fine_tune_env_path=CURRENT_ENV_PATH)
 
     register_env("flatland_sparse", env_creator)
-    config['num_workers'] = 0
+    config['num_workers'] = n_cpu - 1
+    config['lr'] = 0.00001 * num_agents
     exp_an = ray.tune.run(run["agent"],
+                          reuse_actors=True,
                           verbose=1,
-                          checkpoint_freq=1,
-                          keep_checkpoints_num=1,
-                          stop={"time_since_restore": 60 * 4 + 30},
-                          checkpoint_score_attr="episode_reward_mean",
+                          stop={"time_since_restore": tune_time},
+                          checkpoint_at_end=True,
                           config=config,
                           restore=run["checkpoint_path"])
 

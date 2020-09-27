@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -9,11 +10,12 @@ import tensorflow as tf
 from flatland.evaluators.client import FlatlandRemoteClient
 from flatlander.envs.observations import make_obs
 from flatlander.utils.deadlock_check import check_if_all_blocked
-from flatlander.utils.helper import fine_tune, episode_start_info, episode_end_info, skip, init_run
-
+from flatlander.utils.helper import fine_tune, episode_start_info, episode_end_info, skip, init_run, get_agent
 
 tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()
+
+TUNE = True
 
 
 def evaluate(config, run):
@@ -23,6 +25,11 @@ def evaluate(config, run):
     evaluation_number = 0
     total_reward = 0
     all_rewards = []
+    agent = None
+
+    if not TUNE:
+        agent = get_agent(config, run)
+
     while True:
 
         observation, info = remote_client.env_create(obs_builder_object=obs_builder)
@@ -30,11 +37,10 @@ def evaluate(config, run):
         if not observation:
             break
 
-        agent = fine_tune(config, run, env=remote_client.env)
+        if TUNE:
+            agent = fine_tune(config, run, env=remote_client.env)
 
         evaluation_number += 1
-
-
 
         episode_start_info(evaluation_number, remote_client=remote_client)
 

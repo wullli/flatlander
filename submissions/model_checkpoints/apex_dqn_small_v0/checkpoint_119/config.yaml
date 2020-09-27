@@ -11,14 +11,15 @@ rollout_fragment_length: 50
 target_network_update_freq: 1000
 timesteps_per_iteration: 1000
 
-lr: 0.0001
+lr: 0.00001
 
 exploration_config:
-    epsilon_timesteps: 10000
-    final_epsilon: 0.05
+   epsilon_timesteps: 10000
+   initial_epsilon: 0.1
+   final_epsilon: 0.05
 
 env_config:
-    n_agents: 5
+    n_agents: 10
     observation: tree
     observation_config:
         max_depth: 2

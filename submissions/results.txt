@@ -1,0 +1,12 @@
+
+##### APEX DQN with finetuning:
+Mean Reward : -4448.0
+Sum Normalized Reward : 17.26949583907824 (primary score)
+Mean Percentage Complete : 0.664 (secondary score)
+Mean Normalized Reward : 0.61677
+
+##### APEX DQN no finetuning:
+# Mean Reward : -4595.64
+# Sum Normalized Reward : 15.73960399180068 (primary score)
+# Mean Percentage Complete : 0.603 (secondary score)
+# Mean Normalized Reward : 0.56213
