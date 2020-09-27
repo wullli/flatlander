@@ -88,6 +88,9 @@ def fine_tune(config, run, env: RailEnv):
                           verbose=1,
                           stop={"time_since_restore": tune_time},
                           checkpoint_at_end=True,
+                          checkpoint_freq=1,
+                          keep_checkpoints_num=5,
+                          checkpoint_score_attr="episode_reward_mean",
                           config=config,
                           restore=run["checkpoint_path"])
 
