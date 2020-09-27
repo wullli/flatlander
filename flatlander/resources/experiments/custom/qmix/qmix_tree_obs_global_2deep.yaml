@@ -12,37 +12,36 @@ flatland-sparse-small-tree-fc-qmix-global:
         num_envs_per_worker: 5
         num_gpus: 1
 
-        rollout_fragment_length: 50
-        train_batch_size: 1000
-
-        exploration_config:
-            epsilon_timesteps: 1000000
-            final_epsilon: 0.05
+        rollout_fragment_length: 100
+        train_batch_size: 512
 
         mixer: qmix
-        mixing_embed_dim: 32
+        mixing_embed_dim: 4
 
         no_done_at_end: True
         buffer_size: 500000
 
         lr: 0.00005
 
+        exploration_config:
+            type: PerWorkerEpsilonGreedy
+
         env_config:
-            max_n_agents: 5
-            observation: agent_id_tree
+            max_n_agents: 1
+            observation: tree
             observation_config:
                 max_depth: 2
-                shortest_path_max_depth: 30
+                small_tree: True
+                shortest_path_max_depth: 100
                 concat_agent_id: True
-                max_n_agents: 5
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: small_v0_1agent
 
-            global_done_signal: False
-            fill_done_agents: True
-            exclude_done_agents: False
             gym_env: global
+            global_done_signal: False
+            fill_done_agents: False
+            exclude_done_agents: False
 
             wandb:
                 project: flatland

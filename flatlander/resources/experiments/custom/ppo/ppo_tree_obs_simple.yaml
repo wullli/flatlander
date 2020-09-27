@@ -1,23 +1,28 @@
-flatland-sparse-small-tree-fc-apex-global:
-    run: APEX
+ppo-tree-obs-small-v0-lstm:
+    run: PPO
     env: flatland_sparse
     stop:
-        timesteps_total: 15000000 # 2e7
-        episode_reward_mean: -200
+        timesteps_total: 15000000  # 1.5e7
     checkpoint_freq: 10
     checkpoint_at_end: True
     keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
+    num_samples: 1
     config:
-        num_workers: 4
+        lr: 0.0001
+        num_workers: 7
         num_envs_per_worker: 5
         num_gpus: 1
-        lr: 0.0001
 
-        buffer_size: 50000
+        clip_rewards: False
+        vf_clip_param: 500.0
+        entropy_coeff: 0.01
+        train_batch_size: 1000  # 5000
+        rollout_fragment_length: 50  # 100
+        sgd_minibatch_size: 100  # 500
+        vf_share_layers: False
 
         env_config:
-            n_agents: 5
             observation: tree
             observation_config:
                 max_depth: 2
@@ -29,11 +34,10 @@ flatland-sparse-small-tree-fc-apex-global:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "global_reward"]
+                tags: ["small_v0", "tree_obs", "ppo", "lstm"] # TODO should be set programmatically
 
         model:
             fcnet_activation: relu
             fcnet_hiddens: [256, 256, 256]
-            vf_share_layers: True
-
-
+            vf_share_layers: False
+            use_lstm: True
