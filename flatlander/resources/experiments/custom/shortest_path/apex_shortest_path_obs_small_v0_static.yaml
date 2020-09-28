@@ -7,6 +7,7 @@ flatland-sparse-small-path_obs-fc-apex:
     checkpoint_at_end: True
     keep_checkpoints_num: 10
     checkpoint_score_attr: episode_reward_mean
+    num_samples: 3
     config:
         num_workers: 7
         num_envs_per_worker: 5
