@@ -1,4 +1,4 @@
-flatland-sparse-small-static-bot_coords-fc-apex:
+flatland-sparse-small-path_obs-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
@@ -27,7 +27,7 @@ flatland-sparse-small-static-bot_coords-fc-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "sparse_reward", "deadlock_reward"]
+                tags: ["small_v0", "apex", "path_obs", "skip"]
 
         model:
             fcnet_activation: relu
