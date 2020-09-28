@@ -11,6 +11,8 @@ from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.agent_utils import RailAgentStatus
 from flatland.utils.ordered_set import OrderedSet
 
+from flatlander.envs.observations.utils import one_hot
+
 AgentIdNode = collections.namedtuple('AgentIdNode', 'dist_own_target_encountered '
                                                     'dist_other_target_encountered '
                                                     'dist_other_agent_encountered '
@@ -107,12 +109,6 @@ class AgentIdTreeObservationBuilder(ObservationBuilder):
         observations = super().get_many(handles)
 
         return observations
-
-    def one_hot_handles(self, handles: List[int]) -> np.ndarray:
-        oh = np.zeros(self.max_n_agents)
-        if len(handles) != 0 and not handles[0] == np.inf:
-            oh[handles] = 1
-        return oh
 
     def get(self, handle: int = 0) -> AgentIdNode:
         """
@@ -455,7 +451,7 @@ class AgentIdTreeObservationBuilder(ObservationBuilder):
                            dist_other_target_encountered=other_target_encountered,
                            dist_other_agent_encountered=other_agent_encountered,
                            dist_potential_conflict=potential_conflict,
-                           handle_potential_conflict=self.one_hot_handles([handle_conflict]),
+                           handle_potential_conflict=one_hot([handle_conflict], self.max_n_agents),
                            dist_unusable_switch=unusable_switch,
                            dist_to_next_branch=dist_to_next_branch,
                            dist_min_to_target=dist_min_to_target,

@@ -58,7 +58,7 @@ def episode_end_info(all_rewards,
                      steps, remote_client):
     reward_values = np.array(list(all_rewards.values()))
     mean_reward = np.mean((1 + reward_values) / 2)
-    total_reward += mean_reward
+    total_reward += mean_reward * 5
     print("\n\nMean reward: ", mean_reward)
     print("Total reward: ", total_reward, "\n")
 
@@ -78,18 +78,18 @@ def fine_tune(config, run, env: RailEnv):
     tune_time = get_tune_time(num_agents)
 
     def env_creator(env_config):
-        return FlatlandSparse(env_config, fine_tune_env_path=CURRENT_ENV_PATH)
+        return FlatlandSparse(env_config, fine_tune_env_path=CURRENT_ENV_PATH, max_steps=num_agents*100)
 
     register_env("flatland_sparse", env_creator)
-    config['num_workers'] = n_cpu - 1
+    config['num_workers'] = 3
+    config['num_envs_per_worker'] = 1
     config['lr'] = 0.00001 * num_agents
     exp_an = ray.tune.run(run["agent"],
                           reuse_actors=True,
                           verbose=1,
                           stop={"time_since_restore": tune_time},
-                          checkpoint_at_end=True,
                           checkpoint_freq=1,
-                          keep_checkpoints_num=5,
+                          keep_checkpoints_num=1,
                           checkpoint_score_attr="episode_reward_mean",
                           config=config,
                           restore=run["checkpoint_path"])

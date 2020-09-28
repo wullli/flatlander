@@ -89,7 +89,7 @@ def find_all_cells_where_agent_can_choose(rail_env: RailEnv):
 
 class SkipNoChoiceCellsWrapper(gym.Wrapper):
 
-    def __init__(self, env, accumulate_skipped_rewards: bool, discounting: float) -> None:
+    def __init__(self, env, accumulate_skipped_rewards: bool, discounting: float = 0.99) -> None:
         super().__init__(env)
         self._switches = None
         self._switches_neighbors = None
@@ -305,7 +305,7 @@ class ShortestPathActionWrapper(gym.Wrapper):
     def __init__(self, env) -> None:
         super().__init__(env)
         print("Apply ShortestPathActionWrapper")
-        self.action_space = gym.spaces.Discrete(n=4)  # stop, shortest path, other direction
+        self.action_space = gym.spaces.Discrete(n=3)  # stop, shortest path, other direction
 
     def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:
         rail_env: RailEnv = self.env.unwrapped.rail_env

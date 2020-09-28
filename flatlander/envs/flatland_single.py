@@ -18,6 +18,7 @@ from flatlander.envs.utils.single_gym_env import SingleFlatlandGymEnv
 
 class FlatlandSingle(gym.Env):
     _gym_envs = {"default": FlatlandGymEnv,
+                 "global": GlobalFlatlandGymEnv,
                  "single": SingleFlatlandGymEnv}
 
     def render(self, mode='human'):
@@ -26,19 +27,23 @@ class FlatlandSingle(gym.Env):
     def __init__(self, env_config):
         self._observation = make_obs(env_config['observation'], env_config.get('observation_config'))
         self._config = get_generator_config(env_config['generator_config'])
-        self._global_obs = env_config['observation_config'].get('global_obs', False)
+        self._global_obs = env_config.get('observation_config', {}).get('global_obs', False)
 
         # Overwrites with env_config seed if it exists
         if env_config.get('seed'):
             self._config['seed'] = env_config.get('seed')
 
-        self._gym_env_class = self._gym_envs["default"] if not self._global_obs else self._gym_envs["single"]
+        if env_config.get('gym_env', None) is not None:
+            self._gym_env_class = self._gym_envs[env_config["gym_env"]]
+        else:
+            self._gym_env_class = self._gym_envs["default"] if not self._global_obs else self._gym_envs["single"]
 
         self._env = self._gym_env_class(
             rail_env=self._launch(),
             observation_space=self._observation.observation_space(),
             regenerate_rail_on_reset=self._config['regenerate_rail_on_reset'],
-            regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset']
+            regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset'],
+            config=env_config
         )
         if env_config['observation'] == 'shortest_path':
             self._env = ShortestPathActionWrapper(self._env)
@@ -53,7 +58,7 @@ class FlatlandSingle(gym.Env):
         if env_config.get('skip_no_choice_cells', False):
             self._env = SkipNoChoiceCellsWrapper(self._env, env_config.get('accumulate_skipped_rewards', False))
         if env_config.get('available_actions_obs', False):
-            self._env = AvailableActionsWrapper(self._env)
+            self._env = AvailableActionsWrapper(self._env, allow_noop=False)
 
     def get_rail_generator(self):
         rail_generator = sparse_rail_generator(
@@ -107,17 +112,36 @@ class FlatlandSingle(gym.Env):
         return env
 
     def step(self, action_list):
+
         action_dict = {}
         for i, action in enumerate(action_list):
             action_dict[i] = action
 
         step_r = self._env.step(action_dict)
 
-        return step_r
+        if not self._global_obs:
+            return StepOutput(
+                obs=[step for step in step_r.obs.values()],
+                reward=np.sum([r for r in step_r.reward.values()]),
+                done=all(step_r.done.values()),
+                info=step_r.info[0]
+            )
+        else:
+            return step_r
 
     def reset(self):
-        obs = self._env.reset()
-        return obs
+        if not self._global_obs:
+            foo = self._env.reset()
+
+            # print("="*50)
+            # print(foo)
+            # print("="*50)
+
+            return [step for step in foo.values()]
+            # return foo
+        else:
+            obs = self._env.reset()
+            return obs
 
     @property
     def observation_space(self) -> gym.spaces.Space:

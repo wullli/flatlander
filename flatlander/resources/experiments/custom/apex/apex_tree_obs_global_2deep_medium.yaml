@@ -31,6 +31,9 @@ flatland-sparse-small-tree-fc-apex-global:
                 entity: wullli
                 tags: ["small_v0", "tree_obs", "apex", "global_reward"]
 
+            regenerate_rail_on_reset: False
+            regenerate_schedule_on_reset: False
+
         model:
             fcnet_activation: relu
             fcnet_hiddens: [256, 256, 256]

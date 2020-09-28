@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 
 from flatland.envs.observations import Node
@@ -102,3 +104,10 @@ def _get_node_feature_vector(node: Node) -> (np.ndarray, np.ndarray, np.ndarray)
     normalized_obs = np.concatenate([data, distance, agent_data])
 
     return normalized_obs
+
+
+def one_hot(handles: List[int], n_classes) -> np.ndarray:
+    oh = np.zeros(n_classes)
+    if len(handles) != 0 and not handles[0] == np.inf:
+        oh[handles] = 1
+    return oh

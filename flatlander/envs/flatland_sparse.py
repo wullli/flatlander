@@ -25,8 +25,8 @@ class FlatlandSparse(FlatlandBase):
                  "fill_missing": FillingFlatlandGymEnv,
                  "global": GlobalFlatlandGymEnv}
 
-    def __init__(self, env_config, fine_tune_env_path=None, **kwargs) -> None:
-        super().__init__(env_config.get("actions_are_logits", False))
+    def __init__(self, env_config, fine_tune_env_path=None, max_steps=None, **kwargs) -> None:
+        super().__init__(env_config.get("actions_are_logits", False), max_steps=max_steps)
 
         assert env_config['generator'] == 'sparse_rail_generator'
         self._env_config = env_config
@@ -54,7 +54,7 @@ class FlatlandSparse(FlatlandBase):
             regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset'],
             config=env_config
         )
-        if env_config['observation'] == 'shortest_path' or env_config['observation'] == "top_n_paths":
+        if env_config['observation'] == 'shortest_path' or env_config['observation'] == "path":
             self._env = ShortestPathActionWrapper(self._env)
         if env_config.get('sparse_reward', False):
             self._env = SparseRewardWrapper(self._env, finished_reward=env_config.get('done_reward', 1),
@@ -132,6 +132,7 @@ class FlatlandSparse(FlatlandBase):
                 env, _ = RailEnvPersister.load_new(self._fine_tune_env_path)
                 env.reset(regenerate_rail=False, regenerate_schedule=False)
                 env.obs_builder = self._observation.builder()
+                env.obs_builder.set_env(env)
 
         except ValueError as e:
             logging.error("=" * 50)

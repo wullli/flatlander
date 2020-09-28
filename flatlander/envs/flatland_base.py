@@ -12,8 +12,9 @@ class FlatlandBase(MultiAgentEnv):
         'semantics.autoreset': True
     }
 
-    def __init__(self, actions_are_logits=False):
+    def __init__(self, actions_are_logits=False, max_steps=None):
         self._actions_are_logits = actions_are_logits
+        self._max_steps = max_steps
 
     def step(self, action_dict):
         if self._actions_are_logits:
@@ -34,7 +35,10 @@ class FlatlandBase(MultiAgentEnv):
             folder = self._env_config.get('video_dir', env_name)
             monitor.Monitor._after_step = self._after_step
             self._env = monitor.Monitor(self._env, folder, resume=True)
-        return self._env.reset(*args, **kwargs)
+        obs = self._env.reset(*args, **kwargs)
+        if self._max_steps is not None:
+            self._env.rail_env._max_episode_steps = self._max_steps
+        return obs
 
     def render(self, mode='human'):
         return self._env.render(self._env_config.get('render'))

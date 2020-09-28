@@ -34,7 +34,7 @@ SUBMISSIONS = {
         "checkpoint_path": os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
                          "model_checkpoints/apex_dqn_small_v0/checkpoint_119/checkpoint-119")),
-        "agent": agent_map["dqn"]
+        "agent": agent_map["apex"]
     },
     "sac_small_v0": {
         "checkpoint_path": os.path.abspath(

@@ -1,17 +1,15 @@
 env: flatland_sparse
 num_workers: 0
 num_envs_per_worker: 1
-num_gpus: 0
+num_gpus: 1
 
 no_done_at_end: True
 
-learning_starts: 5000
-train_batch_size: 512
-rollout_fragment_length: 50
+learning_starts: 2000
 target_network_update_freq: 1000
 timesteps_per_iteration: 1000
 
-lr: 0.00001
+lr: 0.0001
 
 exploration_config:
    epsilon_timesteps: 10000
@@ -19,7 +17,7 @@ exploration_config:
    final_epsilon: 0.05
 
 env_config:
-    n_agents: 10
+    n_agents: 5
     observation: tree
     observation_config:
         max_depth: 2
@@ -27,10 +25,7 @@ env_config:
         concat_agent_id: True
 
     generator: sparse_rail_generator
-    generator_config: small_v0
-
-    regenerate_rail_on_reset: False
-    regenerate_schedule_on_reset: False
+    generator_config: small_v0_static
 
 model:
     fcnet_activation: relu

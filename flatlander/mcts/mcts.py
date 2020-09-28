@@ -91,7 +91,7 @@ class MonteCarloTreeSearch:
             if positions[handle] is not None:
                 possible_transitions = np.flatnonzero(env.rail.get_transitions(*positions[handle],
                                                                                env.agents[handle].direction))
-                if len(possible_transitions) != 0:
+                if len(possible_transitions) != 0 and env.agents[handle].status != RailAgentStatus.DONE:
                     possible_actions[handle] = possible_transitions
                     active_agents.append(handle)
 
@@ -116,7 +116,9 @@ class MonteCarloTreeSearch:
         done = False
         reward = 0.
         count = 0
-        while not done and count <= self.rollout_depth:
+        while not done:
+            if not count <= self.rollout_depth:
+                break
             o, r, d, _ = env.step(self.rollout_policy(obs))
             reward += np.sum(list(r.values()))
             done = d["__all__"]
