@@ -1,0 +1,43 @@
+flatland-sparse-small-path_obs-fc-apex:
+    run: APEX
+    env: flatland_sparse
+    stop:
+        timesteps_total: 50000000
+    checkpoint_freq: 1
+    checkpoint_at_end: True
+    keep_checkpoints_num: 10
+    checkpoint_score_attr: episode_reward_mean
+    num_samples: 3
+    config:
+        num_workers: 7
+        num_envs_per_worker: 5
+        num_gpus: 1
+
+        lr: 0.0001
+
+        env_config:
+            observation: combined
+            observation_config:
+                path: True
+                bot_coords:
+                    max_n_agents: 10
+                    concat_handle: False
+
+            generator: sparse_rail_generator
+            generator_config: small_v0_static_10agents
+
+            skip_no_choice_cells: True
+            accumulate_skipped_rewards: True
+            discounting: 0.99
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["small_v0", "apex", "path_obs", "skip"]
+
+        model:
+            fcnet_activation: relu
+            fcnet_hiddens: [512, 512]
+            vf_share_layers: True  # False
+
+

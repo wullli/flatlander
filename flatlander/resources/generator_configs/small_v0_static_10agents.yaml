@@ -1,0 +1,10 @@
+width: 25
+height: 25
+number_of_agents: 10
+max_num_cities: 2
+grid_mode: False
+max_rails_between_cities: 2
+max_rails_in_city: 4
+seed: 0
+regenerate_rail_on_reset: False
+regenerate_schedule_on_reset: False

@@ -13,7 +13,7 @@ class BotCoordinatesObservation(Observation):
     def __init__(self, config) -> None:
         super().__init__(config)
         self._max_n_agents = config.get('max_n_agents', 5)
-        self._concat_handle = config.get('concat_hanlde', True)
+        self._concat_handle = config.get('concat_hanlde', False)
         self._builder = BotCoordinatesBuilder(max_n_agents=self._max_n_agents,
                                               concat_handle=self._concat_handle)
 
