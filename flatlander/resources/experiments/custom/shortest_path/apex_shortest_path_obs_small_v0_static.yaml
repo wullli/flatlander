@@ -2,10 +2,10 @@ flatland-sparse-small-static-bot_coords-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 100000000  # 1e8
-    checkpoint_freq: 10
+        timesteps_total: 50000000
+    checkpoint_freq: 1
     checkpoint_at_end: True
-    keep_checkpoints_num: 5
+    keep_checkpoints_num: 10
     checkpoint_score_attr: episode_reward_mean
     config:
         num_workers: 7
@@ -31,7 +31,7 @@ flatland-sparse-small-static-bot_coords-fc-apex:
 
         model:
             fcnet_activation: relu
-            fcnet_hiddens: [256, 256]
+            fcnet_hiddens: [512, 512]
             vf_share_layers: True  # False
 
 
