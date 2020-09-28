@@ -20,6 +20,10 @@ flatland-sparse-small-static-bot_coords-fc-apex:
             generator: sparse_rail_generator
             generator_config: small_v0
 
+            skip_no_choice_cells: True
+            accumulate_skipped_rewards: True
+            discounting: 0.99
+
             wandb:
                 project: flatland
                 entity: wullli
