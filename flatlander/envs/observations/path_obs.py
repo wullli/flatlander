@@ -102,13 +102,6 @@ class PathObservationBuilder(ObservationBuilder):
                 other_next_pos = get_new_position(pos, other_movement)
                 conflict = own_next_pos != other_next_pos
 
-                if self._asserts:
-                    assert np.all(np.array(own_next_pos) > 0)
-                    assert np.all(np.array(other_next_pos) > 0)
-
                 potential_conflicts.append(conflict)
-
-                if conflict:
-                    self._conflict_map[handle].append(conflict_handle)
 
         return np.any(potential_conflicts)
