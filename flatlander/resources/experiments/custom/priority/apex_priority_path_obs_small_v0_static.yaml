@@ -14,7 +14,11 @@ flatland-sparse-small-path_obs-fc-apex:
         num_gpus: 1
 
         env_config:
-            observation: priority_path
+            observation: combined
+            observation_config:
+                priority_path: True
+                agent_info:
+                    concat_handle: False
 
             generator: sparse_rail_generator
             generator_config: small_v0
