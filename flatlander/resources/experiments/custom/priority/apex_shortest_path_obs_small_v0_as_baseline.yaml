@@ -14,7 +14,7 @@ flatland-sparse-small-path_obs-fc-apex:
         num_gpus: 1
 
         env_config:
-            observation: path
+            observation: shortest_path
 
             generator: sparse_rail_generator
             generator_config: small_v0

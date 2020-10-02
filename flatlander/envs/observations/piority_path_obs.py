@@ -124,6 +124,7 @@ class PriorityPathObservationBuilder(ObservationBuilder):
                 own_next_pos = get_new_position(pos, movement)
                 other_next_pos = get_new_position(pos, other_movement)
                 conflict = own_next_pos != other_next_pos
+                assert np.all(other_next_pos > 0 and own_next_pos > 1)
                 potential_conflicts.append(conflict)
 
                 if conflict:
