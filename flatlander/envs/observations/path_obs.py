@@ -62,12 +62,12 @@ class PathObservationBuilder(ObservationBuilder):
                 distance = max_distance if (
                         distance == np.inf or np.isnan(distance)) else distance
 
-                conflict = self.conflict(pos, movement)
+                conflict = self.conflict(handle, pos, movement)
                 next_possible_moves = self.env.rail.get_transitions(*pos, movement)
                 while np.count_nonzero(next_possible_moves) == 1 and not conflict:
                     movement = np.argmax(next_possible_moves)
                     pos = get_new_position(pos, movement)
-                    conflict = self.conflict(pos, movement)
+                    conflict = self.conflict(handle, pos, movement)
                     next_possible_moves = self.env.rail.get_transitions(*pos, movement)
 
                 if self._encode_one_hot:
@@ -84,14 +84,19 @@ class PathObservationBuilder(ObservationBuilder):
 
         return obs
 
-    def conflict(self, pos, movement):
-        conflict = False
-        conflict_handles = [agent.handle for agent in self.env.agents if pos == agent.position]
+    def conflict(self, handle, pos, movement):
+        conflict_handles = [a.handle for a in self.env.agents
+                            if pos == a.position and a.handle != handle]
+        potential_conflicts = []
         if len(conflict_handles) > 0:
-            other_direction = self.env.agents[conflict_handles[0]].direction
+            for conflict_handle in conflict_handles:
+                other_direction = self.env.agents[conflict_handle].direction
+                other_possible_moves = self.env.rail.get_transitions(*pos, other_direction)
+                other_movement = np.argmax(other_possible_moves)
 
-            own_next_pos = get_new_position(pos, movement)
-            other_next_pos = get_new_position(pos, other_direction)
+                own_next_pos = get_new_position(pos, movement)
+                other_next_pos = get_new_position(pos, other_movement)
+                conflict = own_next_pos != other_next_pos
+                potential_conflicts.append(conflict)
 
-            conflict = own_next_pos != other_next_pos
-        return conflict
+        return np.any(potential_conflicts)
