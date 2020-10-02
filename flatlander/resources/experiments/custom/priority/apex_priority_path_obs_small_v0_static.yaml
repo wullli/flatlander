@@ -7,10 +7,10 @@ flatland-sparse-small-path_obs-fc-apex:
     checkpoint_at_end: True
     keep_checkpoints_num: 10
     checkpoint_score_attr: episode_reward_mean
-    num_samples: 1
+    num_samples: 3
     config:
-        num_workers: 4
-        num_envs_per_worker: 4
+        num_workers: 7
+        num_envs_per_worker: 5
         num_gpus: 1
 
         env_config:
@@ -26,7 +26,7 @@ flatland-sparse-small-path_obs-fc-apex:
 
         model:
             fcnet_activation: relu
-            fcnet_hiddens: [256, 256]
+            fcnet_hiddens: [256, 256, 256]
             vf_share_layers: True  # False
 
 
