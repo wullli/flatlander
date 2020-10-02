@@ -25,6 +25,8 @@ class FlatlandSparse(FlatlandBase):
                  "fill_missing": FillingFlatlandGymEnv,
                  "global": GlobalFlatlandGymEnv}
 
+    _sp_action_needed = ["priority_path", "path", 'shortest_path']
+
     def __init__(self, env_config, fine_tune_env_path=None, max_steps=None, **kwargs) -> None:
         super().__init__(env_config.get("actions_are_logits", False), max_steps=max_steps)
 
@@ -54,7 +56,7 @@ class FlatlandSparse(FlatlandBase):
             regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset'],
             config=env_config
         )
-        if env_config['observation'] == 'shortest_path' or env_config['observation'] == "path":
+        if env_config['observation'] in self._sp_action_needed:
             self._env = ShortestPathActionWrapper(self._env)
         if env_config.get('sparse_reward', False):
             self._env = SparseRewardWrapper(self._env, finished_reward=env_config.get('done_reward', 1),
