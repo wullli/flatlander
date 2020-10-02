@@ -40,7 +40,6 @@ class TreeObservation(Observation):
             dim += self._num_agents
         return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim,))
 
-
 def _split_node_into_feature_groups(node: Node) -> (np.ndarray, np.ndarray, np.ndarray):
     data = np.zeros(6)
     distance = np.zeros(1)

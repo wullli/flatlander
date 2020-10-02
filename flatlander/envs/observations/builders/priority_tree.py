@@ -43,7 +43,7 @@ class PriorityTreeObs(ObservationBuilder):
     def __init__(self, max_depth: int, predictor: PredictionBuilder = None):
         super().__init__()
         self.max_depth = max_depth
-        self.observation_dim = 11
+        self.observation_dim = 10
         self.location_has_agent = {}
         self.location_has_agent_direction = {}
         self.predictor = predictor
@@ -60,7 +60,7 @@ class PriorityTreeObs(ObservationBuilder):
     def reset(self):
         self.location_has_target = {tuple(agent.target): 1 for agent in self.env.agents}
 
-    def get_many(self, handles: Optional[List[int]] = None) -> (Dict[int, (Dict[str, Node], np.ndarray)]):
+    def get_many(self, handles: Optional[List[int]] = None):
         """
         Called whenever an observation has to be computed for the `env` environment, for each agent with handle
         in the `handles` list.
@@ -113,14 +113,14 @@ class PriorityTreeObs(ObservationBuilder):
                 self.location_has_agent_ready_to_depart[tuple(_agent.initial_position)] = \
                     self.location_has_agent_ready_to_depart.get(tuple(_agent.initial_position), 0) + 1
 
-        obs_dict: Dict = super(ObservationBuilder).get_many(handles)
+        obs_dict: Dict = super().get_many(handles)
 
         priorities = GreedyGraphColoring.color(colors=[1, 0],
                                                nodes=obs_dict.keys(),
                                                neighbors=self._conflict_map)
 
-        for handle, (node_dict, agent_info) in obs_dict.items():
-            agent_info[0] = priorities[handle]
+        for handle, obs in obs_dict.items():
+            obs[1][0] = priorities[handle]
 
         return obs_dict
 
@@ -233,41 +233,32 @@ class PriorityTreeObs(ObservationBuilder):
         if num_transitions == 1:
             orientation = np.argmax(possible_transitions)
 
-        shortest_path_direction = agent.direction
         min_dist = np.inf
+        conflict_handle = None
 
         for i, branch_direction in enumerate([(orientation + i) % 4 for i in range(-1, 3)]):
 
             if possible_transitions[branch_direction]:
                 new_cell = get_new_position(agent_virtual_position, branch_direction)
 
-                branch_observation, branch_visited = self._explore_branch(handle, new_cell, branch_direction, 1, 1)
+                branch_observation, branch_visited, ch = self._explore_branch(handle, new_cell, branch_direction, 1, 1)
                 top_level_nodes[self.tree_explored_actions_char[i]] = branch_observation
 
                 visited |= branch_visited
 
                 if branch_observation.dist_min_to_target < min_dist:
                     min_dist = branch_observation.dist_min_to_target
-                    shortest_path_direction = branch_direction
+                    conflict_handle = ch
             else:
                 # add cells filled with infinity if no transition is possible
                 top_level_nodes[self.tree_explored_actions_char[i]] = -np.inf
         self.env.dev_obs_dict[handle] = visited
 
-        shortest_path_pos = get_new_position(agent_virtual_position, shortest_path_direction)
-        shortest_path_transitions = self.env.rail.get_transitions(*shortest_path_pos, shortest_path_direction)
-        _, conflict_handle = self.detect_conflicts(handle=handle,
-                                                   tot_dist=1,
-                                                   time_per_cell=np.reciprocal(agent.speed_data["speed"]),
-                                                   direction=shortest_path_direction,
-                                                   position=shortest_path_pos,
-                                                   cell_transitions=shortest_path_transitions)
-
         if conflict_handle is not None:
             self._conflict_map[handle].append(conflict_handle)
 
         priority = 0.
-        agent_info = np.concatenate([priority,
+        agent_info = np.concatenate([[priority],
                                      one_hot([agent.status.value], 4),
                                      np.array(agent_virtual_position) / self.env.height,
                                      np.array(agent.target) / self.env.height,
@@ -276,7 +267,7 @@ class PriorityTreeObs(ObservationBuilder):
 
         return top_level_nodes, agent_info
 
-    def _explore_branch(self, handle, position, direction, tot_dist, depth) -> (Node, Any):
+    def _explore_branch(self, handle, position, direction, tot_dist, depth) -> (Node, Any, Any):
         """
         Utility function to compute tree-based observations.
         We walk along the branch and collect the information documented in the get() function.
@@ -285,7 +276,7 @@ class PriorityTreeObs(ObservationBuilder):
 
         # [Recursive branch opened]
         if depth >= self.max_depth + 1:
-            return [], []
+            return [], [], None
 
         # Continue along direction until next switch or
         # until no transitions are possible along the current direction (i.e., dead-ends)
@@ -295,6 +286,7 @@ class PriorityTreeObs(ObservationBuilder):
         last_is_dead_end = False
         last_is_terminal = False  # wrong cell OR cycle;  either way, we don't want the agent to land here
         last_is_target = False
+        confict_handle = None
 
         visited = OrderedSet()
         agent = self.env.agents[handle]
@@ -348,12 +340,12 @@ class PriorityTreeObs(ObservationBuilder):
                 crossing_found = True
 
             # Register possible future conflict
-            potential_conflict, _ = self.detect_conflicts(tot_dist=tot_dist,
-                                                          time_per_cell=time_per_cell,
-                                                          direction=direction,
-                                                          position=position,
-                                                          handle=handle,
-                                                          cell_transitions=cell_transitions)
+            potential_conflict, confict_handle = self.detect_conflicts(tot_dist=tot_dist,
+                                                                       time_per_cell=time_per_cell,
+                                                                       direction=direction,
+                                                                       position=position,
+                                                                       handle=handle,
+                                                                       cell_transitions=cell_transitions)
 
             if position in self.location_has_target and position != agent.target:
                 if tot_dist < other_target_encountered:
@@ -455,21 +447,21 @@ class PriorityTreeObs(ObservationBuilder):
                 # Swap forward and back in case of dead-end, so that an agent can learn that going forward takes
                 # it back
                 new_cell = get_new_position(position, (branch_direction + 2) % 4)
-                branch_observation, branch_visited = self._explore_branch(handle,
-                                                                          new_cell,
-                                                                          (branch_direction + 2) % 4,
-                                                                          tot_dist + 1,
-                                                                          depth + 1)
+                branch_observation, branch_visited, _ = self._explore_branch(handle,
+                                                                             new_cell,
+                                                                             (branch_direction + 2) % 4,
+                                                                             tot_dist + 1,
+                                                                             depth + 1)
                 node.childs[self.tree_explored_actions_char[i]] = branch_observation
                 if len(branch_visited) != 0:
                     visited |= branch_visited
             elif last_is_switch and possible_transitions[branch_direction]:
                 new_cell = get_new_position(position, branch_direction)
-                branch_observation, branch_visited = self._explore_branch(handle,
-                                                                          new_cell,
-                                                                          branch_direction,
-                                                                          tot_dist + 1,
-                                                                          depth + 1)
+                branch_observation, branch_visited, _ = self._explore_branch(handle,
+                                                                             new_cell,
+                                                                             branch_direction,
+                                                                             tot_dist + 1,
+                                                                             depth + 1)
                 node.childs[self.tree_explored_actions_char[i]] = branch_observation
                 if len(branch_visited) != 0:
                     visited |= branch_visited
@@ -479,7 +471,7 @@ class PriorityTreeObs(ObservationBuilder):
 
         if depth == self.max_depth:
             node.childs.clear()
-        return node, visited
+        return node, visited, confict_handle
 
     def detect_conflicts(self, tot_dist,
                          time_per_cell,
