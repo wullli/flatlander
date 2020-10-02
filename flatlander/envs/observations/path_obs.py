@@ -91,12 +91,24 @@ class PathObservationBuilder(ObservationBuilder):
         if len(conflict_handles) > 0:
             for conflict_handle in conflict_handles:
                 other_direction = self.env.agents[conflict_handle].direction
+
                 other_possible_moves = self.env.rail.get_transitions(*pos, other_direction)
                 other_movement = np.argmax(other_possible_moves)
 
-                own_next_pos = get_new_position(pos, movement)
+                own_possible_moves = self.env.rail.get_transitions(*pos, movement)
+                own_movement = np.argmax(own_possible_moves)
+
+                own_next_pos = get_new_position(pos, own_movement)
                 other_next_pos = get_new_position(pos, other_movement)
                 conflict = own_next_pos != other_next_pos
+
+                if self._asserts:
+                    assert np.all(np.array(own_next_pos) > 0)
+                    assert np.all(np.array(other_next_pos) > 0)
+
                 potential_conflicts.append(conflict)
+
+                if conflict:
+                    self._conflict_map[handle].append(conflict_handle)
 
         return np.any(potential_conflicts)
