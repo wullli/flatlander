@@ -56,8 +56,8 @@ class PriorityTreeObsWrapper(ObservationBuilder):
         self._builder.reset()
 
     def get(self, handle: int = 0):
-        obs = self._builder.get(handle)
-        norm_obs = self.tree_flattener.flatten(root=obs, handle=handle, concat_agent_id=False) \
+        obs, agent_info = self._builder.get(handle)
+        norm_obs = self.tree_flattener.flatten(root=obs, handle=handle, concat_agent_id=False, agent_info=agent_info) \
             if obs is not None else None
         return norm_obs
 
