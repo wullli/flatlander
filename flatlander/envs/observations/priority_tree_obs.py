@@ -8,7 +8,7 @@ from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 
 from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.builders.priority_tree import PriorityTreeObs
-from flatlander.envs.observations.tree_obs import normalize_observation
+from flatlander.envs.observations.common.priority_tree_flatter import PriorityTreeFlattener
 
 
 @register_obs("priority_tree")
@@ -44,6 +44,9 @@ class PriorityTreeObsWrapper(ObservationBuilder):
         super().__init__()
         self._builder = tree_obs_builder
         self._normalize_fixed = normalize_fixed
+        self.tree_flattener = PriorityTreeFlattener(normalize_fixed=normalize_fixed,
+                                                    num_agents=5,
+                                                    tree_depth=self._builder.max_depth)
 
     @property
     def observation_dim(self):
@@ -53,28 +56,14 @@ class PriorityTreeObsWrapper(ObservationBuilder):
         self._builder.reset()
 
     def get(self, handle: int = 0):
-        obs, agent_info = self._builder.get(handle)
-
-        obs_branches = []
-        for k, node in obs:
-            norm_obs = normalize_observation(node, self._builder.max_depth, observation_radius=10,
-                                             normalize_fixed=self._normalize_fixed)
-            obs_branches.append(norm_obs)
-
-        obs = np.concatenate(obs_branches + [agent_info])
-        return obs
+        obs = self._builder.get(handle)
+        norm_obs = self.tree_flattener.flatten(root=obs, handle=handle, concat_agent_id=False) \
+            if obs is not None else None
+        return norm_obs
 
     def get_many(self, handles: Optional[List[int]] = None):
-        obs_dict = {}
-        for handle, obs in self._builder.get_many(handles).items():
-            obs_branches = []
-            for k, node in obs[0].items():
-                norm_obs = normalize_observation(node, self._builder.max_depth, observation_radius=10,
-                                                 normalize_fixed=self._normalize_fixed)
-                obs_branches.append(norm_obs)
-
-            obs = np.concatenate(obs_branches + [obs[1]])
-            obs_dict[handle] = obs
+        return {k: self.tree_flattener.flatten(root=o, handle=k, concat_agent_id=False)
+                for k, o in self._builder.get_many(handles).items() if o is not None}
 
     def util_print_obs_subtree(self, tree):
         self._builder.util_print_obs_subtree(tree)

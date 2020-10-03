@@ -8,7 +8,7 @@ from flatland.envs.observations import TreeObsForRailEnv, Node
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnvActions
 from flatlander.envs.observations import Observation, register_obs
-from flatlander.envs.observations.utils import _get_small_node_feature_vector, _get_node_feature_vector
+from flatlander.envs.observations.common.utils import _get_small_node_feature_vector, _get_node_feature_vector
 
 
 @register_obs("positional_tree")

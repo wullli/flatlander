@@ -7,7 +7,7 @@ from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.builders.agent_id_tree import AgentIdTreeObservationBuilder, AgentIdNode
-from flatlander.envs.observations.utils import norm_obs_clip
+from flatlander.envs.observations.common.utils import norm_obs_clip
 
 
 @register_obs("agent_id_tree")

@@ -11,7 +11,7 @@ from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.agent_utils import RailAgentStatus
 from flatland.utils.ordered_set import OrderedSet
 
-from flatlander.envs.observations.utils import one_hot
+from flatlander.envs.observations.common.utils import one_hot
 
 AgentIdNode = collections.namedtuple('AgentIdNode', 'dist_own_target_encountered '
                                                     'dist_other_target_encountered '

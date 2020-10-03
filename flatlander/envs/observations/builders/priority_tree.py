@@ -11,7 +11,7 @@ from flatland.envs.agent_utils import RailAgentStatus
 from flatland.utils.ordered_set import OrderedSet
 
 from flatlander.algorithms.graph_coloring import GreedyGraphColoring
-from flatlander.envs.observations.utils import one_hot
+from flatlander.envs.observations.common.utils import one_hot
 
 Node = collections.namedtuple('Node', 'dist_own_target_encountered '
                                       'dist_other_target_encountered '

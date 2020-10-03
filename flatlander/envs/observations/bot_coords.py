@@ -4,7 +4,7 @@ from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.envs.agent_utils import RailAgentStatus, EnvAgent
 
 from flatlander.envs.observations import Observation, register_obs
-from flatlander.envs.observations.utils import one_hot
+from flatlander.envs.observations.common.utils import one_hot
 
 
 @register_obs("bot_coords")

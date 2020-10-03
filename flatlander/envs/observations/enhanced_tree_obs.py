@@ -7,7 +7,7 @@ from flatland.envs.observations import TreeObsForRailEnv, Node
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 
 from flatlander.envs.observations import Observation, register_obs
-from flatlander.envs.observations.utils import norm_obs_clip
+from flatlander.envs.observations.common.utils import norm_obs_clip
 
 
 @register_obs("enhanced_tree")
