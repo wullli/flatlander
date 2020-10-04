@@ -30,16 +30,16 @@ class PriorityTreeObservation(Observation):
     def observation_space(self) -> gym.Space:
         num_features_per_node = self._builder.observation_dim
         nr_nodes = 0
-        for i in range(self.config['max_depth'] + 1):
+        for i in range(self.config['max_depth']):
             nr_nodes += np.power(4, i)
-        dim = num_features_per_node * nr_nodes
+        dim = num_features_per_node * nr_nodes * 4
         return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim + 14,))  # 14 agent info fields
 
 
 class PriorityTreeObsWrapper(ObservationBuilder):
 
     def __init__(self,
-                 tree_obs_builder: TreeObsForRailEnv,
+                 tree_obs_builder: PriorityTreeObs,
                  normalize_fixed=None):
         super().__init__()
         self._builder = tree_obs_builder
@@ -62,7 +62,7 @@ class PriorityTreeObsWrapper(ObservationBuilder):
         return norm_obs
 
     def get_many(self, handles: Optional[List[int]] = None):
-        return {k: self.tree_flattener.flatten(root=o, handle=k, concat_agent_id=False)
+        return {k: self.tree_flattener.flatten(root=o[0], handle=k, concat_agent_id=False, agent_info=o[1])
                 for k, o in self._builder.get_many(handles).items() if o is not None}
 
     def util_print_obs_subtree(self, tree):

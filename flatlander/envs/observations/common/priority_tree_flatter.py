@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 
 from flatlander.envs.observations.common.grouping_tree_flatter import GroupingTreeFlattener
-from utils.observation_utils import norm_obs_clip
+from flatlander.envs.observations.common.utils import norm_obs_clip
 
 
 class PriorityTreeFlattener(GroupingTreeFlattener):
@@ -49,9 +49,10 @@ class PriorityTreeFlattener(GroupingTreeFlattener):
         data = np.array([])
         distance = np.array([])
         agent_data = np.array([])
-        for k, node in root:
-            b_data, b_distance, b_agent_data = self.split_tree_into_feature_groups(tree=node,
-                                                                                   max_tree_depth=self.tree_depth)
+        for k, node in root.items():
+            b_data, b_distance, b_agent_data = self._split_subtree_into_feature_groups(node=node,
+                                                                                       current_tree_depth=1,
+                                                                                       max_tree_depth=self.tree_depth)
             data = np.concatenate([data, b_data])
             distance = np.concatenate([distance, b_distance])
             agent_data = np.concatenate([agent_data, b_agent_data])
@@ -63,5 +64,5 @@ class PriorityTreeFlattener(GroupingTreeFlattener):
             norm_obs = self.normalize(data=data, distance=distance, agent_data=agent_data,
                                       observation_radius=10)
 
-        obs = np.concatenate([agent_info] + norm_obs)
+        obs = np.concatenate([agent_info, norm_obs])
         return obs
