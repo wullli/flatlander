@@ -19,7 +19,8 @@ class PriorityTreeObservation(Observation):
         self._builder = PriorityTreeObsWrapper(
             PriorityTreeObs(
                 max_depth=config['max_depth'],
-                predictor=ShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
+                predictor=ShortestPathPredictorForRailEnv(config['shortest_path_max_depth']),
+                use_priority=True
             ),
             config.get('normalize_fixed', 25),
         )

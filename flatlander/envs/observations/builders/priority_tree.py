@@ -42,9 +42,10 @@ class PriorityTreeObs(ObservationBuilder):
 
     tree_explored_actions_char = ['L', 'F', 'R', 'B']
 
-    def __init__(self, max_depth: int, predictor: PredictionBuilder = None):
+    def __init__(self, max_depth: int, predictor: PredictionBuilder = None, use_priority=True):
         super().__init__()
         self.max_depth = max_depth
+        self.use_priority = use_priority
         self.observation_dim = 12
         self.location_has_agent = {}
         self.location_has_agent_direction = {}
@@ -117,12 +118,13 @@ class PriorityTreeObs(ObservationBuilder):
 
         obs_dict: Dict = super().get_many(handles)
 
-        priorities = GreedyGraphColoring.color(colors=[1, 0],
-                                               nodes=obs_dict.keys(),
-                                               neighbors=self._conflict_map)
+        if self.use_priority:
+            priorities = GreedyGraphColoring.color(colors=[1, 0],
+                                                   nodes=obs_dict.keys(),
+                                                   neighbors=self._conflict_map)
 
-        for handle, obs in obs_dict.items():
-            obs[1]['priority'] = [priorities[handle]]
+            for handle, obs in obs_dict.items():
+                obs[1]['priority'] = [priorities[handle]]
 
         return obs_dict
 
