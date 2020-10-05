@@ -1,4 +1,4 @@
-flatland-sparse-small-path_obs-fc-apex:
+flatland-sparse-small-priority_tree_obs-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
@@ -25,7 +25,7 @@ flatland-sparse-small-path_obs-fc-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "apex", "priority_path_obs", "skip"]
+                tags: ["small_v0", "apex", "priority_tree_obs", "skip"]
 
         model:
             fcnet_activation: relu
