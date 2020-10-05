@@ -9,8 +9,8 @@ flatland-sparse-small-fixed_priority_tree_obs-fc-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 0
-        num_envs_per_worker: 0
+        num_workers: 7
+        num_envs_per_worker: 5
         num_gpus: 1
 
         env_config:
