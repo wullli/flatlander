@@ -3,8 +3,8 @@ from typing import Any
 import numpy as np
 
 from flatlander.envs.observations.common.grouping_tree_flatter import GroupingTreeFlattener
-from flatlander.envs.observations.common.utils import one_hot
 from flatlander.envs.observations.common.utils import norm_obs_clip
+from flatlander.envs.observations.common.utils import one_hot
 
 
 class PriorityTreeFlattener(GroupingTreeFlattener):
@@ -44,13 +44,13 @@ class PriorityTreeFlattener(GroupingTreeFlattener):
         return normalized_obs
 
     def normalize_agent_info(self, agent_info):
-        positions_distances = norm_obs_clip([v for k, v in agent_info
-                                             if k in self._pos_dist_keys],
+        positions_distances = norm_obs_clip(np.concatenate([v for k, v in agent_info.items()
+                                                      if k in self._pos_dist_keys]),
                                             fixed_radius=self.normalize_fixed)
-        num_agents = np.clip([v for k, v in agent_info
-                              if k in self._num_agents_keys], -1, 1)
-        remaining = [v for k, v in agent_info
-                     if k not in self._num_agents_keys and k not in self._pos_dist_keys]
+        num_agents = np.clip(np.concatenate([v for k, v in agent_info.items()
+                                       if k in self._num_agents_keys]), -1, 1)
+        remaining = np.concatenate([v for k, v in agent_info.items()
+                     if k not in self._num_agents_keys and k not in self._pos_dist_keys])
         return np.concatenate([positions_distances, num_agents, remaining])
 
     def flatten(self, root: Any, agent_info, handle, concat_agent_id, **kwargs):

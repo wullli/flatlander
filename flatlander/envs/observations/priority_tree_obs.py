@@ -33,7 +33,7 @@ class PriorityTreeObservation(Observation):
         for i in range(self.config['max_depth']):
             nr_nodes += np.power(4, i)
         dim = num_features_per_node * nr_nodes * 4
-        return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim + 14,))  # 14 agent info fields
+        return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim + 16,))  # 16 agent info fields
 
 
 class PriorityTreeObsWrapper(ObservationBuilder):

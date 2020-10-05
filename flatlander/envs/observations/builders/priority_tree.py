@@ -14,12 +14,14 @@ from flatlander.algorithms.graph_coloring import GreedyGraphColoring
 from flatlander.envs.observations.common.utils import one_hot
 
 Node = collections.namedtuple('Node', 'dist_own_target_encountered '
+                                      'own_target_encountered '
                                       'dist_other_target_encountered '
                                       'dist_other_agent_encountered '
                                       'dist_potential_conflict '
                                       'dist_unusable_switch '
                                       'dist_to_next_branch '
                                       'dist_min_to_target '
+                                      'shortest_path_direction '
                                       'num_agents_same_direction '
                                       'num_agents_opposite_direction '
                                       'num_agents_malfunctioning '
@@ -43,7 +45,7 @@ class PriorityTreeObs(ObservationBuilder):
     def __init__(self, max_depth: int, predictor: PredictionBuilder = None):
         super().__init__()
         self.max_depth = max_depth
-        self.observation_dim = 11
+        self.observation_dim = 12
         self.location_has_agent = {}
         self.location_has_agent_direction = {}
         self.predictor = predictor
@@ -120,7 +122,7 @@ class PriorityTreeObs(ObservationBuilder):
                                                neighbors=self._conflict_map)
 
         for handle, obs in obs_dict.items():
-            obs[1][0] = priorities[handle]
+            obs[1]['priority'] = [priorities[handle]]
 
         return obs_dict
 
@@ -267,7 +269,7 @@ class PriorityTreeObs(ObservationBuilder):
             if agent.status == RailAgentStatus.READY_TO_DEPART else agent.direction
         agent_info = {'priority': [priority],
                       'agent_status': one_hot([agent.status.value], 4),
-                      'dist_target': [self.env.distance_map[
+                      'dist_target': [self.env.distance_map.get()[
                                           (agent.handle, *agent_position,
                                            agent.direction)]],
                       'malfunctions': [agent.malfunction_data['malfunction']],
