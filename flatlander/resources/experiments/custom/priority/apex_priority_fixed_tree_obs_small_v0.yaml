@@ -1,0 +1,48 @@
+flatland-sparse-small-priority_tree_obs-fc-apex:
+    run: APEX
+    env: flatland_sparse
+    stop:
+        timesteps_total: 15000000
+    checkpoint_freq: 1
+    checkpoint_at_end: True
+    keep_checkpoints_num: 10
+    checkpoint_score_attr: episode_reward_mean
+    num_samples: 3
+    config:
+        num_workers: 0
+        num_envs_per_worker: 0
+        num_gpus: 1
+
+        env_config:
+            observation: priority_fixed_tree
+            observation_config:
+                max_depth: 2
+                shortest_path_max_depth: 30
+
+            generator: sparse_rail_generator
+            generator_config: small_v0
+
+            global_reward: True
+            skip_no_choice_cells: True
+            accumulate_skipped_rewards: True
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["apex", "small_v0", "fixed", "tree", "transformer", "custom", "global_reward"]
+
+        model:
+            custom_model: dqn_fixed_tree_transformer
+            custom_model_config:
+                transformer:
+                    hidden_layers:
+                        - 512
+                        - 512
+                        - 512
+                    encoder_layer_neurons: 2048
+                    num_encoder_layers: 2
+                    num_heads: 12
+                    dropout_rate: 0.1
+
+
+
