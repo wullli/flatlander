@@ -1,4 +1,4 @@
-flatland-sparse-small-priority_tree_obs-fc-apex:
+flatland-sparse-small-fixed_priority_tree_obs-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
