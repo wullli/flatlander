@@ -11,6 +11,7 @@ from flatlander.envs.observations.common.utils import one_hot
 class PriorityTreeFlattener(GroupingTreeFlattener):
     _pos_dist_keys = ['dist_target', 'agent_position', 'agent_target']
     _num_agents_keys = ['malfunctions']
+    _max_branch_length = 25
 
     def __init__(self, tree_depth=2, normalize_fixed=True, num_agents=5):
         super().__init__(tree_depth, normalize_fixed, num_agents)
@@ -115,10 +116,10 @@ class PriorityTreeFlattener(GroupingTreeFlattener):
 
         if concat_agent_id:
             norm_obs = self.normalize_with_agent_id(data=data, distance=distance, agent_data=agent_data,
-                                                    observation_radius=10, handle=handle)
+                                                    observation_radius=self._max_branch_length, handle=handle)
         else:
             norm_obs = self.normalize(data=data, distance=distance, agent_data=agent_data,
-                                      observation_radius=10)
+                                      observation_radius=self._max_branch_length)
 
         norm_agent_info = self.normalize_agent_info(agent_info=agent_info)
         obs = np.concatenate([norm_agent_info, norm_obs])

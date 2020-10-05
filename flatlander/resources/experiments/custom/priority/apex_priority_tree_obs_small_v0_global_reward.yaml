@@ -1,4 +1,4 @@
-flatland-sparse-medium-priority_tree_obs-fc-apex:
+flatland-sparse-small-priority_tree_obs-fc-apex-global_reward:
     run: APEX
     env: flatland_sparse
     stop:
@@ -22,7 +22,7 @@ flatland-sparse-medium-priority_tree_obs-fc-apex:
             global_reward: True
 
             generator: sparse_rail_generator
-            generator_config: medium_v0
+            generator_config: small_v0
 
             wandb:
                 project: flatland

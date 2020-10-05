@@ -22,7 +22,7 @@ class PriorityTreeObservation(Observation):
                 predictor=ShortestPathPredictorForRailEnv(config['shortest_path_max_depth']),
                 use_priority=True
             ),
-            config.get('normalize_fixed', 25),
+            config.get('normalize_fixed', 100),
         )
 
     def builder(self) -> ObservationBuilder:
