@@ -261,6 +261,13 @@ class PriorityTreeObs(ObservationBuilder):
 
         agent_info = self._get_agent_info(agent, agent_virtual_position)
 
+        nodes = [n for n in top_level_nodes.values() if n != -np.inf]
+
+        for i in range(self.max_depth):
+            shortest_path_node = min(nodes, key=lambda n: n.dist_min_to_target)
+            shortest_path_node.shortest_path_direction = 1.
+            nodes = [n for n in shortest_path_node.childs.values() if n != -np.inf]
+
         return top_level_nodes, agent_info
 
     def _get_agent_info(self, agent, agent_position):
@@ -435,12 +442,14 @@ class PriorityTreeObs(ObservationBuilder):
 
         # TreeObsForRailEnv.Node
         node = Node(dist_own_target_encountered=own_target_encountered,
+                    own_target_encountered=own_target_encountered < np.inf,
                     dist_other_target_encountered=other_target_encountered,
                     dist_other_agent_encountered=other_agent_encountered,
                     dist_potential_conflict=potential_conflict,
                     dist_unusable_switch=unusable_switch,
                     dist_to_next_branch=dist_to_next_branch,
                     dist_min_to_target=dist_min_to_target,
+                    shortest_path_direction=0,
                     num_agents_same_direction=other_agent_same_direction,
                     num_agents_opposite_direction=other_agent_opposite_direction,
                     num_agents_malfunctioning=malfunctioning_agent,
@@ -556,7 +565,7 @@ class PriorityTreeObs(ObservationBuilder):
               node.dist_other_target_encountered, ", ", node.dist_other_agent_encountered, ", ",
               node.dist_potential_conflict, ", ", node.dist_unusable_switch, ", ", node.dist_to_next_branch, ", ",
               node.dist_min_to_target, ", ", node.num_agents_same_direction, ", ", node.num_agents_opposite_direction,
-              ", ", node.num_agents_malfunctioning, ", ", node.speed_min_fractional, ", ",
+              ", ", node.num_agents_malfunctioning, ", ",
               node.num_agents_ready_to_depart)
 
     def print_subtree(self, node, label, indent):
