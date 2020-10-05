@@ -2,7 +2,7 @@ flatland-sparse-small-priority_tree_obs-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 15000000
+        timesteps_total: 100000000
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 10
@@ -20,12 +20,12 @@ flatland-sparse-small-priority_tree_obs-fc-apex:
                 shortest_path_max_depth: 100
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: medium_v0
 
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "apex", "priority_tree_obs", "skip"]
+                tags: ["medium_v0", "apex", "priority_tree_obs"]
 
         model:
             fcnet_activation: relu

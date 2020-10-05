@@ -264,8 +264,10 @@ class PriorityTreeObs(ObservationBuilder):
         nodes = [n for n in top_level_nodes.values() if n != -np.inf]
 
         for i in range(self.max_depth):
+            if len(nodes) < 1:
+                break
             shortest_path_node = min(nodes, key=lambda n: n.dist_min_to_target)
-            shortest_path_node.shortest_path_direction = 1.
+            shortest_path_node._replace(shortest_path_direction = 1.)
             nodes = [n for n in shortest_path_node.childs.values() if n != -np.inf]
 
         return top_level_nodes, agent_info
