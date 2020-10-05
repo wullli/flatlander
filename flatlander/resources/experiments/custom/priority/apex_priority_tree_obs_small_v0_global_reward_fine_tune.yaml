@@ -1,4 +1,4 @@
-flatland-sparse-small-priority_tree_obs-fc-apex-global_reward:
+flatland-sparse-small-priority_tree_obs-fc-apex-global_reward-finetune:
     run: APEX
     env: flatland_sparse
     stop:
@@ -27,7 +27,7 @@ flatland-sparse-small-priority_tree_obs-fc-apex-global_reward:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["medium_v0", "apex", "priority_tree_obs"]
+                tags: ["medium_v0", "apex", "priority_tree_obs", "fintune"]
 
         model:
             fcnet_activation: relu
