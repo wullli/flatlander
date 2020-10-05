@@ -3,10 +3,13 @@ from typing import Any
 import numpy as np
 
 from flatlander.envs.observations.common.grouping_tree_flatter import GroupingTreeFlattener
+from flatlander.envs.observations.common.utils import one_hot
 from flatlander.envs.observations.common.utils import norm_obs_clip
 
 
 class PriorityTreeFlattener(GroupingTreeFlattener):
+    _pos_dist_keys = ['dist_target', 'agent_position', 'agent_target']
+    _num_agents_keys = ['malfunctions']
 
     def __init__(self, tree_depth=2, normalize_fixed=True, num_agents=5):
         super().__init__(tree_depth, normalize_fixed, num_agents)
@@ -34,16 +37,21 @@ class PriorityTreeFlattener(GroupingTreeFlattener):
         This function normalizes the observation used by the RL algorithm
         """
 
-        data = norm_obs_clip(data, fixed_radius=observation_radius)
-        if self.normalize_fixed is not None:
-            distance = norm_obs_clip(distance, fixed_radius=self.normalize_fixed)
-        else:
-            distance = norm_obs_clip(distance, normalize_to_range=True)
-        agent_data = np.clip(agent_data, -1, 1)
-        agent_one_hot = np.zeros(self.num_agents)
-        agent_one_hot[handle % self.num_agents] = 1
-        normalized_obs = np.concatenate((np.concatenate((data, distance)), agent_data, agent_one_hot))
+        normalized_obs = self.normalize(data, distance, agent_data, observation_radius)
+        agent_one_hot = one_hot(handle, self.num_agents)
+        normalized_obs = np.concatenate([normalized_obs, agent_one_hot])
+
         return normalized_obs
+
+    def normalize_agent_info(self, agent_info):
+        positions_distances = norm_obs_clip([v for k, v in agent_info
+                                             if k in self._pos_dist_keys],
+                                            fixed_radius=self.normalize_fixed)
+        num_agents = np.clip([v for k, v in agent_info
+                              if k in self._num_agents_keys], -1, 1)
+        remaining = [v for k, v in agent_info
+                     if k not in self._num_agents_keys and k not in self._pos_dist_keys]
+        return np.concatenate([positions_distances, num_agents, remaining])
 
     def flatten(self, root: Any, agent_info, handle, concat_agent_id, **kwargs):
         data = np.array([])
@@ -64,5 +72,6 @@ class PriorityTreeFlattener(GroupingTreeFlattener):
             norm_obs = self.normalize(data=data, distance=distance, agent_data=agent_data,
                                       observation_radius=10)
 
-        obs = np.concatenate([agent_info, norm_obs])
+        norm_agent_info = self.normalize_agent_info(agent_info=agent_info)
+        obs = np.concatenate([norm_agent_info, norm_obs])
         return obs

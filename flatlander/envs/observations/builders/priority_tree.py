@@ -259,13 +259,7 @@ class PriorityTreeObs(ObservationBuilder):
         if conflict_handle is not None:
             self._conflict_map[handle].append(conflict_handle)
 
-        priority = 0.
-        agent_info = np.concatenate([[priority],
-                                     one_hot([agent.status.value], 4),
-                                     np.array(agent_virtual_position) / self.env.height,
-                                     np.array(agent.target) / self.env.height,
-                                     one_hot([agent.direction], 4),
-                                     [int(agent.moving)]])
+        agent_info = self._get_agent_info(agent, agent_virtual_position)
 
         nodes = [n for n in top_level_nodes.values() if n != -np.inf]
 
@@ -275,6 +269,22 @@ class PriorityTreeObs(ObservationBuilder):
             nodes = [n for n in shortest_path_node.childs.values() if n != -np.inf]
 
         return top_level_nodes, agent_info
+
+    def _get_agent_info(self, agent, agent_position):
+        priority = 0.
+        agent_virtual_direction = agent.initial_direction \
+            if agent.status == RailAgentStatus.READY_TO_DEPART else agent.direction
+        agent_info = {'priority': [priority],
+                      'agent_status': one_hot([agent.status.value], 4),
+                      'dist_target': [self.env.distance_map[
+                                          (agent.handle, *agent_position,
+                                           agent.direction)]],
+                      'malfunctions': [agent.malfunction_data['malfunction']],
+                      'agent_position': np.array(agent_position),
+                      'agent_target': np.array(agent.target),
+                      'agent_direction': one_hot([agent_virtual_direction], 4),
+                      'agent_moving': [int(agent.moving)]}
+        return agent_info
 
     def _explore_branch(self, handle, position, direction, tot_dist, depth) -> (Node, Any, Any):
         """
