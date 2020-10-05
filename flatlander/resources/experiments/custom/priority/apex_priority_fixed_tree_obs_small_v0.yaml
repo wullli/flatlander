@@ -29,7 +29,7 @@ flatland-sparse-small-priority_tree_obs-fc-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["apex", "small_v0", "fixed", "tree", "transformer", "custom", "global_reward"]
+                tags: ["apex", "small_v0", "fixed", "tree", "transformer", "global_reward", "priority", "skip"]
 
         model:
             custom_model: dqn_fixed_tree_transformer
