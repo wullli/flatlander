@@ -1,6 +1,5 @@
-from ray.rllib.models.model import restore_original_dimensions
-from ray.rllib.models.modelv2 import ModelV2
-from ray.rllib.models.tf.fcnet_v2 import FullyConnectedNetwork
+from ray.rllib.models.modelv2 import ModelV2, restore_original_dimensions
+from ray.rllib.models.tf import FullyConnectedNetwork
 from ray.rllib.models.tf.tf_action_dist import Categorical
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from ray.rllib.offline import JsonReader

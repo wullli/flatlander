@@ -31,7 +31,7 @@ class TreeObservation(Observation):
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        num_features_per_node = self._builder.observation_dim
+        num_features_per_node = self._builder.observation_dim - 1
         nr_nodes = 0
         for i in range(self.config['max_depth'] + 1):
             nr_nodes += np.power(4, i)

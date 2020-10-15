@@ -245,8 +245,6 @@ class ExperimentRunner:
                 local_mode=True if args.local else False,
                 address=args.ray_address,
                 object_store_memory=args.ray_object_store_memory,
-                memory=args.ray_memory,
-                redis_max_memory=args.ray_redis_max_memory,
                 num_cpus=args.ray_num_cpus if args.ray_num_cpus is not None else n_cpu,
                 num_gpus=args.ray_num_gpus if args.ray_num_gpus is not None else n_gpu)
 

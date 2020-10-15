@@ -1,7 +1,6 @@
 from ray.rllib.agents.dqn.apex import apex_execution_plan
 from ray.rllib.agents.dqn.dqn import GenericOffPolicyTrainer
 from ray.rllib.agents.qmix import DEFAULT_CONFIG
-from ray.rllib.agents.qmix.qmix import validate_config
 from ray.rllib.agents.qmix.qmix_policy import QMixTorchPolicy
 from ray.tune import register_trainable
 from ray.tune.utils import merge_dicts
@@ -41,7 +40,6 @@ QMixTrainer = GenericOffPolicyTrainer.with_updates(
     default_config=QMIX_APEX_DEFAULT_CONFIG,
     default_policy=QMixTorchPolicy,
     get_policy_class=None,
-    validate_config=validate_config,
     execution_plan=apex_execution_plan)
 
 register_trainable(

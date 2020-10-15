@@ -5,9 +5,10 @@ import numpy as np
 import os
 from typing import Tuple
 import tensorflow as tf
+from ray.rllib.agents.maml.maml_tf_policy import PPOLoss
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from ray.rllib.agents.ppo.ppo import PPOTrainer
-from ray.rllib.agents.ppo.ppo_tf_policy import KLCoeffMixin, PPOLoss, PPOTFPolicy
+from ray.rllib.agents.ppo.ppo_tf_policy import KLCoeffMixin, PPOTFPolicy
 from ray.rllib.evaluation.postprocessing import Postprocessing, compute_advantages
 from ray.rllib.policy.sample_batch import SampleBatch
 from ray.rllib.policy.tf_policy import EntropyCoeffSchedule, LearningRateSchedule

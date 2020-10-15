@@ -7,7 +7,6 @@ import types
 import gym
 import humps
 from ray.rllib import MultiAgentEnv
-from ray.rllib.models import Model
 from ray.rllib.models import ModelCatalog
 from ray.rllib.models.modelv2 import ModelV2
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
@@ -117,8 +116,7 @@ def load_models(local_dir="."):
         custom_model = _class
 
         if not issubclass(custom_model, ModelV2) and not \
-                issubclass(custom_model, TFModelV2) and not \
-                issubclass(custom_model, Model):
+                issubclass(custom_model, TFModelV2):
             raise Exception("We expected the class named {} to be "
                             "a subclass of TFModelV2. "
                             "Please read more here : <insert-link>".format(class_name))
