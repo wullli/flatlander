@@ -34,7 +34,7 @@ flatland-sparse-small-tree-fc-apex-global:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "global_reward"]
+                tags: ["small_v0", "tree_obs", "apex", "rainbow"]
 
         model:
             fcnet_activation: relu

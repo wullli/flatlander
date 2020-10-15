@@ -30,7 +30,7 @@ class PriorityFixedTreeObservation(Observation):
     def observation_space(self) -> gym.Space:
         return gym.spaces.Tuple((gym.spaces.Box(low=-1, high=1, shape=(self._builder.max_nr_nodes,
                                                                        self._builder.observation_dim,)),
-                                 gym.spaces.Box(low=-1, high=1, shape=(16,))))
+                                 gym.spaces.Box(low=-1, high=1, shape=(12,))))
 
 
 class PriorityFixedTreeObsWrapper(ObservationBuilder):

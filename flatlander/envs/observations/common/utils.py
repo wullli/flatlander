@@ -82,7 +82,7 @@ def _get_small_node_feature_vector(node: Node) -> np.ndarray:
 def _get_node_feature_vector(node: Node) -> (np.ndarray, np.ndarray, np.ndarray):
     data = np.zeros(6)
     distance = np.zeros(1)
-    agent_data = np.zeros(4)
+    agent_data = np.zeros(3)
 
     data[0] = node.dist_own_target_encountered
     data[1] = node.dist_other_target_encountered
@@ -96,7 +96,6 @@ def _get_node_feature_vector(node: Node) -> (np.ndarray, np.ndarray, np.ndarray)
     agent_data[0] = node.num_agents_same_direction
     agent_data[1] = node.num_agents_opposite_direction
     agent_data[2] = node.num_agents_malfunctioning
-    agent_data[3] = node.speed_min_fractional
 
     data = norm_obs_clip(data, fixed_radius=10)
     distance = norm_obs_clip(distance, fixed_radius=100)

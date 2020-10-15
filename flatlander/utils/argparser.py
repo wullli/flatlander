@@ -55,6 +55,11 @@ def create_parser(parser_creator=None):
         type=str,
         help="Name of the subdirectory under `local_dir` to put results in.")
     parser.add_argument(
+        "--experiments-dir",
+        default="default",
+        type=str,
+        help="Directory to load multiple experiments from.")
+    parser.add_argument(
         "--local-dir",
         default=DEFAULT_RESULTS_DIR,
         type=str,

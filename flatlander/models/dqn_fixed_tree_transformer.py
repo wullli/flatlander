@@ -37,26 +37,20 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
             self._tuple_space = False
             self.transformer = Transformer(out_dim=self._num_outputs, d_model=obs_space.shape[1],
                                            use_positional_encoding=False, **self._options["transformer"])
-            self.q_out = tf.keras.layers.Dense(
-                num_outputs,
-                name="dqn_ttf_out",
-                activation=tf.nn.relu,
-                kernel_initializer=normc_initializer(1.0))
 
         elif isinstance(obs_space.original_space, gym.spaces.Tuple):
             self._tuple_space = True
             self.transformer = Transformer(out_dim=self._num_outputs, d_model=obs_space.original_space[0].shape[1],
                                            use_positional_encoding=False, **self._options["transformer"])
-            self.q_out = tf.keras.layers.Dense(
-                num_outputs,
-                name="dqn_ttf_out",
-                activation=tf.nn.relu,
-                kernel_initializer=normc_initializer(1.0))
 
-            self.non_tree_layer_1 = tf.keras.layers.Dense(128, activation=tf.nn.relu,
-                                                          kernel_initializer=normc_initializer(1.0))
-            self.non_tree_layer_2 = tf.keras.layers.Dense(128, activation=tf.nn.relu,
-                                                          kernel_initializer=normc_initializer(1.0))
+            self.non_tree_layer_1 = tf.keras.layers.Dense(256, activation=tf.nn.relu)
+            self.non_tree_layer_2 = tf.keras.layers.Dense(256, activation=tf.nn.relu)
+
+        self.q_out = tf.keras.layers.Dense(
+            num_outputs,
+            name="dqn_ttf_out",
+            activation=tf.nn.relu,
+            kernel_initializer=normc_initializer(1.0))
 
         self._test_transformer()
         variables = self.transformer.variables \

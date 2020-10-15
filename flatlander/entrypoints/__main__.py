@@ -84,6 +84,35 @@ class FlatlanderCLI(object):
         os.system(cmd)
 
     @staticmethod
+    def experiments():
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--experiments-dir', help='Experiment config file')
+        args, _ = parser.parse_known_args()
+        repo_dir = Path(os.path.dirname(__file__)).parent.parent
+        out_dir = repo_dir.parent / "flatland-challenge-data/out"
+        base = os.path.basename(args.experiments_dir)
+        exp_name = os.path.splitext(base)[0]
+        name = "fl_experiment_" + str(exp_name)
+
+        cmd_prefix = 'docker run --log-opt max-size=1m --log-opt max-file=5 --shm-size ' \
+                     '200000000000 ' \
+                     '--name ' + str(name)
+
+        if "-d" in sys.argv[2:]:
+            cmd_prefix += ' -d'
+
+        if "-g" in sys.argv[2:]:
+            cmd_prefix += ' --gpus all'
+
+        cmd = cmd_prefix \
+              + ' -v ' + str(out_dir) + ':/home/$USER/ray_results ' \
+              + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c \'pip install -e /src && wandb login ' \
+                                         '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
+                                         'python3 /src/flatlander/entrypoints/experiments.py ' \
+              + " ".join(filter(lambda arg: arg != "-d" and arg != "-g", sys.argv[2:])) + ' \''
+        os.system(cmd)
+
+    @staticmethod
     def rebuild():
         os.system('docker image rm flatland-docker')
         cmd = os.path.join(os.path.dirname(__file__), "build.sh")

@@ -52,7 +52,7 @@ class FixedTreeObsWrapper(ObservationBuilder):
         if self._small_tree:
             return self._builder.observation_dim - 3
         else:
-            return self._builder.observation_dim
+            return self._builder.observation_dim - 1
 
     @property
     def max_nr_nodes(self):

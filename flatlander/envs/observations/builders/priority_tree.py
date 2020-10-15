@@ -284,8 +284,6 @@ class PriorityTreeObs(ObservationBuilder):
                                           (agent.handle, *agent_position,
                                            agent.direction)]],
                       'malfunctions': [agent.malfunction_data['malfunction']],
-                      'agent_position': np.array(agent_position),
-                      'agent_target': np.array(agent.target),
                       'agent_direction': one_hot([agent_virtual_direction], 4),
                       'agent_moving': [int(agent.moving)]}
         return agent_info
