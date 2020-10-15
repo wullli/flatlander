@@ -33,7 +33,17 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
         self.non_tree_net = None
         self._logger = logging.getLogger(DqnFixedTreeTransformer.__name__)
 
-        if isinstance(obs_space.original_space, gym.spaces.Tuple):
+        if isinstance(obs_space, gym.spaces.Box):
+            self._tuple_space = False
+            self.transformer = Transformer(out_dim=self._num_outputs, d_model=obs_space.shape[1],
+                                           use_positional_encoding=False, **self._options["transformer"])
+            self.q_out = tf.keras.layers.Dense(
+                num_outputs,
+                name="dqn_ttf_out",
+                activation=tf.nn.relu,
+                kernel_initializer=normc_initializer(1.0))
+
+        elif isinstance(obs_space.original_space, gym.spaces.Tuple):
             self._tuple_space = True
             self.transformer = Transformer(out_dim=self._num_outputs, d_model=obs_space.original_space[0].shape[1],
                                            use_positional_encoding=False, **self._options["transformer"])
@@ -47,26 +57,26 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
                                                           kernel_initializer=normc_initializer(1.0))
             self.non_tree_layer_2 = tf.keras.layers.Dense(128, activation=tf.nn.relu,
                                                           kernel_initializer=normc_initializer(1.0))
-        else:
-            self._tuple_space = False
-            self.transformer = Transformer(out_dim=self._num_outputs, d_model=obs_space.original_space.shape[1],
-                                           use_positional_encoding=False, **self._options["transformer"])
-            self.q_out = tf.keras.layers.Dense(
-                num_outputs,
-                name="dqn_ttf_out",
-                activation=tf.nn.relu,
-                kernel_initializer=normc_initializer(1.0))
 
         self._test_transformer()
-        self.register_variables(self.transformer.variables
-                                + self.q_out.variables
-                                + self.non_tree_layer_1.variables
-                                + self.non_tree_layer_2.variables
-                                + self.q_value_head.variables
-                                + self.state_value_head.variables)
+        variables = self.transformer.variables \
+                    + self.q_out.variables \
+                    + self.q_value_head.variables \
+                    + self.state_value_head.variables
+        if self._tuple_space:
+            variables = variables + self.non_tree_layer_1.variables + self.non_tree_layer_2.variables
+        self.register_variables(variables)
 
     def _test_transformer(self):
-        if isinstance(self.obs_space.original_space, gym.spaces.Tuple):
+        if isinstance(self.obs_space, gym.spaces.Box):
+            inp = tf.random.uniform((100, self.obs_space.shape[0],
+                                     self.obs_space.shape[1]),
+                                    dtype=tf.float32, minval=-1, maxval=1)
+
+            z = self.transformer.call(inp,
+                                      train_mode=False,
+                                      encoder_mask=tf.zeros((100, 1, 1, self.obs_space.shape[0])))
+        elif isinstance(self.obs_space.original_space, gym.spaces.Tuple):
 
             inp = tf.random.uniform((100, self.obs_space.original_space[0].shape[0],
                                      self.obs_space.original_space[0].shape[1]),
@@ -83,15 +93,6 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
             z_non_tree = self.non_tree_layer_2(z_non_tree)
 
             z = tf.concat([z, z_non_tree], axis=1)
-
-        else:
-            inp = tf.random.uniform((100, self.obs_space.shape[0],
-                                     self.obs_space.shape[1]),
-                                    dtype=tf.float32, minval=-1, maxval=1)
-
-            z = self.transformer.call(inp,
-                                      train_mode=False,
-                                      encoder_mask=tf.zeros((100, 1, 1, self.obs_space.shape[0])))
 
         _ = self.q_out(z)
 
@@ -141,9 +142,11 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
         return out
 
     def variables(self, **kwargs):
-        return self.transformer.variables \
-               + self.q_out.variables \
-               + self.q_value_head.variables \
-               + self.non_tree_layer_1.variables \
-               + self.non_tree_layer_2.variables \
-               + self.state_value_head.variables
+        variables = self.transformer.variables \
+                    + self.q_out.variables \
+                    + self.q_value_head.variables \
+                    + self.state_value_head.variables
+        if self._tuple_space:
+            variables = variables + self.non_tree_layer_1.variables + self.non_tree_layer_2.variables
+
+        return variables
