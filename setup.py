@@ -8,6 +8,6 @@ setup(
    author_email='pascal.wullschleger@hslu.ch',
    packages=['flatlander'],
    entry_points={
-      "console_scripts": ["flatlander = flatlander.scripts.__main__:main"]
+      "console_scripts": ["flatlander = flatlander.entrypoints.__main__:main"]
    }
 )
