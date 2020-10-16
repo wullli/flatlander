@@ -33,7 +33,7 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
         self.non_tree_net = None
         self._logger = logging.getLogger(DqnFixedTreeTransformer.__name__)
 
-        if isinstance(obs_space, gym.spaces.Box):
+        if isinstance(obs_space, gym.spaces.Box) and not hasattr(obs_space, 'original_space'):
             self._tuple_space = False
             self.transformer = Transformer(out_dim=self._num_outputs, d_model=obs_space.shape[1],
                                            use_positional_encoding=False, **self._options["transformer"])
@@ -62,7 +62,7 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
         self.register_variables(variables)
 
     def _test_transformer(self):
-        if isinstance(self.obs_space, gym.spaces.Box):
+        if not self._tuple_space:
             inp = tf.random.uniform((100, self.obs_space.shape[0],
                                      self.obs_space.shape[1]),
                                     dtype=tf.float32, minval=-1, maxval=1)
@@ -70,7 +70,7 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
             z = self.transformer.call(inp,
                                       train_mode=False,
                                       encoder_mask=tf.zeros((100, 1, 1, self.obs_space.shape[0])))
-        elif isinstance(self.obs_space.original_space, gym.spaces.Tuple):
+        else:
 
             inp = tf.random.uniform((100, self.obs_space.original_space[0].shape[0],
                                      self.obs_space.original_space[0].shape[1]),

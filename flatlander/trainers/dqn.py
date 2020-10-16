@@ -38,7 +38,7 @@ def setup_mid_mixins(policy: Policy, _1, _2, config) -> None:
     ComputeTDErrorMixin.__init__(policy)
     warmup_steps = config["model"]["custom_model_config"].get("warmup_steps", 100000)
     TransformerLearningRateSchedule.__init__(policy,
-                                             config["model"]["custom_options"]["transformer"]["num_heads"],
+                                             config["model"]["custom_model_config"]["transformer"]["num_heads"],
                                              warmup_steps)
 
 

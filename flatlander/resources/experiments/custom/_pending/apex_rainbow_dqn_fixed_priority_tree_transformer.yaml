@@ -50,5 +50,5 @@ flatland-sparse-fixed-prio-tree-transformer-rainbow-apex:
                         - 256
                     encoder_layer_neurons: 512
                     num_encoder_layers: 2
-                    num_heads: 10
+                    num_heads: 12
                     dropout_rate: 0.1
