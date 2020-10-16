@@ -76,7 +76,7 @@ class FlatlanderCLI(object):
             cmd_prefix += ' --gpus all'
 
         if not "-noresults" in sys.argv[2:]:
-            + ' -v ' + str(out_dir) + ':/home/$USER/ray_results '
+            cmd_prefix += ' -v ' + str(out_dir) + ':/home/$USER/ray_results '
         cmd = cmd_prefix \
               + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c \'pip install -e /src && wandb login ' \
                                          '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
@@ -109,7 +109,8 @@ class FlatlanderCLI(object):
             cmd_prefix += ' --gpus all'
 
         if not "-noresults" in sys.argv[2:]:
-            + ' -v ' + str(out_dir) + ':/home/$USER/ray_results '
+            cmd_prefix += ' -v ' + str(out_dir) + ':/home/$USER/ray_results '
+
         cmd = cmd_prefix \
               + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c \'pip install -e /src && wandb login ' \
                                          '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
