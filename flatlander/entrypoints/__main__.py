@@ -123,7 +123,7 @@ class FlatlanderCLI(object):
 
     @staticmethod
     def rebuild():
-        os.system('docker image rm flatland-docker')
+        os.system('docker image rm fl:latest')
         cmd = os.path.join(os.path.dirname(__file__), "build.sh")
         os.system(cmd)
 
