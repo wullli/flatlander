@@ -1,6 +1,8 @@
 import os
+from copy import deepcopy, copy
 
 import numpy as np
+from flatland.envs.rail_env import RailEnvActions
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -36,6 +38,7 @@ def evaluate(config, run):
             return
 
         observation, info = remote_client.env_create(obs_builder_object=obs_builder)
+        action_template = {handle: RailEnvActions.STOP_MOVING for handle in observation.keys()}
 
         if not observation:
             break
@@ -57,15 +60,17 @@ def evaluate(config, run):
         while True:
             if not check_if_all_blocked(env=remote_client.env):
 
-                actions = agent.compute_actions(observation, explore=False)
+                local_env = deepcopy(remote_client.env)
 
-                observation, all_rewards, done, info = remote_client.env_step(actions)
+                real_actions = {}
+                for handle in observation.keys():
+                    actions = action_template.copy()
+                    actions[handle] = agent.compute_action(observation[handle], explore=False)
+                    observation, _, _, _ = local_env.step(actions)
+                    real_actions[handle] = actions[handle]
+
+                observation, all_rewards, done, info = remote_client.env_step(real_actions)
                 steps += 1
-
-                while len(observation) == 0 and not done['__all__']:
-                    observation, all_rewards, done, info = remote_client.env_step({})
-                    print('.', end='', flush=True)
-                    steps += 1
 
                 print('.', end='', flush=True)
 
