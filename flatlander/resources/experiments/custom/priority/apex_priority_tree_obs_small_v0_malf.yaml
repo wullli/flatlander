@@ -9,7 +9,7 @@ flatland-sparse-small-malf-priority_tree_obs-fc-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 31
+        num_workers: 23
         num_envs_per_worker: 5
         num_gpus: 0
 
