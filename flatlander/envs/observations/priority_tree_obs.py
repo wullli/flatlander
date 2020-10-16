@@ -3,7 +3,6 @@ from typing import Optional, List
 import gym
 import numpy as np
 from flatland.core.env_observation_builder import ObservationBuilder
-from flatland.envs.observations import TreeObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 
 from flatlander.envs.observations import Observation, register_obs
@@ -31,10 +30,10 @@ class PriorityTreeObservation(Observation):
     def observation_space(self) -> gym.Space:
         num_features_per_node = self._builder.observation_dim
         nr_nodes = 0
-        for i in range(self.config['max_depth']):
+        for i in range(self.config['max_depth'] + 1):
             nr_nodes += np.power(4, i)
-        dim = num_features_per_node * nr_nodes * 4
-        return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim + 16,))  # 16 agent info fields
+        dim = num_features_per_node * nr_nodes
+        return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim,))
 
 
 class PriorityTreeObsWrapper(ObservationBuilder):

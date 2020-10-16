@@ -7,7 +7,7 @@ flatland-sparse-small-priority_tree_obs-fc-apex:
     checkpoint_at_end: True
     keep_checkpoints_num: 10
     checkpoint_score_attr: episode_reward_mean
-    num_samples: 3
+    num_samples: 1
     config:
         num_workers: 5
         num_envs_per_worker: 5
@@ -17,7 +17,7 @@ flatland-sparse-small-priority_tree_obs-fc-apex:
             observation: priority_tree
             observation_config:
                 max_depth: 2
-                shortest_path_max_depth: 100
+                shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
             generator_config: small_v0
