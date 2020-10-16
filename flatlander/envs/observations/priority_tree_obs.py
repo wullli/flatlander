@@ -63,7 +63,7 @@ class PriorityTreeObsWrapper(ObservationBuilder):
         return norm_obs
 
     def get_many(self, handles: Optional[List[int]] = None):
-        return {k: self.tree_flattener.flatten(root=o[0], handle=k, concat_agent_id=False, agent_info=o[1])
+        return {k: self.tree_flattener.flatten(root=o, handle=k, concat_agent_id=False)
                 for k, o in self._builder.get_many(handles).items() if o is not None}
 
     def util_print_obs_subtree(self, tree):

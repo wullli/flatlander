@@ -13,11 +13,12 @@ class FixedTreeFlattener(TreeFlattener):
     _num_agents_keys = ['malfunctions']
     _max_branch_length = 25
 
-    def __init__(self, tree_depth=2, max_nr_nodes=None, observation_dim=None):
+    def __init__(self, tree_depth=2, max_nr_nodes=None, observation_dim=None, search_strategy="dfs"):
         super().__init__()
         self.tree_depth = tree_depth
         self.max_nr_nodes = max_nr_nodes
         self.observation_dim = observation_dim
+        self.search_strategy = search_strategy
         self._available_actions = [RailEnvActions.MOVE_FORWARD,
                                    RailEnvActions.DO_NOTHING,
                                    RailEnvActions.MOVE_LEFT,
@@ -51,6 +52,31 @@ class FixedTreeFlattener(TreeFlattener):
 
         return normalized_obs
 
+    def bfs(self, node: Any,
+            node_observations: np.ndarray, current_level=1, abs_pos=0):
+        """
+        Depth first search, as operation should be used the inference
+        :param abs_pos: absolute index in flat obs vector
+        :param current_level: current level of node in the tree (how deep)
+        :param node_observations: accumulated obs vectors of nodes
+        :param node: current node
+        """
+        node_obs = self._get_node_features(node)
+        node_observations[abs_pos, :] = node_obs
+        abs_pos += 1
+
+        for action in self._available_actions:
+            filtered = list(filter(lambda k: k == RailEnvActions.to_char(action.value), node.childs.keys()))
+            if len(filtered) == 1 and not isinstance(node.childs[filtered[0]], float):
+                abs_pos = self.bfs(node.childs[filtered[0]],
+                                   node_observations,
+                                   current_level=current_level + 1,
+                                   abs_pos=abs_pos)
+            elif current_level != self.tree_depth:
+                abs_pos += self._count_missing_nodes(current_level + 1)
+
+        return abs_pos
+
     def dfs(self, node: Any,
             node_observations: np.ndarray, current_level=1, abs_pos=0):
         """
@@ -80,32 +106,12 @@ class FixedTreeFlattener(TreeFlattener):
             missing_nodes += np.power(len(self._available_actions), i)
         return missing_nodes
 
-    def normalize_agent_info(self, agent_info):
-        positions_distances = norm_obs_clip(np.concatenate([v for k, v in agent_info.items()
-                                                            if k in self._pos_dist_keys]),
-                                            fixed_radius=100)
-        num_agents = np.clip(np.concatenate([v for k, v in agent_info.items()
-                                             if k in self._num_agents_keys]), -1, 1)
-        remaining = np.concatenate([v for k, v in agent_info.items()
-                                    if k not in self._num_agents_keys and k not in self._pos_dist_keys])
-        return np.concatenate([positions_distances, num_agents, remaining])
+    def flatten(self, root: Any):
+        padded_observations = np.full(shape=(self.max_nr_nodes, self.observation_dim,),
+                                      fill_value=FixedTreeObservation.PAD_VALUE)
+        self._search_strats[self.search_strategy](self, root, padded_observations)
+        padded_observations = np.clip(padded_observations, -1, np.inf)
+        assert not np.any(padded_observations == np.inf)
+        return padded_observations
 
-    def flatten(self, root: Any, agent_info=None):
-        data = []
-        for k, node in root.items():
-            padded_observations = np.full(shape=(int(self.max_nr_nodes / len(root.values())), self.observation_dim,),
-                                          fill_value=FixedTreeObservation.PAD_VALUE)
-            if node != -np.inf:
-                self.dfs(node, padded_observations)
-
-            padded_observations = np.clip(padded_observations, -1, np.inf)
-            assert not np.any(padded_observations == np.inf)
-            data.append(padded_observations)
-
-        data = np.concatenate(data)
-
-        if agent_info is not None:
-            agent_info = self.normalize_agent_info(agent_info=agent_info)
-            return data, agent_info
-
-        return data
+    _search_strats = {"bfs": bfs, "dfs": dfs}

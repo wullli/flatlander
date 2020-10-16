@@ -37,6 +37,9 @@ class FlatlandSparse(FlatlandBase):
         self._observation = make_obs(env_config['observation'], env_config.get('observation_config'))
         self._config = get_generator_config(env_config['generator_config'])
 
+        if env_config.get('number_of_agents', None) is not None:
+            self._config['number_of_agents'] = env_config['number_of_agents']
+
         # Overwrites with env_config seed if it exists
         if env_config.get('seed'):
             self._config['seed'] = env_config.get('seed')

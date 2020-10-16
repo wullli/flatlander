@@ -124,7 +124,7 @@ class PriorityTreeObs(ObservationBuilder):
                                                    neighbors=self._conflict_map)
 
             for handle, obs in obs_dict.items():
-                obs[1]['priority'] = [priorities[handle]]
+                obs._replace(dist_own_target_encountered=priorities[handle])
 
         return obs_dict
 
@@ -224,14 +224,26 @@ class PriorityTreeObs(ObservationBuilder):
         num_transitions = np.count_nonzero(possible_transitions)
 
         # Here information about the agent itself is stored
+        distance_map = self.env.distance_map.get()
+        agent_not_started = int(agent.status.value == RailAgentStatus.READY_TO_DEPART.value)
 
-        top_level_nodes = {}
+        # TODO: this is hacky, find a better way
+        root_node_observation = Node(dist_own_target_encountered=0,
+                                     dist_other_target_encountered=0,
+                                     own_target_encountered=0,
+                                     shortest_path_direction=0,
+                                     dist_other_agent_encountered=0, dist_potential_conflict=0,
+                                     dist_unusable_switch=0, dist_to_next_branch=0,
+                                     dist_min_to_target=distance_map[
+                                         (handle, *agent_virtual_position,
+                                          agent.direction)],
+                                     num_agents_same_direction=0, num_agents_opposite_direction=0,
+                                     num_agents_malfunctioning=agent.malfunction_data['malfunction'],
+                                     num_agents_ready_to_depart=agent_not_started,
+                                     childs={})
 
         visited = OrderedSet()
 
-        # Start from the current orientation, and see which transitions are available;
-        # organize them as [left, forward, right, back], relative to the current orientation
-        # If only one transition is possible, the tree is oriented with this transition as the forward branch.
         orientation = agent.direction
 
         if num_transitions == 1:
@@ -246,7 +258,7 @@ class PriorityTreeObs(ObservationBuilder):
                 new_cell = get_new_position(agent_virtual_position, branch_direction)
 
                 branch_observation, branch_visited, ch = self._explore_branch(handle, new_cell, branch_direction, 1, 1)
-                top_level_nodes[self.tree_explored_actions_char[i]] = branch_observation
+                root_node_observation.childs[self.tree_explored_actions_char[i]] = branch_observation
 
                 visited |= branch_visited
 
@@ -255,24 +267,22 @@ class PriorityTreeObs(ObservationBuilder):
                     conflict_handle = ch
             else:
                 # add cells filled with infinity if no transition is possible
-                top_level_nodes[self.tree_explored_actions_char[i]] = -np.inf
+                root_node_observation.childs[self.tree_explored_actions_char[i]] = -np.inf
         self.env.dev_obs_dict[handle] = visited
 
         if conflict_handle is not None:
             self._conflict_map[handle].append(conflict_handle)
 
-        agent_info = self._get_agent_info(agent, agent_virtual_position)
-
-        nodes = [n for n in top_level_nodes.values() if n != -np.inf]
+        nodes = [n for n in root_node_observation.childs.values() if n != -np.inf]
 
         for i in range(self.max_depth):
             if len(nodes) < 1:
                 break
             shortest_path_node = min(nodes, key=lambda n: n.dist_min_to_target)
-            shortest_path_node._replace(shortest_path_direction = 1.)
+            shortest_path_node._replace(shortest_path_direction=1.)
             nodes = [n for n in shortest_path_node.childs.values() if n != -np.inf]
 
-        return top_level_nodes, agent_info
+        return root_node_observation
 
     def _get_agent_info(self, agent, agent_position):
         priority = 0.

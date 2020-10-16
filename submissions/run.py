@@ -16,7 +16,7 @@ from timeit import default_timer as timer
 tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()
 
-TUNE = True
+TUNE = False
 TIME_LIMIT = 60*60*7.75
 
 
@@ -28,8 +28,7 @@ def evaluate(config, run):
     evaluation_number = 0
     total_reward = 0
     all_rewards = []
-
-    agent = get_agent(config, run)
+    n_agents = 0
 
     while True:
         if timer() - start_time > TIME_LIMIT:
@@ -40,6 +39,10 @@ def evaluate(config, run):
 
         if not observation:
             break
+
+        if remote_client.env.get_num_agents() != n_agents:
+            agent = get_agent(config, run,  remote_client.env.get_num_agents())
+            n_agents = remote_client.env.get_num_agents()
 
         if TUNE and remote_client.env.get_num_agents() > 10:
             agent = fine_tune(config, run, env=remote_client.env)
@@ -54,9 +57,7 @@ def evaluate(config, run):
         while True:
             if not check_if_all_blocked(env=remote_client.env):
 
-                obs_batch = np.array(list(observation.values()))
-                action_batch = agent.get_policy().compute_actions(obs_batch, explore=False)
-                actions = dict(zip(observation.keys(), action_batch[0]))
+                actions = agent.compute_actions(observation, explore=False)
 
                 observation, all_rewards, done, info = remote_client.env_step(actions)
                 steps += 1

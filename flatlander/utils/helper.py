@@ -21,7 +21,8 @@ print("***** NUM CPUS AVAILABLE:", n_cpu, "*****")
 def init_run():
     run = RUN
     print("RUNNING", RUN)
-    with open(os.path.join(os.path.dirname(run["checkpoint_path"]), "config.yaml")) as f:
+
+    with open(os.path.join(os.path.dirname(run["checkpoint_paths"][1]), "config.yaml")) as f:
         config = yaml.safe_load(f)
 
     load_envs(os.path.abspath(
@@ -33,9 +34,10 @@ def init_run():
     return config, run
 
 
-def get_agent(config, run) -> Trainer:
+def get_agent(config, run, n_agents) -> Trainer:
     agent = run["agent"](config=config)
-    agent.restore(run["checkpoint_path"])
+    n_agents = min(18, n_agents)
+    agent.restore(run["checkpoint_paths"][n_agents])
     return agent
 
 

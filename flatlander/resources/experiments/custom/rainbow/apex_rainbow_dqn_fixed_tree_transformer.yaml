@@ -9,8 +9,8 @@ flatland-sparse-fixed-tree-transformer-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 4
-        num_envs_per_worker: 4
+        num_workers: 3
+        num_envs_per_worker: 5
         num_gpus: 1
 
         n_step: 10
@@ -28,6 +28,7 @@ flatland-sparse-fixed-tree-transformer-apex:
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
+                search_strategy: bfs
 
             generator: sparse_rail_generator
             generator_config: small_v0

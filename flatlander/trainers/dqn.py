@@ -1,4 +1,5 @@
 import gym
+import numpy as np
 from ray.rllib import Policy, TFPolicy
 from ray.rllib.agents.dqn.apex import ApexTrainer
 from ray.rllib.agents.dqn.dqn_tf_policy import DQNTFPolicy, ComputeTDErrorMixin
@@ -8,7 +9,6 @@ from ray.rllib.utils.typing import TrainerConfigDict
 from ray.tune import register_trainable
 
 tf1, tf, tfv = try_import_tf()
-import numpy as np
 
 
 @DeveloperAPI
@@ -64,13 +64,11 @@ WarmupDQNTFPolicy = DQNTFPolicy.with_updates(
         TransformerLearningRateSchedule,
     ])
 
-ApexWarmupTrainer = ApexTrainer.with_updates(
-    name="APEXWarmup",
-    default_policy=WarmupDQNTFPolicy,
-    get_policy_class=lambda c: WarmupDQNTFPolicy
-)
-
 register_trainable(
     "APEXWarmup",
-    ApexWarmupTrainer
+    ApexTrainer.with_updates(
+        name="APEXWarmupTrainer",
+        default_policy=WarmupDQNTFPolicy,
+        get_policy_class=lambda c: WarmupDQNTFPolicy
+    ),
 )

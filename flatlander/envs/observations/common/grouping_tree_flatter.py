@@ -18,7 +18,7 @@ class GroupingTreeFlattener(TreeFlattener):
     def _split_node_into_feature_groups(node: Any) -> (np.ndarray, np.ndarray, np.ndarray):
         data = np.zeros(6)
         distance = np.zeros(1)
-        agent_data = np.zeros(3)
+        agent_data = np.zeros(4)
 
         data[0] = node.dist_own_target_encountered
         data[1] = node.dist_other_target_encountered
@@ -32,6 +32,7 @@ class GroupingTreeFlattener(TreeFlattener):
         agent_data[0] = node.num_agents_same_direction
         agent_data[1] = node.num_agents_opposite_direction
         agent_data[2] = node.num_agents_malfunctioning
+        agent_data[3] = node.speed_min_fractional
 
         return data, distance, agent_data
 
@@ -42,7 +43,7 @@ class GroupingTreeFlattener(TreeFlattener):
             # reference: https://stackoverflow.com/questions/515214/total-number-of-nodes-in-a-tree-data-structure
             num_remaining_nodes = int((4 ** (remaining_depth + 1) - 1) / (4 - 1))
             return [-np.inf] * num_remaining_nodes * 6, [-np.inf] * num_remaining_nodes, [
-                -np.inf] * num_remaining_nodes * 3
+                -np.inf] * num_remaining_nodes * 4
 
         data, distance, agent_data = self._split_node_into_feature_groups(node)
 

@@ -31,22 +31,11 @@ agent_map = {"sac": sac.SACTrainer,
 
 SUBMISSIONS = {
     "apex_dqn_1": {
-        "checkpoint_path": os.path.abspath(
+        "checkpoint_paths": {n_agents: os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         "model_checkpoints/apex_dqn_small_v0/checkpoint_119/checkpoint-119")),
+                         f"model_checkpoints/apex_dqn_small_v0/{n_agents}_agents/checkpoint_119/checkpoint-119"))
+            for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
         "agent": agent_map["apex"]
-    },
-    "sac_small_v0": {
-        "checkpoint_path": os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         "model_checkpoints/sac_small_v0/checkpoint-51089/checkpoint-51089")),
-        "agent": agent_map["sac"]
-    },
-    "ttf_1": {
-        "checkpoint_path": os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         "model_checkpoints/tree_tf_1/checkpoint_5860_scaling/checkpoint-5860")),
-        "agent": agent_map["sac"]
     }}
 
 RUN = SUBMISSIONS["apex_dqn_1"]

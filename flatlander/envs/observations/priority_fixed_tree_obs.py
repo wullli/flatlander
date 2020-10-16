@@ -22,20 +22,20 @@ class PriorityFixedTreeObservation(Observation):
                 max_depth=config['max_depth'],
                 predictor=ShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
             ),
+            search_strategy=config.get('search_strategy', 'dfs')
         )
 
     def builder(self) -> ObservationBuilder:
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        return gym.spaces.Tuple((gym.spaces.Box(low=-1, high=1, shape=(self._builder.max_nr_nodes,
-                                                                       self._builder.observation_dim,)),
-                                 gym.spaces.Box(low=-1, high=1, shape=(12,))))
+        return gym.spaces.Box(low=-1, high=1, shape=(self._builder.max_nr_nodes,
+                                                     self._builder.observation_dim,))
 
 
 class PriorityFixedTreeObsWrapper(ObservationBuilder):
 
-    def __init__(self, tree_obs_builder: PriorityTreeObs):
+    def __init__(self, tree_obs_builder: PriorityTreeObs, search_strategy: str = 'dfs'):
         super().__init__()
         self._builder = tree_obs_builder
         self.max_nr_nodes = 0
@@ -45,7 +45,8 @@ class PriorityFixedTreeObsWrapper(ObservationBuilder):
 
         self._flattener = FixedTreeFlattener(tree_depth=tree_obs_builder.max_depth,
                                              max_nr_nodes=self.max_nr_nodes,
-                                             observation_dim=self._builder.observation_dim)
+                                             observation_dim=self._builder.observation_dim,
+                                             search_strategy=search_strategy)
 
     @property
     def observation_dim(self):
@@ -56,10 +57,10 @@ class PriorityFixedTreeObsWrapper(ObservationBuilder):
 
     def get(self, handle: int = 0):
         obs: Node = self._builder.get(handle)
-        return self._flattener.flatten(root=obs[0], agent_info=obs[1])
+        return self._flattener.flatten(root=obs)
 
     def get_many(self, handles: Optional[List[int]] = None):
-        result = {k: self._flattener.flatten(root=o[0], agent_info=o[1])
+        result = {k: self._flattener.flatten(root=o)
                   for k, o in self._builder.get_many(handles).items() if o is not None}
         return result
 
