@@ -75,12 +75,16 @@ class FlatlanderCLI(object):
         if "-g" in sys.argv[2:]:
             cmd_prefix += ' --gpus all'
 
+        if not "-noresults" in sys.argv[2:]:
+            + ' -v ' + str(out_dir) + ':/home/$USER/ray_results '
         cmd = cmd_prefix \
-              + ' -v ' + str(out_dir) + ':/home/$USER/ray_results ' \
               + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c \'pip install -e /src && wandb login ' \
                                          '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
                                          'python3 /src/flatlander/entrypoints/experiment.py ' \
-              + " ".join(filter(lambda arg: arg != "-d" and arg != "-g", sys.argv[2:])) + ' \''
+              + " ".join(filter(lambda arg: arg != "-d"
+                                            and arg != "-noresults"
+                                            and arg != "-g",
+                                sys.argv[2:])) + ' \''
         os.system(cmd)
 
     @staticmethod
@@ -104,12 +108,16 @@ class FlatlanderCLI(object):
         if "-g" in sys.argv[2:]:
             cmd_prefix += ' --gpus all'
 
+        if not "-noresults" in sys.argv[2:]:
+            + ' -v ' + str(out_dir) + ':/home/$USER/ray_results '
         cmd = cmd_prefix \
-              + ' -v ' + str(out_dir) + ':/home/$USER/ray_results ' \
               + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c \'pip install -e /src && wandb login ' \
                                          '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
                                          'python3 /src/flatlander/entrypoints/experiments.py ' \
-              + " ".join(filter(lambda arg: arg != "-d" and arg != "-g", sys.argv[2:])) + ' \''
+              + " ".join(filter(lambda arg: arg != "-d"
+                                            and arg != "-noresults"
+                                            and arg != "-g",
+                                sys.argv[2:])) + ' \''
         os.system(cmd)
 
     @staticmethod
