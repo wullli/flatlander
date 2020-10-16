@@ -1,4 +1,4 @@
-flatland-sparse-small-tree-fc-apex-global:
+flatland-sparse-small-tree-fc-rainbow-apex:
     run: APEX
     env: flatland_sparse
     stop:
@@ -9,8 +9,8 @@ flatland-sparse-small-tree-fc-apex-global:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 5
-        num_envs_per_worker: 5
+        num_workers: 4
+        num_envs_per_worker: 4
         num_gpus: 1
         lr: 0.0001
 
@@ -21,6 +21,8 @@ flatland-sparse-small-tree-fc-apex-global:
         v_max: 0
         dueling: True
         double_q: True
+
+        buffer_size: 50000
 
         env_config:
             observation: tree

@@ -1,4 +1,4 @@
-flatland-sparse-fixed-tree-transformer-apex:
+flatland-sparse-fixed-prio-tree-transformer-rainbow-apex:
     run: APEXWarmup
     env: flatland_sparse
     stop:
@@ -9,8 +9,8 @@ flatland-sparse-fixed-tree-transformer-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 7
-        num_envs_per_worker: 5
+        num_workers: 4
+        num_envs_per_worker: 4
         num_gpus: 1
 
         n_step: 10
@@ -20,6 +20,8 @@ flatland-sparse-fixed-tree-transformer-apex:
         v_max: 0
         dueling: True
         double_q: True
+
+        buffer_size: 50000
 
         env_config:
             observation: priority_fixed_tree
