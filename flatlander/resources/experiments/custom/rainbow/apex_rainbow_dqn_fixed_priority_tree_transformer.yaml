@@ -3,14 +3,14 @@ flatland-sparse-fixed-prio-tree-transformer-rainbow-apex:
     env: flatland_sparse
     stop:
         timesteps_total: 15000000  # 15e6
-    checkpoint_freq: 10
+    checkpoint_freq: 1
     checkpoint_at_end: True
-    keep_checkpoints_num: 5
+    keep_checkpoints_num: 1
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 0
-        num_envs_per_worker: 0
+        num_workers: 7
+        num_envs_per_worker: 5
         num_gpus: 1
 
         n_step: 10
@@ -45,8 +45,8 @@ flatland-sparse-fixed-prio-tree-transformer-rainbow-apex:
             custom_model_config:
                 transformer:
                     hidden_layers:
-                        - 256
-                        - 256
+                        - 512
+                        - 512
                     encoder_layer_neurons: 512
                     num_encoder_layers: 2
                     num_heads: 12
