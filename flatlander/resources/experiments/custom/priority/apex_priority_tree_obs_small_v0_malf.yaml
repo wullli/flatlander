@@ -24,6 +24,9 @@ flatland-sparse-small-malf-priority_tree_obs-fc-apex:
             generator: sparse_rail_generator
             generator_config: small_v0_malf
 
+            skip_no_choice_cells: True
+            accumulate_skipped_rewards: True
+
             wandb:
                 project: flatland
                 entity: wullli
