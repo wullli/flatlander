@@ -1,4 +1,4 @@
-flatland-sparse-small-tree-fc-apex-global:
+flatland-sparse-small-tree-fc-apex-seq-rainbow:
     run: APEX
     env: flatland_sparse
     stop:
@@ -35,7 +35,7 @@ flatland-sparse-small-tree-fc-apex-global:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "global_reward"]
+                tags: ["small_v0", "tree_obs", "apex", "seq", "rainbow"]
 
         model:
             fcnet_activation: relu
