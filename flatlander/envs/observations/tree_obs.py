@@ -16,6 +16,7 @@ class TreeObservation(Observation):
     def __init__(self, config) -> None:
         super().__init__(config)
         self._concat_agent_id = config.get('concat_agent_id', False)
+        self._concat_status = config.get('concat_status', False)
         self._num_agents = config.get('num_agents', 5)
         self._builder = TreeObsForRailEnvRLLibWrapper(
             TreeObsForRailEnv(
@@ -24,6 +25,7 @@ class TreeObservation(Observation):
             ),
             config.get('normalize_fixed', None),
             self._concat_agent_id,
+            self._concat_status,
             self._num_agents
         )
 
@@ -38,18 +40,26 @@ class TreeObservation(Observation):
         dim = num_features_per_node * nr_nodes
         if self._concat_agent_id:
             dim += self._num_agents
+        if self._concat_status:
+            dim += 4
         return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim,))
 
 
 class TreeObsForRailEnvRLLibWrapper(ObservationBuilder):
 
-    def __init__(self, tree_obs_builder: TreeObsForRailEnv, normalize_fixed=None, concat_agent_id=False, num_agents=5):
+    def __init__(self, tree_obs_builder: TreeObsForRailEnv,
+                 normalize_fixed=None,
+                 concat_agent_id=False,
+                 concat_status=False,
+                 num_agents=5):
         super().__init__()
         self._builder = tree_obs_builder
         self._concat_agent_id = concat_agent_id
+        self._concat_status = concat_status
         self.tree_flatter = GroupingTreeFlattener(normalize_fixed=normalize_fixed,
                                                   num_agents=num_agents,
-                                                  tree_depth=self._builder.max_depth)
+                                                  tree_depth=self._builder.max_depth,
+                                                  builder=self._builder)
 
     @property
     def observation_dim(self):
@@ -65,7 +75,9 @@ class TreeObsForRailEnvRLLibWrapper(ObservationBuilder):
         return norm_obs
 
     def get_many(self, handles: Optional[List[int]] = None):
-        return {k: self.tree_flatter.flatten(root=o, handle=k, concat_agent_id=self._concat_agent_id)
+        return {k: self.tree_flatter.flatten(root=o, handle=k,
+                                             concat_status=self._concat_status,
+                                             concat_agent_id=self._concat_agent_id)
                 for k, o in self._builder.get_many(handles).items() if o is not None}
 
     def util_print_obs_subtree(self, tree):
