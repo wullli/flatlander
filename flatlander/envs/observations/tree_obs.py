@@ -41,7 +41,7 @@ class TreeObservation(Observation):
         if self._concat_agent_id:
             dim += self._num_agents
         if self._concat_status:
-            dim += 4
+            dim += 1
         return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim,))
 
 

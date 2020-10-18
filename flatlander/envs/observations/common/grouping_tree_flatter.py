@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 import numpy as np
 from flatland.core.env_observation_builder import ObservationBuilder
+from flatland.envs.agent_utils import RailAgentStatus
 from flatland.envs.observations import TreeObsForRailEnv
 
 from flatlander.envs.observations.common.tree_flatter import TreeFlattener
@@ -106,8 +107,7 @@ class GroupingTreeFlattener(TreeFlattener):
             obs = np.concatenate([obs, agent_one_hot])
 
         if concat_status:
-            status_one_hot = np.zeros(4)
-            status_one_hot[self.builder.env.agents[handle].status.value] = 1
-            obs = np.concatenate([obs, status_one_hot])
+            status = self.builder.env.agents[handle].status.value == RailAgentStatus.READY_TO_DEPART.value
+            obs = np.concatenate([[status], obs])
 
         return obs
