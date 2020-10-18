@@ -60,8 +60,10 @@ class FlatlandSparse(FlatlandBase):
             render=env_config.get('render'),
             regenerate_rail_on_reset=self._config['regenerate_rail_on_reset'],
             regenerate_schedule_on_reset=self._config['regenerate_schedule_on_reset'],
-            config=env_config
+            config=env_config,
+            allow_noop=env_config.get('allow_noop', True)
         )
+
         if env_config['observation'] in self._sp_action_needed:
             self._env = ShortestPathActionWrapper(self._env)
         if env_config.get('sparse_reward', False):

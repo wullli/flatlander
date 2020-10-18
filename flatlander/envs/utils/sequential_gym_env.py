@@ -8,8 +8,6 @@ from flatlander.envs.utils.gym_env import StepOutput
 
 
 class SequentialFlatlandGymEnv(gym.Env):
-    action_space = gym.spaces.Discrete(5)
-
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second': 10,
@@ -20,9 +18,11 @@ class SequentialFlatlandGymEnv(gym.Env):
                  rail_env: RailEnv,
                  observation_space: gym.spaces.Space,
                  regenerate_rail_on_reset: bool = True,
+                 allow_noop: bool = True,
                  regenerate_schedule_on_reset: bool = True, **_) -> None:
         super().__init__()
         self._agents_done = []
+        self._allow_noop = allow_noop
         self._agent_scores = defaultdict(float)
         self._agent_steps = defaultdict(int)
         self._regenerate_rail_on_reset = regenerate_rail_on_reset
@@ -31,11 +31,18 @@ class SequentialFlatlandGymEnv(gym.Env):
         self.observation_space = observation_space
         self._current_handle = 0
         self._num_agents = self.rail_env.get_num_agents()
+        if allow_noop:
+            self.action_space = gym.spaces.Discrete(5)
+        else:
+            self.action_space = gym.spaces.Discrete(4)
 
     def step(self, action: Dict[int, RailEnvActions]) -> StepOutput:
         action_dict = {h: RailEnvActions.STOP_MOVING.value for h in range(self._num_agents)
                        if h not in self._agents_done}
-        action_dict[self._current_handle] = action[self._current_handle]
+        if self._allow_noop:
+            action_dict[self._current_handle] = action[self._current_handle]
+        else:
+            action_dict[self._current_handle] = action[self._current_handle] + 1
 
         obs, rewards, dones, infos = self.rail_env.step(action_dict)
 
