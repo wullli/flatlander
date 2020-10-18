@@ -1,8 +1,8 @@
-flatland-sparse-small-tree-fc-apex:
+flatland-sparse-small-tree-fc-apex-seq-rainbow:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 5000000 # 5e6
+        timesteps_total: 15000000 # 2e7
     checkpoint_freq: 10
     checkpoint_at_end: True
     keep_checkpoints_num: 5
@@ -17,16 +17,21 @@ flatland-sparse-small-tree-fc-apex:
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
+                concat_status: True
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: medium_v0
+
+            gym_env: sequential
 
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "baseline"]
+                tags: ["small_v0", "tree_obs", "apex", "seq", "rainbow"]
 
         model:
             fcnet_activation: relu
-            fcnet_hiddens: [256, 256]
+            fcnet_hiddens: [256, 256, 256]
             vf_share_layers: True
+
+
