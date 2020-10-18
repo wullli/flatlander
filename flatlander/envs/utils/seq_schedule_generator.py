@@ -31,5 +31,5 @@ class SequentialSparseSchedGen(SparseSchedGen):
         :return: Returns the generator to the rail constructor
         """
         schedule = super().generate(rail, num_agents, hints, num_resets, np_random)
-        schedule._replace(max_episode_steps=schedule.max_episode_steps * num_agents)
+        schedule = schedule._replace(max_episode_steps=schedule.max_episode_steps * num_agents)
         return schedule
