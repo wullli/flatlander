@@ -12,6 +12,14 @@ flatland-sparse-small-tree-fc-apex-seq-rainbow:
         num_envs_per_worker: 5
         num_gpus: 1
 
+        n_step: 10
+        noisy: True
+        num_atoms: 10
+        v_min: -100
+        v_max: 0
+        dueling: True
+        double_q: True
+
         env_config:
             observation: tree
             observation_config:

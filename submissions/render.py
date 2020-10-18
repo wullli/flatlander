@@ -3,14 +3,10 @@ from time import sleep
 
 import numpy as np
 from flatland.envs.malfunction_generators import NoMalfunctionGen
-from flatland.envs.observations import TreeObsForRailEnv
-from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatland.utils.rendertools import RenderTool
-
-from flatlander.envs.observations.tree_obs import TreeObsForRailEnvRLLibWrapper
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -57,7 +53,7 @@ def render(config, run):
     env = get_env()
     env_renderer = RenderTool(env)
 
-    agent = get_agent(config, run)
+    agent = get_agent(config, run, 5)
 
     while True:
 
@@ -73,8 +69,9 @@ def render(config, run):
             obs_batch = np.array(list(obs.values()))
             action_batch = agent.get_policy().compute_actions(obs_batch, explore=False)
             actions = dict(zip(obs.keys(), action_batch[0]))
-
-            obs, all_rewards, done, info = env.step(actions)
+            actions_new = {h: 4 for h in actions.keys()}
+            actions_new[0] = actions[0]
+            obs, all_rewards, done, info = env.step(actions_new)
             env_renderer.render_env(show=True, frames=True, show_observations=False)
             steps += 1
 
