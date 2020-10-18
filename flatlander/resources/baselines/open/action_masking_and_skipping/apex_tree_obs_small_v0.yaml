@@ -9,7 +9,7 @@ apex-tree-obs-small-v0:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
-        num_workers: 5
+        num_workers: 7
         num_envs_per_worker: 5
         num_gpus: 1
 
@@ -31,17 +31,3 @@ apex-tree-obs-small-v0:
             fcnet_activation: relu
             fcnet_hiddens: [256, 256]
             vf_share_layers: True  # False
-
-        evaluation_num_workers: 2
-        evaluation_interval: 100
-        evaluation_num_episodes: 100
-        evaluation_config:
-            explore: False
-            env_config:
-                observation: tree
-                observation_config:
-                    max_depth: 2
-                    shortest_path_max_depth: 30
-                regenerate_rail_on_reset: True
-                regenerate_schedule_on_reset: True
-                render: False

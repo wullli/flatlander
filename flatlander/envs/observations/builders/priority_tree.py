@@ -124,7 +124,7 @@ class PriorityTreeObs(ObservationBuilder):
                                                    neighbors=self._conflict_map)
 
             for handle, obs in obs_dict.items():
-                obs._replace(dist_own_target_encountered=priorities[handle])
+                obs = obs._replace(dist_own_target_encountered=priorities[handle])
 
         return obs_dict
 
@@ -279,7 +279,7 @@ class PriorityTreeObs(ObservationBuilder):
             if len(nodes) < 1:
                 break
             shortest_path_node = min(nodes, key=lambda n: n.dist_min_to_target)
-            shortest_path_node._replace(shortest_path_direction=1.)
+            shortest_path_node = shortest_path_node._replace(shortest_path_direction=1.)
             nodes = [n for n in shortest_path_node.childs.values() if n != -np.inf]
 
         return root_node_observation
