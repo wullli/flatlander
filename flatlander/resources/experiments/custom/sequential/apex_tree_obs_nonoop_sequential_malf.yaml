@@ -9,10 +9,11 @@ flatland-sparse-small-tree-fc-apex-seq-nonoop:
     checkpoint_score_attr: episode_reward_mean
     config:
         num_workers: 7
-        num_envs_per_worker: 6
+        num_envs_per_worker: 5
         num_gpus: 1
 
         env_config:
+            number_of_agents: 10
             observation: tree
             observation_config:
                 max_depth: 2

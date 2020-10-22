@@ -13,7 +13,6 @@ flatland-sparse-small-tree-fc-apex-seq-rainbow:
         num_gpus: 1
 
         env_config:
-            number_of_agents: 10
             observation: tree
             observation_config:
                 max_depth: 2
@@ -21,7 +20,7 @@ flatland-sparse-small-tree-fc-apex-seq-rainbow:
                 concat_status: True
 
             generator: sparse_rail_generator
-            generator_config: small_v0_malf
+            generator_config: medium_v0
 
             gym_env: sequential
 
