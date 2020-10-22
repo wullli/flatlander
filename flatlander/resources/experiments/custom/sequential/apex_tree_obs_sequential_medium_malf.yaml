@@ -21,7 +21,7 @@ flatland-sparse-small-tree-fc-apex-seq-rainbow:
                 concat_status: True
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: small_v0_malf
 
             gym_env: sequential
 
