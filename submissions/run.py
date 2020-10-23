@@ -31,6 +31,7 @@ def evaluate(config, run):
     total_reward = 0
     all_rewards = []
     n_agents = 0
+    agent = None
 
     while True:
         if timer() - start_time > TIME_LIMIT:

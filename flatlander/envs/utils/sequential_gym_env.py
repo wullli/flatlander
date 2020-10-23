@@ -62,7 +62,8 @@ class SequentialFlatlandGymEnv(gym.Env):
             r[agent] = rewards[agent]
             d[agent] = dones[agent]
             self._agent_scores[agent] += rewards[agent]
-            self._agent_steps[agent] += 1
+            if not d[agent]:
+                self._agent_steps[agent] += 1
 
         d['__all__'] = dones['__all__']
         self._agents_done.extend(new_dones)

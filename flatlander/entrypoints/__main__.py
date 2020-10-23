@@ -13,7 +13,7 @@ class FlatlanderCLI(object):
             
                      Valid commands:
                      
-                     baselines:     execute baseline algorithms
+                     unused_baselines:     execute baseline algorithms
                      experiment:    run a yaml experiment
                      rebuild:       build the docker image from scratch
                      build:         build the docker image using cache''')
@@ -50,7 +50,7 @@ class FlatlanderCLI(object):
               + ' -v ' + str(out_dir) + ':/home/$USER/ray_results ' \
               + ' -v ' + str(repo_dir) + ':/src -it fl:latest bash -c "pip install -e /src && wandb login ' \
                                          '319a2411b4ecd4527410bb49e84d0b8398bed6bc && ' \
-                                         'python3 /src/flatlander/entrypoints/baselines.py ' \
+                                         'python3 /src/flatlander/entrypoints/unused_baselines.py ' \
               + " ".join(filter(lambda arg: arg != "-d" and arg != "-g", sys.argv[2:])) + ' "'
         os.system(cmd)
 

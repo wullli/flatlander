@@ -1,0 +1,64 @@
+sparse-mask-ppo-tree-obs-small-v0:
+    run: PPO
+    env: flatland_sparse
+    stop:
+        timesteps_total: 15000000  # 1.5e7
+    checkpoint_freq: 10
+    checkpoint_at_end: True
+    keep_checkpoints_num: 5
+    checkpoint_score_attr: episode_reward_mean
+    num_samples: 3
+    config:
+        num_workers: 5
+        num_envs_per_worker: 5
+        num_gpus: 1
+        gamma: 0.99
+
+        clip_rewards: False
+        vf_clip_param: 500.0
+        entropy_coeff: 0.01
+        # effective batch_size: train_batch_size * num_agents_in_each_environment [5, 10]
+        # see https://github.com/ray-project/ray/issues/4628
+        train_batch_size: 1000  # 5000
+        rollout_fragment_length: 50  # 100
+        sgd_minibatch_size: 100  # 500
+        vf_share_layers: False
+
+        env_config:
+            observation: tree
+            observation_config:
+                max_depth: 2
+                shortest_path_max_depth: 30
+
+            generator: sparse_rail_generator
+            generator_config: small_v0_malf
+
+            available_actions_obs: True
+            allow_noop: False
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["small_v0", "tree_obs", "ppo", "mask", "baseline"] # TODO should be set programmatically
+
+        model:
+            custom_model: fully_connected_model
+            custom_model_config:
+                layers: [256, 256]
+                activation: relu
+                layer_norm: False
+                mask_unavailable_actions: True
+
+        evaluation_num_workers: 2
+        evaluation_interval: 100
+        evaluation_num_episodes: 100
+        evaluation_config:
+            explore: False
+            env_config:
+                observation: tree
+                observation_config:
+                    max_depth: 2
+                    shortest_path_max_depth: 30
+                regenerate_rail_on_reset: True
+                regenerate_schedule_on_reset: True
+                render: False
