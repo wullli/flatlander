@@ -8,6 +8,7 @@ from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 
 from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.common.grouping_tree_flatter import GroupingTreeFlattener
+from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
 
 
 @register_obs("tree")
@@ -21,7 +22,7 @@ class TreeObservation(Observation):
         self._builder = TreeObsForRailEnvRLLibWrapper(
             TreeObsForRailEnv(
                 max_depth=config['max_depth'],
-                predictor=ShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
+                predictor=MalfShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
             ),
             config.get('normalize_fixed', None),
             self._concat_agent_id,

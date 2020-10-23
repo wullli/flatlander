@@ -2,7 +2,7 @@ ppo-tree-obs-small-v0-malf:
     run: PPO
     env: flatland_sparse
     stop:
-        timesteps_total: 15000000  # 1.5e7
+        timesteps_total: 1500  # 1.5e7
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 1

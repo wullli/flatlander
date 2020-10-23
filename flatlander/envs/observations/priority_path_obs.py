@@ -109,7 +109,7 @@ class PriorityPathObservationBuilder(ObservationBuilder):
             obs[i * self._path_size:self._path_size * (i + 1)] = np.concatenate([arr for arr in path])
 
         priority = 0.
-        return np.concatenate([obs, [priority, agent_started]])
+        return np.concatenate([obs, [priority, agent.status.value != RailAgentStatus.READY_TO_DEPART]])
 
     def conflict(self, handle, pos, movement):
         conflict_handles = [a.handle for a in self.env.agents

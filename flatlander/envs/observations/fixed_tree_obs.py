@@ -8,6 +8,7 @@ from flatland.envs.observations import TreeObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnvActions
 from flatlander.envs.observations import Observation, register_obs
+from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
 from flatlander.envs.observations.common.utils import _get_small_node_feature_vector, _get_node_feature_vector
 from flatland.envs.observations import Node
 
@@ -20,7 +21,7 @@ class FixedTreeObservation(Observation):
         self._builder = FixedTreeObsWrapper(
             TreeObsForRailEnv(
                 max_depth=config['max_depth'],
-                predictor=ShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
+                predictor=MalfShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
             ),
             small_tree=config.get('small_tree', None),
             search_strategy=config.get('search_strategy', 'dfs')

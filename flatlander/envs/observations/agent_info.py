@@ -7,15 +7,15 @@ from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.common.utils import one_hot
 
 
-@register_obs("bot_coords")
-class BotCoordinatesObservation(Observation):
+@register_obs("agent_info")
+class AgentInfoObservation(Observation):
 
     def __init__(self, config) -> None:
         super().__init__(config)
         self._max_n_agents = config.get('max_n_agents', 5)
         self._concat_handle = config.get('concat_hanlde', False)
-        self._builder = BotCoordinatesBuilder(max_n_agents=self._max_n_agents,
-                                              concat_handle=self._concat_handle)
+        self._builder = AgentInfoBuilder(max_n_agents=self._max_n_agents,
+                                         concat_handle=self._concat_handle)
 
     def builder(self) -> ObservationBuilder:
         return self._builder
@@ -26,7 +26,7 @@ class BotCoordinatesObservation(Observation):
         return gym.spaces.Box(low=-1, high=1, shape=(dim,))
 
 
-class BotCoordinatesBuilder(ObservationBuilder):
+class AgentInfoBuilder(ObservationBuilder):
     def __init__(self, max_n_agents=5, concat_handle=True):
         super().__init__()
         self.max_n_agents = max_n_agents

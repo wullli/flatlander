@@ -28,7 +28,7 @@ class FlatlandSparse(FlatlandBase):
                  "sequential": SequentialFlatlandGymEnv,
                  "global": GlobalFlatlandGymEnv}
 
-    _sp_action_needed = ["priority_path", "path", 'shortest_path']
+    _sp_action_needed = ["priority_path", "path", 'shortest_path', 'shortest_path_priority_conflict']
 
     def __init__(self, env_config, fine_tune_env_path=None, max_steps=None, **kwargs) -> None:
         super().__init__(env_config.get("actions_are_logits", False), max_steps=max_steps)

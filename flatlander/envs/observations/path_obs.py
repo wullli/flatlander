@@ -62,12 +62,12 @@ class PathObservationBuilder(ObservationBuilder):
                 distance = max_distance if (
                         distance == np.inf or np.isnan(distance)) else distance
 
-                conflict = self.conflict(handle, pos, movement)
+                conflict = self.conflict(handle, pos, movement, is_sp=len(possible_steps) == 0)
                 next_possible_moves = self.env.rail.get_transitions(*pos, movement)
                 while np.count_nonzero(next_possible_moves) == 1 and not conflict:
                     movement = np.argmax(next_possible_moves)
                     pos = get_new_position(pos, movement)
-                    conflict = self.conflict(handle, pos, movement)
+                    conflict = self.conflict(handle, pos, movement, is_sp=len(possible_steps) == 0)
                     next_possible_moves = self.env.rail.get_transitions(*pos, movement)
 
                 if self._encode_one_hot:
@@ -84,7 +84,7 @@ class PathObservationBuilder(ObservationBuilder):
 
         return obs
 
-    def conflict(self, handle, pos, movement):
+    def conflict(self, handle, pos, movement, is_sp=True):
         conflict_handles = [a.handle for a in self.env.agents
                             if pos == a.position and a.handle != handle]
         potential_conflicts = []
