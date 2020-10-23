@@ -1,39 +1,36 @@
-flatland-sparse-small-tree-fc-apex-seq-nonoop:
+RESULT_flatland-sparse-small-path_obs-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 15000000 # 2e7
+        timesteps_total: 15000000
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 20
     checkpoint_score_attr: episode_reward_mean
+    num_samples: 3
     config:
         num_workers: 7
         num_envs_per_worker: 5
         num_gpus: 1
 
+        buffer_size: 100000
+
         env_config:
-            number_of_agents: 10
-            observation: tree
+            observation: shortest_path_priority_conflict
             observation_config:
-                max_depth: 2
                 shortest_path_max_depth: 30
-                concat_status: True
 
             generator: sparse_rail_generator
             generator_config: small_v0_malf
 
-            gym_env: sequential
-            allow_noop: False
-
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "seq", "nonoop"]
+                tags: ["small_v0", "apex", "shortest_path_priority_conflict", "malf"]
 
         model:
             fcnet_activation: relu
-            fcnet_hiddens: [256, 256, 256]
-            vf_share_layers: True
+            fcnet_hiddens: [256, 256]
+            vf_share_layers: True  # False
 
 

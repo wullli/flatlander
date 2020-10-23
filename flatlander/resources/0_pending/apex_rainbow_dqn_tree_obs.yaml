@@ -1,11 +1,11 @@
-flatland-sparse-small-priority_tree_obs-fc-apex:
+RESULT_flatland-sparse-small-tree-fc-rainbow-apex:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 15000000
-    checkpoint_freq: 1
+        timesteps_total: 15000000 # 2e7
+    checkpoint_freq: 10
     checkpoint_at_end: True
-    keep_checkpoints_num: 10
+    keep_checkpoints_num: 5
     checkpoint_score_attr: episode_reward_mean
     num_samples: 3
     config:
@@ -13,23 +13,34 @@ flatland-sparse-small-priority_tree_obs-fc-apex:
         num_envs_per_worker: 5
         num_gpus: 1
 
+        n_step: 10
+        noisy: True
+        num_atoms: 10
+        v_min: -2000
+        v_max: 0
+        dueling: True
+        double_q: True
+
+        buffer_size: 100000
+
         env_config:
-            observation: priority_tree
+            observation: tree
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
+                concat_status: True
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: small_v0_malf
 
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "apex", "priority_tree_obs", "skip"]
+                tags: ["small_v0", "tree_obs", "apex", "rainbow"]
 
         model:
             fcnet_activation: relu
             fcnet_hiddens: [256, 256, 256]
-            vf_share_layers: True  # False
+            vf_share_layers: True
 
 

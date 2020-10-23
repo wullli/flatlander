@@ -19,7 +19,15 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
     def __init__(self, obs_space, action_space, num_outputs, model_config,
                  name, **kw):
         super(DqnFixedTreeTransformer, self).__init__(
-            obs_space, action_space, num_outputs, model_config, name, **kw)
+            obs_space, action_space, num_outputs, model_config, name,
+            q_hiddens=kw["q_hiddens"], dueling=kw["dueling"],
+            num_atoms=kw["num_atoms"],
+            use_noisy=kw["use_noisy"],
+            v_min=kw["v_min"],
+            v_max=kw["v_max"],
+            sigma0=kw["sigma0"],
+            add_layer_norm=kw["add_layer_norm"]
+        )
 
         assert isinstance(action_space, gym.spaces.Discrete), \
             "Currently, only 'gym.spaces.Discrete' action spaces are supported."
@@ -92,10 +100,3 @@ class DqnFixedTreeTransformer(DistributionalQTFModel):
         out = self.transformer(x, train_mode=is_training,
                                encoder_mask=encoder_mask)
         return out
-
-    def variables(self, **kwargs):
-        variables = self.transformer.variables \
-                    + self.q_out.variables \
-                    + self.q_value_head.variables \
-                    + self.state_value_head.variables
-        return variables

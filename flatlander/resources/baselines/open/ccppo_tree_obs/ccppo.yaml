@@ -17,11 +17,11 @@ flatland-random-sparse-small-tree-fc-cctransformer:
         rollout_fragment_length: 50  # 100
         sgd_minibatch_size: 100  # 500
         num_sgd_iter: 10
-        num_workers: 4
+        num_workers: 7
         num_envs_per_worker: 5
         batch_mode: complete_episodes
         vf_share_layers: True
-        num_gpus: 0
+        num_gpus: 1
 
         env_config:
             observation: tree

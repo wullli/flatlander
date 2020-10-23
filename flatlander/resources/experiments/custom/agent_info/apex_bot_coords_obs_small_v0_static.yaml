@@ -13,7 +13,7 @@ flatland-sparse-small-static-bot_coords-fc-apex:
         num_gpus: 1
 
         env_config:
-            observation: bot_coords
+            observation: agent_info
             generator: sparse_rail_generator
             generator_config: small_v0_static
 

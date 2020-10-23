@@ -1,6 +1,6 @@
 # to check whether the filling obs can even be used to learn meaningful policies
 flatland-sparse-small-tree-fc-ppo-single:
-    run: PPO
+    run: apex
     env: flatland_single
     stop:
         timesteps_total: 20000000 # 2e7
