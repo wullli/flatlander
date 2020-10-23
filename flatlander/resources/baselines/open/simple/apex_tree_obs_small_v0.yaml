@@ -11,7 +11,7 @@ apex-tree-obs-small-v0-malf:
     config:
         num_workers: 23
         num_envs_per_worker: 5
-        num_gpus: 1
+        num_gpus: 0
 
         env_config:
             observation: tree

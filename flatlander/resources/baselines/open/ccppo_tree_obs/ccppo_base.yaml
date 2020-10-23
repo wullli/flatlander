@@ -21,7 +21,7 @@ flatland-random-sparse-small-tree-fc-cctransformer:
         num_envs_per_worker: 5
         batch_mode: complete_episodes
         vf_share_layers: True
-        num_gpus: 1
+        num_gpus: 0
         env_config:
             observation: tree
             observation_config:

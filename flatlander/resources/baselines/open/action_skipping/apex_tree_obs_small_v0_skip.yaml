@@ -11,7 +11,7 @@ apex-tree-obs-small-v0-skip-malf:
     config:
         num_workers: 23
         num_envs_per_worker: 5
-        num_gpus: 1
+        num_gpus: 0
         gamma: 0.99
 
         env_config:
