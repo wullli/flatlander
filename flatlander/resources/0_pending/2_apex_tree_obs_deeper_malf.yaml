@@ -7,7 +7,7 @@ RESULT_flatland-sparse-small-tree-fc-apex-seq-nonoop:
     checkpoint_at_end: True
     keep_checkpoints_num: 20
     checkpoint_score_attr: episode_reward_min
-    num_gpus: 3
+    num_samples: 3
     config:
         num_workers: 7
         num_envs_per_worker: 5
