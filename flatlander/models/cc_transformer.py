@@ -5,10 +5,9 @@ import numpy as np
 import os
 from typing import Tuple
 import tensorflow as tf
-from ray.rllib.agents.maml.maml_tf_policy import PPOLoss
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from ray.rllib.agents.ppo.ppo import PPOTrainer
-from ray.rllib.agents.ppo.ppo_tf_policy import KLCoeffMixin, PPOTFPolicy
+from ray.rllib.agents.ppo.ppo_tf_policy import KLCoeffMixin, PPOTFPolicy, ppo_surrogate_loss
 from ray.rllib.evaluation.postprocessing import Postprocessing, compute_advantages
 from ray.rllib.policy.sample_batch import SampleBatch
 from ray.rllib.policy.tf_policy import EntropyCoeffSchedule, LearningRateSchedule
@@ -75,7 +74,7 @@ class CcTransformer(CentralizedCriticModel):
     """Multi-agent model that implements a centralized VF."""
 
     def _build_actor(
-        self, activation_fn="relu", hidden_layers=[512, 512, 512], **kwargs
+            self, activation_fn="relu", hidden_layers=[512, 512, 512], **kwargs
     ):
         inputs = tf.keras.layers.Input(shape=(self.obs_space_shape,), name="obs")
         output = build_fullyConnected(
@@ -89,15 +88,15 @@ class CcTransformer(CentralizedCriticModel):
         return tf.keras.Model(inputs, output)
 
     def _build_critic(
-        self,
-        activation_fn="relu",
-        hidden_layers=[512, 512, 512],
-        centralized=True,
-        embedding_size=128,
-        num_heads=8,
-        d_model=256,
-        use_scale=True,
-        **kwargs,
+            self,
+            activation_fn="relu",
+            hidden_layers=[512, 512, 512],
+            centralized=True,
+            embedding_size=128,
+            num_heads=8,
+            d_model=256,
+            use_scale=True,
+            **kwargs,
     ):
         # agent's input
         agent_obs = tf.keras.layers.Input(shape=(self.obs_space_shape,), name="obs")
@@ -156,7 +155,7 @@ class CcTransformer(CentralizedCriticModel):
 
 
 def build_fullyConnected(
-    inputs, hidden_layers, num_outputs, activation_fn="relu", name=None
+        inputs, hidden_layers, num_outputs, activation_fn="relu", name=None
 ):
     name = name or "fc_network"  # default_name
 
@@ -202,13 +201,13 @@ class MultiHeadAttentionLayer(tf.keras.layers.Layer):
     """
 
     def __init__(
-        self,
-        num_heads: int,
-        d_model: int,
-        use_scale: bool = True,
-        use_residual_connection: bool = False,
-        use_layer_norm: bool = True,
-        **kwargs,
+            self,
+            num_heads: int,
+            d_model: int,
+            use_scale: bool = True,
+            use_residual_connection: bool = False,
+            use_layer_norm: bool = True,
+            **kwargs,
     ):
         super(MultiHeadAttentionLayer, self).__init__(**kwargs)
         self.num_heads = num_heads
@@ -431,7 +430,7 @@ class CentralizedValueMixin(object):
         )
 
     def compute_central_value_function(
-        self, obs, other_agent
+            self, obs, other_agent
     ):  # opponent_obs, opponent_actions):
         feed_dict = {
             self.get_placeholder(SampleBatch.CUR_OBS): obs,
@@ -443,7 +442,7 @@ class CentralizedValueMixin(object):
 # Grabs the other obs/policy and includes it in the experience train_batch,
 # and computes GAE using the central vf predictions.
 def centralized_critic_postprocessing(
-    policy, sample_batch, other_agent_batches=None, episode=None
+        policy, sample_batch, other_agent_batches=None, episode=None
 ):
     # one hot encoding parser
     one_hot_enc = functools.partial(one_hot_encoding, n_classes=policy.action_space.n)
@@ -485,7 +484,7 @@ def centralized_critic_postprocessing(
             one_hot_enc(np.zeros_like(sample_batch[SampleBatch.ACTIONS])),
         )
         opponents = opponents + (
-            [missing_opponent] * (max_num_opponents - len(opponents))
+                [missing_opponent] * (max_num_opponents - len(opponents))
         )
 
         # add random permutation of the opponents
@@ -532,33 +531,14 @@ def centralized_critic_postprocessing(
 def loss_with_central_critic(policy, model, dist_class, train_batch):
     CentralizedValueMixin.__init__(policy)
 
-    logits, state = model.from_batch(train_batch)
-    action_dist = dist_class(logits, model)
     policy.central_value_out = policy.model.central_value_function(
         train_batch[SampleBatch.CUR_OBS], train_batch[OTHER_AGENT]
     )
 
-    policy.loss_obj = PPOLoss(
-        dist_class,
-        model,
-        train_batch[Postprocessing.VALUE_TARGETS],
-        train_batch[Postprocessing.ADVANTAGES],
-        train_batch[SampleBatch.ACTIONS],
-        train_batch[SampleBatch.ACTION_DIST_INPUTS],
-        train_batch[SampleBatch.ACTION_LOGP],
-        train_batch[SampleBatch.VF_PREDS],
-        action_dist,
-        policy.central_value_out,
-        policy.kl_coeff,
-        tf.ones_like(train_batch[Postprocessing.ADVANTAGES], dtype=tf.bool),
-        entropy_coeff=policy.entropy_coeff,
-        clip_param=policy.config["clip_param"],
-        vf_clip_param=policy.config["vf_clip_param"],
-        vf_loss_coeff=policy.config["vf_loss_coeff"],
-        use_gae=policy.config["use_gae"],
-    )
-
-    return policy.loss_obj.loss
+    return ppo_surrogate_loss(policy=policy,
+                              dist_class=dist_class,
+                              model=model,
+                              train_batch=train_batch)
 
 
 def setup_mixins(policy, obs_space, action_space, config):
@@ -571,6 +551,7 @@ def setup_mixins(policy, obs_space, action_space, config):
     TransformerLearningRateSchedule.__init__(policy,
                                              config["model"]["custom_model_config"]["critic"]["d_model"],
                                              warmup_steps)
+
 
 def central_vf_stats(policy, train_batch, grads):
     # Report the explained variance of the central value function.
@@ -592,7 +573,7 @@ def time_overlap(time_span, agent_time):
 
 class Opponent(object):
     def __init__(
-        self, time_span: Tuple[int, int], observation: np.ndarray, action: np.ndarray
+            self, time_span: Tuple[int, int], observation: np.ndarray, action: np.ndarray
     ):
         self.time_span = time_span
         self.observation = observation
@@ -614,7 +595,7 @@ class Opponent(object):
 
     @staticmethod
     def _crop_or_pad(values, lower, upper):
-        values = values[max(lower, 0) :]
+        values = values[max(lower, 0):]
         values = values[: len(values) - max(upper, 0)]
         values = np.pad(
             values,
