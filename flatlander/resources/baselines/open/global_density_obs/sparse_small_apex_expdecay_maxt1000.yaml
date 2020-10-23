@@ -1,4 +1,4 @@
-flatland-sparse-small-density-cnn-apex:
+flatland-sparse-small-density-cnn-apex-malf:
     run: APEX
     env: flatland_sparse
     stop:
@@ -30,7 +30,7 @@ flatland-sparse-small-density-cnn-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "density_obs", "apex", "baseline"] # TODO should be set programmatically
+                tags: ["small_v0", "density_obs", "apex", "malf_baseline"] # TODO should be set programmatically
 
         model:
             custom_model: global_dens_obs_model

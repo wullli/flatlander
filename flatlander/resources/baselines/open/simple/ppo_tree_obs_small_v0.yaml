@@ -1,4 +1,4 @@
-ppo-tree-obs-small-v0:
+ppo-tree-obs-small-v0-malf:
     run: PPO
     env: flatland_sparse
     stop:
@@ -35,7 +35,7 @@ ppo-tree-obs-small-v0:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "ppo", "baseline"] # TODO should be set programmatically
+                tags: ["small_v0", "tree_obs", "ppo", "malf_baseline"] # TODO should be set programmatically
 
         model:
             fcnet_activation: relu

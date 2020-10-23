@@ -1,4 +1,4 @@
-apex-tree-obs-small-v0-skip:
+apex-tree-obs-small-v0-skip-malf:
     run: APEX
     env: flatland_sparse
     stop:
@@ -30,7 +30,7 @@ apex-tree-obs-small-v0-skip:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "skip", "baseline"] # TODO should be set programmatically
+                tags: ["small_v0", "tree_obs", "apex", "skip", "malf_baseline"] # TODO should be set programmatically
 
         model:
             fcnet_activation: relu

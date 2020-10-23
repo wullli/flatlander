@@ -1,4 +1,4 @@
-apex-tree-obs-small-v0:
+apex-tree-obs-small-v0-malf:
     run: APEX
     env: flatland_sparse
     stop:
@@ -25,7 +25,7 @@ apex-tree-obs-small-v0:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "baseline"] # TODO should be set programmatically
+                tags: ["small_v0", "tree_obs", "apex", "malf_baseline"] # TODO should be set programmatically
 
         model:
             fcnet_activation: relu

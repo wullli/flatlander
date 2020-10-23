@@ -1,4 +1,4 @@
-sparse-mask-ppo-tree-obs-small-v0:
+sparse-mask-ppo-tree-obs-small-v0-malf:
     run: PPO
     env: flatland_sparse
     stop:
@@ -39,7 +39,7 @@ sparse-mask-ppo-tree-obs-small-v0:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "ppo", "mask", "baseline"] # TODO should be set programmatically
+                tags: ["small_v0", "tree_obs", "ppo", "mask", "malf_baseline"] # TODO should be set programmatically
 
         model:
             custom_model: fully_connected_model
