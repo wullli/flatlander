@@ -74,7 +74,7 @@ class SequentialFlatlandGymEnv(gym.Env):
 
     def get_agent_info(self, handle, d):
         return {
-            'max_episode_steps': self.rail_env._max_episode_steps / 5,
+            'max_episode_steps': (self.rail_env._max_episode_steps / 5) - self._num_agents,
             'num_agents': self.rail_env.get_num_agents(),
             'agent_done': d[handle] and handle
                           not in self.rail_env.active_agents,
