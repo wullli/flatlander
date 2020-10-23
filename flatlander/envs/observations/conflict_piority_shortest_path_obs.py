@@ -10,7 +10,7 @@ from flatland.envs.rail_env import RailEnv
 
 from flatlander.algorithms.graph_coloring import GreedyGraphColoring
 from flatlander.envs.observations import register_obs, Observation
-from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
+from flatlander.envs.observations.common.predictors import get_predictor
 
 
 @register_obs("shortest_path_priority_conflict")
@@ -23,7 +23,7 @@ class ConflictPriorityShortestPathObservation(Observation):
         super().__init__(config)
         self._config = config if config is not None else {}
         self._builder = ConflictPriorityShortestPathObservationBuilder(
-            predictor=MalfShortestPathPredictorForRailEnv(config['shortest_path_max_depth']),
+            predictor=get_predictor(config=config),
             encode_one_hot=True,
             asserts=self._config.get("asserts", False))
 

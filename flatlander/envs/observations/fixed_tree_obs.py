@@ -2,15 +2,15 @@ from typing import Optional, List
 
 import gym
 import numpy as np
-
 from flatland.core.env_observation_builder import ObservationBuilder
-from flatland.envs.observations import TreeObsForRailEnv
-from flatland.envs.predictions import ShortestPathPredictorForRailEnv
-from flatland.envs.rail_env import RailEnvActions
-from flatlander.envs.observations import Observation, register_obs
-from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
-from flatlander.envs.observations.common.utils import _get_small_node_feature_vector, _get_node_feature_vector
 from flatland.envs.observations import Node
+from flatland.envs.observations import TreeObsForRailEnv
+from flatland.envs.rail_env import RailEnvActions
+
+from flatlander.envs.observations import Observation, register_obs
+from flatlander.envs.observations.common.predictors import get_predictor
+from flatlander.envs.observations.common.utils import _get_small_node_feature_vector, _get_node_feature_vector
+
 
 @register_obs("fixed_tree")
 class FixedTreeObservation(Observation):
@@ -21,7 +21,7 @@ class FixedTreeObservation(Observation):
         self._builder = FixedTreeObsWrapper(
             TreeObsForRailEnv(
                 max_depth=config['max_depth'],
-                predictor=MalfShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
+                predictor=get_predictor(config=config)
             ),
             small_tree=config.get('small_tree', None),
             search_strategy=config.get('search_strategy', 'dfs')

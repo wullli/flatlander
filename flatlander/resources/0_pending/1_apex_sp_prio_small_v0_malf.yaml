@@ -1,4 +1,4 @@
-RESULT_flatland-sparse-small-path_obs-fc-apex:
+1_RESULT_flatland-sparse-small-path_obs-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
@@ -19,6 +19,7 @@ RESULT_flatland-sparse-small-path_obs-fc-apex:
             observation: shortest_path_priority_conflict
             observation_config:
                 shortest_path_max_depth: 30
+                predictor: custom
 
             generator: sparse_rail_generator
             generator_config: small_v0_malf

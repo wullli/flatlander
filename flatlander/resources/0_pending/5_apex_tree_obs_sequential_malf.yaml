@@ -1,4 +1,4 @@
-RESULT_flatland-sparse-small-tree-fc-apex-seq:
+5_RESULT_flatland-sparse-small-tree-fc-apex-seq:
     run: APEX
     env: flatland_sparse
     stop:
@@ -21,6 +21,7 @@ RESULT_flatland-sparse-small-tree-fc-apex-seq:
                 max_depth: 2
                 shortest_path_max_depth: 30
                 concat_status: True
+                predictor: custom
 
             generator: sparse_rail_generator
             generator_config: small_v0_malf

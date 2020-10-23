@@ -10,6 +10,7 @@ from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.builders.priority_tree import PriorityTreeObs
 from flatlander.envs.observations.common.fixed_tree_flattener import FixedTreeFlattener
 from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
+from flatlander.envs.observations.common.predictors import get_predictor
 
 
 @register_obs("priority_fixed_tree")
@@ -21,7 +22,7 @@ class PriorityFixedTreeObservation(Observation):
         self._builder = PriorityFixedTreeObsWrapper(
             PriorityTreeObs(
                 max_depth=config['max_depth'],
-                predictor=MalfShortestPathPredictorForRailEnv(config['shortest_path_max_depth'])
+                predictor=get_predictor(config=config)
             ),
             search_strategy=config.get('search_strategy', 'dfs')
         )
