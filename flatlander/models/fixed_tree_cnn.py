@@ -16,7 +16,7 @@ class FixedTreeCnn(TFModelV2):
         assert isinstance(action_space, gym.spaces.Discrete), \
             "Currently, only 'gym.spaces.Discrete' action spaces are supported."
 
-        self._options = model_config['custom_options']
+        self._options = model_config['custom_model_config']
         self._baseline = None
         self._padded_obs_seq = None
         self._z = None

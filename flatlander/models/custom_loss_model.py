@@ -40,8 +40,8 @@ class CustomLossModel(TFModelV2):
     @override(ModelV2)
     def custom_loss(self, policy_loss, loss_inputs):
         # create a new input reader per worker
-        reader = JsonReader(self.model_config["custom_options"]["input_files"])
-        input_ops = reader.tf_input_ops(self.model_config["custom_options"].get("expert_size", 1))
+        reader = JsonReader(self.model_config["custom_model_config"]["input_files"])
+        input_ops = reader.tf_input_ops(self.model_config["custom_model_config"].get("expert_size", 1))
 
         # define a secondary loss by building a graph copy with weight sharing
         obs = restore_original_dimensions(
@@ -68,7 +68,7 @@ class CustomLossModel(TFModelV2):
         model_action_one_hot = tf.one_hot(model_action, self.num_outputs)
         model_expert = model_action_one_hot * expert_action_one_hot
         imitation_loss = 0
-        loss_type = self.model_config["custom_options"].get("loss", "ce")
+        loss_type = self.model_config["custom_model_config"].get("loss", "ce")
         if loss_type == "ce":
             imitation_loss = tf.reduce_mean(-action_dist.logp(expert_logits))
         elif loss_type == "kl":
@@ -83,8 +83,8 @@ class CustomLossModel(TFModelV2):
             imitation_loss = tf.reduce_mean(1 * (max_value - Q_select[tf.cast(expert_action, tf.int32)]))
 
         self.imitation_loss = imitation_loss
-        total_loss = self.model_config["custom_options"]["lambda1"] * policy_loss \
-                     + self.model_config["custom_options"]["lambda2"] \
+        total_loss = self.model_config["custom_model_config"]["lambda1"] * policy_loss \
+                     + self.model_config["custom_model_config"]["lambda2"] \
                      * self.imitation_loss
         return total_loss
 

@@ -6,7 +6,6 @@ from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.agent_utils import RailAgentStatus
-from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
 
 from flatlander.algorithms.graph_coloring import GreedyGraphColoring

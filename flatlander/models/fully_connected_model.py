@@ -14,7 +14,7 @@ class FullyConnectedModel(TFModelV2):
         assert isinstance(action_space, gym.spaces.Discrete), \
             "Currently, only 'gym.spaces.Discrete' action spaces are supported."
         self._action_space = action_space
-        self._options = model_config['custom_options']
+        self._options = model_config['custom_model_config']
         self._mask_unavailable_actions = self._options.get("mask_unavailable_actions", False)
         self._vf_share_layers = model_config["vf_share_layers"]
 
