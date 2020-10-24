@@ -15,6 +15,12 @@
 
         buffer_size: 100000
 
+        exploration_config:
+            type: PerWorkerEpsilonGreedy
+            initial_epsilon: 1.0
+            final_epsilon: 0.01
+            epsilon_timesteps: 50000
+
         env_config:
             observation: tree
             observation_config:
