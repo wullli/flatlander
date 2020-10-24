@@ -2,7 +2,7 @@ flatland-random-sparse-small-tree-fc-cctransformer:
     run: CcTransformer
     env: flatland_sparse
     stop:
-        timesteps_total: 1500  # 1.5e7
+        timesteps_total: 15000000  # 1.5e7
     checkpoint_freq: 50
     checkpoint_at_end: True
     keep_checkpoints_num: 100
@@ -22,6 +22,7 @@ flatland-random-sparse-small-tree-fc-cctransformer:
         batch_mode: complete_episodes
         vf_share_layers: True
         num_gpus: 1
+
 
         env_config:
             observation: tree

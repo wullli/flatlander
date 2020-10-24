@@ -2,7 +2,7 @@ apex-tree-obs-small-v0-malf:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 1500  # 1.5e7
+        timesteps_total: 15000000  # 1.5e7
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 1
@@ -12,6 +12,8 @@ apex-tree-obs-small-v0-malf:
         num_workers: 7
         num_envs_per_worker: 5
         num_gpus: 1
+
+        buffer_size: 100000
 
         env_config:
             observation: tree
