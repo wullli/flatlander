@@ -1,4 +1,4 @@
-2_RESULT_flatland-sparse-small-tree-fc-apex-seq-nonoop:
+2_RESULT_flatland-sparse-small-tree-fc-apex-deeper:
     run: APEX
     env: flatland_sparse
     stop:
@@ -35,7 +35,7 @@
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "seq", "nonoop"]
+                tags: ["small_v0", "tree_obs", "apex"]
 
         model:
             fcnet_activation: relu
