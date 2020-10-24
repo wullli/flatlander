@@ -136,7 +136,7 @@ class FlatlandSparse(FlatlandBase):
                     number_of_agents=self._config['number_of_agents'],
                     malfunction_generator=malfunction_generator,
                     obs_builder_object=self._observation.builder(),
-                    remove_agents_at_target=False,
+                    remove_agents_at_target=True,
                     random_seed=self._config['seed'],
                     use_renderer=self._env_config.get('render')
                 )

@@ -8,7 +8,7 @@ from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.agent_utils import RailAgentStatus
 from flatland.envs.rail_env import RailEnv
 
-from flatlander.algorithms.graph_coloring import GreedyGraphColoring
+from flatlander.algorithms.graph_coloring import GreedyGraphColoring, ShufflingGraphColoring
 from flatlander.envs.observations import register_obs, Observation
 from flatlander.envs.observations.common.predictors import get_predictor
 
@@ -28,12 +28,18 @@ class ConflictPriorityShortestPathObservation(Observation):
             asserts=self._config.get("asserts", False))
 
     def observation_space(self) -> gym.Space:
-        return gym.spaces.Box(low=0, high=1, shape=(14,))
+        return gym.spaces.Tuple((gym.spaces.Box(low=0, high=1, shape=(14,)),
+                                 gym.spaces.discrete.Discrete(2)))
 
 
 class ConflictPriorityShortestPathObservationBuilder(ObservationBuilder):
     def reset(self):
-        self._conflict_map = {}
+        self._shortest_path_conflict_map = {}
+        self._other_path_conflict_map = {}
+        self._prev_shortest_path_conflict_map = {}
+        self._prev_other_path_conflict_map = {}
+        self._prev_sp_prios = {}
+        self._prev_other_prios = {}
 
     def set_env(self, env):
         self.predictor.set_env(env)
@@ -41,21 +47,22 @@ class ConflictPriorityShortestPathObservationBuilder(ObservationBuilder):
 
     def __init__(self, predictor=None, encode_one_hot=True, asserts=False):
         super().__init__()
-        self._conflict_map = {}
+        self._shortest_path_conflict_map = {}
+        self._other_path_conflict_map = {}
+        self._prev_shortest_path_conflict_map = {}
+        self._prev_other_path_conflict_map = {}
+        self._prev_sp_prios = {}
+        self._prev_other_prios = {}
         self.predictor = predictor
         self._directions = list(range(4))
-        self._path_size = len(self._directions) + 2
+        self._path_size = len(self._directions) + 3
         self._encode_one_hot = encode_one_hot
         self._asserts = asserts
 
     def get_many(self, handles: Optional[List[int]] = None):
-        if handles is None:
-            handles = []
 
-        if handles is None:
-            handles = []
-
-        self._conflict_map = {handle: [] for handle in handles}
+        self._shortest_path_conflict_map = {handle: [] for handle in handles}
+        self._other_path_conflict_map = {handle: [] for handle in handles}
 
         if self.predictor:
             self.max_prediction_depth = 0
@@ -103,15 +110,28 @@ class ConflictPriorityShortestPathObservationBuilder(ObservationBuilder):
         obs_dict = {handle: self.get(handle) for handle in handles}
 
         # the order of the colors matters
-        priorities = GreedyGraphColoring.color(colors=[1, 0],
-                                               nodes=obs_dict.keys(),
-                                               neighbors=self._conflict_map)
+        sp_priorities = GreedyGraphColoring.color(colors=[1, 0],
+                                                  nodes=obs_dict.keys(),
+                                                  neighbors=self._shortest_path_conflict_map)
+
+        op_priorities = GreedyGraphColoring.color(colors=[1, 0],
+                                                  nodes=obs_dict.keys(),
+                                                  neighbors=self._other_path_conflict_map)
         for handle, obs in obs_dict.items():
-            obs[-1] = priorities[handle]
+            if obs is not None:
+                obs[0][6] = sp_priorities[handle]
+                obs[0][13] = op_priorities[handle]
 
         if self._asserts:
-            assert [priorities[h] != [priorities[ch] for ch in chs]
-                    for h, chs in self._conflict_map.items()]
+            assert [sp_priorities[h] != [sp_priorities[ch] for ch in chs]
+                    for h, chs in self._shortest_path_conflict_map.items()]
+            assert [op_priorities[h] != [op_priorities[ch] for ch in chs]
+                    for h, chs in self._other_path_conflict_map.items()]
+
+        self._prev_sp_prios = sp_priorities
+        self._prev_other_prios = op_priorities
+        self._prev_other_path_conflict_map = self._other_path_conflict_map
+        self._prev_shortest_path_conflict_map = self._shortest_path_conflict_map
 
         return obs_dict
 
@@ -155,22 +175,25 @@ class ConflictPriorityShortestPathObservationBuilder(ObservationBuilder):
                 conflict = ch is not None
 
                 if conflict and len(possible_steps) == 0:
-                    self._conflict_map[handle].append(ch)
+                    self._shortest_path_conflict_map[handle].append(ch)
+                elif conflict:
+                    self._other_path_conflict_map[handle].append(ch)
 
                 if self._encode_one_hot:
                     next_move_one_hot = np.zeros(len(self._directions))
                     next_move_one_hot[next_move] = 1
                     next_move = next_move_one_hot
 
-                possible_steps.append((next_move, [distance / max_distance], [int(conflict)]))
+                possible_steps.append((next_move, [distance / max_distance],
+                                       [int(conflict)],
+                                       [int(not conflict)]))  # priority field
 
         possible_steps = sorted(possible_steps, key=lambda step: step[1])
         obs = np.full(self._path_size * 2, fill_value=0)
         for i, path in enumerate(possible_steps):
             obs[i * self._path_size:self._path_size * (i + 1)] = np.concatenate([arr for arr in path])
 
-        priority = 0.
-        return np.concatenate([obs, [agent.status.value != RailAgentStatus.READY_TO_DEPART, priority]])
+        return obs, int(agent.status.value != RailAgentStatus.READY_TO_DEPART)
 
     def _reverse_dir(self, direction):
         return int((direction + 2) % 4)
@@ -181,10 +204,12 @@ class ConflictPriorityShortestPathObservationBuilder(ObservationBuilder):
                          cell_transitions,
                          handle,
                          direction):
+
         potential_conflict = np.inf
         conflict_handle = None
         predicted_time = int(tot_dist * time_per_cell)
-        if self.predictor and predicted_time < self.max_prediction_depth:
+        while self.predictor and predicted_time < self.max_prediction_depth:
+            predicted_time = int(tot_dist * time_per_cell)
             int_position = coordinate_to_position(self.env.width, [position])
             if tot_dist < self.max_prediction_depth:
 
@@ -229,5 +254,29 @@ class ConflictPriorityShortestPathObservationBuilder(ObservationBuilder):
                         if self.env.agents[ca].status == RailAgentStatus.DONE and tot_dist < potential_conflict:
                             potential_conflict = tot_dist
                             conflict_handle = ca
+            tot_dist += 1
+            position, direction = self.get_shortest_path_position(position=position, direction=direction, handle=handle)
 
         return potential_conflict, conflict_handle
+
+    def get_shortest_path_position(self, position, direction, handle):
+        distance_map = self.env.distance_map.get()
+        nan_inf_mask = ((distance_map != np.inf) * (np.abs(np.isnan(distance_map) - 1))).astype(np.bool)
+        max_dist = np.max(self.env.distance_map.get()[nan_inf_mask])
+
+        possible_transitions = self.env.rail.get_transitions(*position, direction)
+        min_dist = np.inf
+        sp_move = None
+        sp_pos = None
+
+        for movement in self._directions:
+            if possible_transitions[movement]:
+                pos = get_new_position(position, movement)
+                distance = self.env.distance_map.get()[handle][pos + (movement,)]
+                distance = max_dist if (distance == np.inf or np.isnan(distance)) else distance
+                if distance <= min_dist:
+                    min_dist = distance
+                    sp_move = movement
+                    sp_pos = pos
+
+        return sp_pos, sp_move

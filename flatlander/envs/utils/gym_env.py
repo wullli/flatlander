@@ -36,6 +36,7 @@ class FlatlandGymEnv(gym.Env):
         self._regenerate_schedule_on_reset = regenerate_schedule_on_reset
         self.rail_env = rail_env
         self.observation_space = observation_space
+        self._prev_obs = None
         if render:
             self.rail_env.set_renderer(render)
 
@@ -59,7 +60,10 @@ class FlatlandGymEnv(gym.Env):
                     if agent != '__all__':
                         if done:
                             self._agents_done.append(agent)
-                        o[agent] = obs[agent]
+                        if obs[agent] is not None:
+                            o[agent] = obs[agent]
+                        else:
+                            o[agent] = self._prev_obs[agent]
                         r[agent] = rewards[agent]
                         self._agent_scores[agent] += rewards[agent]
                         self._agent_steps[agent] += 1
@@ -70,6 +74,8 @@ class FlatlandGymEnv(gym.Env):
 
         assert all([x is not None for x in (d, r, o)])
 
+        self._prev_obs = o
+
         return StepOutput(obs=o, reward=r, done=d, info={agent: {
             'max_episode_steps': self.rail_env._max_episode_steps,
             'num_agents': self.rail_env.get_num_agents(),
@@ -79,6 +85,7 @@ class FlatlandGymEnv(gym.Env):
         } for agent in o.keys()})
 
     def reset(self, random_seed: Optional[int] = None) -> Dict[int, Any]:
+        self._prev_obs = None
         self._agents_done = []
         self._agent_scores = defaultdict(float)
         self._agent_steps = defaultdict(int)
