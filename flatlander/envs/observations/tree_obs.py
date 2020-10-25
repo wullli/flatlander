@@ -4,11 +4,9 @@ import gym
 import numpy as np
 from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.envs.observations import TreeObsForRailEnv
-from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 
 from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.common.grouping_tree_flatter import GroupingTreeFlattener
-from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
 from flatlander.envs.observations.common.predictors import get_predictor
 
 
