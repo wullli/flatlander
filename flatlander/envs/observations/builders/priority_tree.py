@@ -251,28 +251,29 @@ class PriorityTreeObs(ObservationBuilder):
             orientation = np.argmax(possible_transitions)
 
         min_dist = np.inf
-        conflict_handle = None
+        conflict_handles = []
 
         for i, branch_direction in enumerate([(orientation + i) % 4 for i in range(-1, 3)]):
 
             if possible_transitions[branch_direction]:
                 new_cell = get_new_position(agent_virtual_position, branch_direction)
 
-                branch_observation, branch_visited, ch = self._explore_branch(handle, new_cell, branch_direction, 1, 1)
+                branch_observation, branch_visited, c_handles = self._explore_branch(handle, new_cell, branch_direction,
+                                                                                     1, 1)
                 root_node_observation.childs[self.tree_explored_actions_char[i]] = branch_observation
 
                 visited |= branch_visited
 
                 if branch_observation.dist_min_to_target < min_dist:
                     min_dist = branch_observation.dist_min_to_target
-                    conflict_handle = ch
+                    conflict_handles = c_handles
             else:
                 # add cells filled with infinity if no transition is possible
                 root_node_observation.childs[self.tree_explored_actions_char[i]] = -np.inf
         self.env.dev_obs_dict[handle] = visited
 
-        if conflict_handle is not None:
-            self._conflict_map[handle].append(conflict_handle)
+        for ch in conflict_handles:
+            self._conflict_map[handle].append(ch)
 
         nodes = [n for n in root_node_observation.childs.values() if n != -np.inf]
 
@@ -474,6 +475,10 @@ class PriorityTreeObs(ObservationBuilder):
         # Start from the current orientation, and see which transitions are available;
         # organize them as [left, forward, right, back], relative to the current orientation
         # Get the possible transitions
+
+        sub_min_dist = np.inf
+        sub_conflict_handles = []
+
         possible_transitions = self.env.rail.get_transitions(*position, direction)
         for i, branch_direction in enumerate([(direction + 4 + i) % 4 for i in range(-1, 3)]):
             if last_is_dead_end and self.env.rail.get_transition((*position, direction),
@@ -481,31 +486,43 @@ class PriorityTreeObs(ObservationBuilder):
                 # Swap forward and back in case of dead-end, so that an agent can learn that going forward takes
                 # it back
                 new_cell = get_new_position(position, (branch_direction + 2) % 4)
-                branch_observation, branch_visited, _ = self._explore_branch(handle,
-                                                                             new_cell,
-                                                                             (branch_direction + 2) % 4,
-                                                                             tot_dist + 1,
-                                                                             depth + 1)
+                branch_observation, branch_visited, ch = self._explore_branch(handle,
+                                                                              new_cell,
+                                                                              (branch_direction + 2) % 4,
+                                                                              tot_dist + 1,
+                                                                              depth + 1)
                 node.childs[self.tree_explored_actions_char[i]] = branch_observation
                 if len(branch_visited) != 0:
                     visited |= branch_visited
+
+                if len(branch_observation) > 0 and branch_observation.dist_min_to_target < sub_min_dist:
+                    sub_min_dist = branch_observation.dist_min_to_target
+                    sub_conflict_handles = ch
+
             elif last_is_switch and possible_transitions[branch_direction]:
                 new_cell = get_new_position(position, branch_direction)
-                branch_observation, branch_visited, _ = self._explore_branch(handle,
-                                                                             new_cell,
-                                                                             branch_direction,
-                                                                             tot_dist + 1,
-                                                                             depth + 1)
+                branch_observation, branch_visited, ch = self._explore_branch(handle,
+                                                                              new_cell,
+                                                                              branch_direction,
+                                                                              tot_dist + 1,
+                                                                              depth + 1)
                 node.childs[self.tree_explored_actions_char[i]] = branch_observation
                 if len(branch_visited) != 0:
                     visited |= branch_visited
+
+                if len(branch_observation) > 0 and branch_observation.dist_min_to_target < sub_min_dist:
+                    sub_min_dist = branch_observation.dist_min_to_target
+                    sub_conflict_handles = ch
             else:
                 # no exploring possible, add just cells with infinity
                 node.childs[self.tree_explored_actions_char[i]] = -np.inf
 
         if depth == self.max_depth:
             node.childs.clear()
-        return node, visited, confict_handle
+
+        confict_handles = [ch for ch in [confict_handle] + sub_conflict_handles if ch is not None]
+
+        return node, visited, confict_handles
 
     def detect_conflicts(self, tot_dist,
                          time_per_cell,

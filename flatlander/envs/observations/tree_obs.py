@@ -6,6 +6,7 @@ from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.envs.observations import TreeObsForRailEnv
 
 from flatlander.envs.observations import Observation, register_obs
+from flatlander.envs.observations.builders.done_removed_tree import DoneRemovedTreeObsForRailEnv
 from flatlander.envs.observations.common.grouping_tree_flatter import GroupingTreeFlattener
 from flatlander.envs.observations.common.predictors import get_predictor
 
@@ -19,7 +20,7 @@ class TreeObservation(Observation):
         self._concat_status = config.get('concat_status', False)
         self._num_agents = config.get('num_agents', 5)
         self._builder = TreeObsForRailEnvRLLibWrapper(
-            TreeObsForRailEnv(
+            DoneRemovedTreeObsForRailEnv(
                 max_depth=config['max_depth'],
                 predictor=get_predictor(config=config)
             ),
