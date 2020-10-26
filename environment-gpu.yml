@@ -181,3 +181,4 @@ dependencies:
     - yarl==1.5.1
     - zipp==0.5.2
     - torch
+    - tqdm==4.50.2

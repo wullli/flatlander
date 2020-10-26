@@ -124,7 +124,8 @@ class PriorityTreeObs(ObservationBuilder):
                                                    neighbors=self._conflict_map)
 
             for handle, obs in obs_dict.items():
-                obs = obs._replace(dist_own_target_encountered=priorities[handle])
+                if obs is not None:
+                    obs_dict[handle] = obs._replace(dist_own_target_encountered=priorities[handle])
 
         return obs_dict
 
