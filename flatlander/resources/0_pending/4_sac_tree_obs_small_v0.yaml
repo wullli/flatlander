@@ -5,6 +5,7 @@
         timesteps_total: 15000000  # 1.5e7
     checkpoint_at_end: True
     checkpoint_freq: 1
+    keep_checkpoints_num: 20
     checkpoint_score_attr: episode_reward_min
     num_samples: 1
     config:
