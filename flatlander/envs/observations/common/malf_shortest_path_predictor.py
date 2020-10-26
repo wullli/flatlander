@@ -52,7 +52,7 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
         prediction_dict = {}
         for agent in agents:
 
-            if not agent.status == RailAgentStatus.ACTIVE:
+            if not agent.status == RailAgentStatus.ACTIVE and not agent.status == RailAgentStatus.READY_TO_DEPART:
                 prediction = np.zeros(shape=(self.max_depth + 1, 5))
                 for i in range(self.max_depth):
                     prediction[i] = [i, None, None, None, None]
@@ -60,11 +60,15 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
                 continue
 
             agent_virtual_direction = agent.direction
+            agent_virtual_position = agent.position
+            if agent.status == RailAgentStatus.READY_TO_DEPART:
+                agent_virtual_position = agent.initial_position
+
             agent_speed = agent.speed_data["speed"]
             times_per_cell = int(np.reciprocal(agent_speed))
             prediction = np.zeros(shape=(self.max_depth + 1, 5))
 
-            prediction[0] = [0, *agent.position, agent_virtual_direction, 0]
+            prediction[0] = [0, *agent_virtual_position, agent_virtual_direction, 0]
 
             shortest_path = shortest_paths[agent.handle]
 
@@ -73,7 +77,7 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
                 shortest_path = shortest_path[1:]
 
             new_direction = agent_virtual_direction
-            new_position = agent.position
+            new_position = agent_virtual_position
             visited = OrderedSet()
             for index in range(1, self.max_depth + 1):
                 # if we're at the target or there is a malfunction, stop moving until max_depth is reached
