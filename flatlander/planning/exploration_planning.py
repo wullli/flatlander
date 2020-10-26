@@ -2,19 +2,17 @@ from collections import defaultdict
 from copy import deepcopy
 from time import time
 
-from flatland.envs.agent_utils import RailAgentStatus
-from flatland.envs.rail_env import RailEnv, RailEnvActions
 import numpy as np
-from flatlander.agents.heuristic_agent import HeuristicPriorityAgent
-from flatlander.utils.helper import get_agent_pos, is_done
+from flatland.envs.rail_env import RailEnv
+
+from flatlander.utils.helper import is_done
 
 
 def promising(possible_transitions, departed):
     return np.count_nonzero(possible_transitions) > 1 or not departed
 
 
-def epsilon_greedy_plan(env: RailEnv, obs_dict, budget_seconds=60, epsilon=0.1,
-                        policy_agent=HeuristicPriorityAgent()):
+def explorative_plan(env: RailEnv, obs_dict, budget_seconds=60, exploring_agent=None):
     start_t = time()
     best_actions = []
     best_return = -np.inf
@@ -32,19 +30,8 @@ def epsilon_greedy_plan(env: RailEnv, obs_dict, budget_seconds=60, epsilon=0.1,
         print(f'\nPlanning step {plan_step + 1}')
 
         while not dones['__all__'] and not budget_used:
-            actions = defaultdict(lambda: None, policy_agent.compute_actions(obs_dict,
-                                                                             env=local_env))
-            for agent in env.agents:
-                pos = get_agent_pos(agent)
-                next_possible_moves = local_env.rail.get_transitions(*pos, agent.direction)
-                departed = agent.status.value != RailAgentStatus.READY_TO_DEPART.value
-
-                if np.random.random() < epsilon and promising(next_possible_moves, departed):
-                    possible_actions = set(np.flatnonzero(next_possible_moves))
-                    possible_actions = possible_actions.union({RailEnvActions.STOP_MOVING.value,
-                                                               RailEnvActions.MOVE_FORWARD.value})
-                    non_default_actions = possible_actions.difference({actions[agent.handle]})
-                    actions[agent.handle] = np.random.choice(list(non_default_actions))
+            actions = defaultdict(lambda: None, exploring_agent.compute_actions(obs_dict,
+                                                                                env=local_env))
 
             action_memory.append(actions)
             obs_dict, all_rewards, dones, info = local_env.step(actions)

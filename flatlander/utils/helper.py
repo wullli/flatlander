@@ -69,7 +69,7 @@ def get_agent_pos(agent):
         agent_virtual_position = agent.initial_position
     elif agent.status == RailAgentStatus.ACTIVE:
         agent_virtual_position = agent.position
-    elif agent.status == RailAgentStatus.DONE:
+    elif agent.status == RailAgentStatus.DONE or agent.status == RailAgentStatus.DONE_REMOVED:
         agent_virtual_position = agent.target
     else:
         return None

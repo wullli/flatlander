@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 from flatlander.agents.rllib_agent import RllibAgent
 from flatlander.planning.epsilon_greedy_planning import epsilon_greedy_plan
+from flatlander.planning.genetic_planning import genetic_plan
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -21,6 +22,8 @@ remote_client = FlatlandRemoteClient()
 
 TUNE = False
 PLAN = True
+PLANNING_METHODS = {"epsilon_greedy": epsilon_greedy_plan, "genetic": genetic_plan}
+planning_function = PLANNING_METHODS["genetic"]
 TIME_LIMIT = 60 * 60 * 7.75
 
 
@@ -57,10 +60,10 @@ def evaluate(config, run):
             memorized_actions = None
 
             if PLAN:
-                memorized_actions = epsilon_greedy_plan(env=remote_client.env,
-                                                        obs_dict=observation,
-                                                        budget_seconds=60 * 4,
-                                                        policy_agent=agent)
+                memorized_actions = planning_function(env=remote_client.env,
+                                                      obs_dict=observation,
+                                                      budget_seconds=60 * 4,
+                                                      policy_agent=agent)
 
             evaluation_number += 1
             episode_start_info(evaluation_number, remote_client=remote_client)
