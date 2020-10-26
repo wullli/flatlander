@@ -7,7 +7,7 @@
     checkpoint_at_end: True
     keep_checkpoints_num: 20
     checkpoint_score_attr: episode_reward_min
-    num_samples: 3
+    num_samples: 1
     config:
         num_workers: 7
         num_envs_per_worker: 5
@@ -18,7 +18,7 @@
         exploration_config:
             type: PerWorkerEpsilonGreedy
             initial_epsilon: 1.0
-            final_epsilon: 0.01
+            final_epsilon: 0.02
             epsilon_timesteps: 50000
 
         env_config:
