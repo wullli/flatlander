@@ -23,7 +23,7 @@ remote_client = FlatlandRemoteClient()
 TUNE = False
 PLAN = True
 PLANNING_METHODS = {"epsilon_greedy": epsilon_greedy_plan, "genetic": genetic_plan}
-planning_function = PLANNING_METHODS["genetic"]
+planning_function = PLANNING_METHODS["epsilon_greedy"]
 TIME_LIMIT = 60 * 60 * 7.75
 
 
