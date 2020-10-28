@@ -4,6 +4,7 @@ from collections import defaultdict
 from tqdm import tqdm
 
 from flatlander.agents.rllib_agent import RllibAgent
+from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.planning.epsilon_greedy_planning import epsilon_greedy_plan
 from flatlander.planning.genetic_planning import genetic_plan
 
@@ -21,11 +22,11 @@ tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()
 
 TUNE = False
-PLAN = True
+PLAN = False
 PLANNING_METHODS = {"epsilon_greedy": epsilon_greedy_plan, "genetic": genetic_plan}
 planning_function = PLANNING_METHODS["epsilon_greedy"]
 TIME_LIMIT = 60 * 60 * 7.75
-
+ROBUST = True
 
 def evaluate(config, run):
     start_time = timer()
@@ -78,8 +79,11 @@ def evaluate(config, run):
                             break
 
                 while not done['__all__']:
+                    robust_env = RobustFlatlandGymEnv(rail_env=remote_client.env, observation_space= None)
                     actions = agent.compute_actions(observation, remote_client.env)
-                    observation, all_rewards, done, info = remote_client.env_step(actions)
+                    robust_actions = robust_env.get_robust_actions(actions)
+
+                    observation, all_rewards, done, info = remote_client.env_step(robust_actions)
                     steps += 1
                     print('.', end='', flush=True)
 

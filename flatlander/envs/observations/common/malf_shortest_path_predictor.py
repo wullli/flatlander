@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from flatland.core.env_prediction_builder import PredictionBuilder
 from flatland.envs.agent_utils import RailAgentStatus
 from flatland.envs.distance_map import DistanceMap
@@ -45,11 +47,14 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
         agents = self.env.agents
         if handle:
             agents = [self.env.agents[handle]]
+
         distance_map: DistanceMap = self.env.distance_map
 
         shortest_paths = get_shortest_paths(distance_map, max_depth=self.max_depth)
 
         prediction_dict = {}
+
+        agents = deepcopy(agents)
         for agent in agents:
 
             if not agent.status == RailAgentStatus.ACTIVE and not agent.status == RailAgentStatus.READY_TO_DEPART:
@@ -80,11 +85,23 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
             new_position = agent_virtual_position
             visited = OrderedSet()
             for index in range(1, self.max_depth + 1):
-                # if we're at the target or there is a malfunction, stop moving until max_depth is reached
-                if new_position == agent.target or not shortest_path or agent.malfunction_data["malfunction"] > 0:
+
+                # if there is a malfunction, stop moving until max_depth is reached
+                if not shortest_path:
                     prediction[index] = [index, *new_position, new_direction, RailEnvActions.STOP_MOVING]
                     visited.add((*new_position, agent.direction))
                     continue
+
+                if agent.malfunction_data["malfunction"] > 0:
+                    agent.malfunction_data["malfunction"] -= 1
+                    prediction[index] = [index, *new_position, None, RailEnvActions.STOP_MOVING]
+                    visited.add((*new_position, agent.direction))
+                    continue
+
+                if new_position == agent.target:
+                    prediction[index] = [index, *new_position, new_direction, RailEnvActions.STOP_MOVING]
+                    visited.add((*new_position, agent.direction))
+                    break
 
                 if index % times_per_cell == 0:
                     new_position = shortest_path[0].position

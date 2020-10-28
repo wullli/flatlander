@@ -1,4 +1,4 @@
-3_BASELINE_RESULT_flatland-sparse-small-tree_obs-fc-apex:
+3_BASELINE_RESULT_flatland-sparse-small-tree_obs-robust-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
@@ -11,9 +11,10 @@
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 1
+        num_gpus: 0
 
         buffer_size: 100000
+        lr: 0.0001
 
         exploration_config:
             type: PerWorkerEpsilonGreedy
@@ -27,6 +28,10 @@
                 max_depth: 2
                 shortest_path_max_depth: 30
                 concat_agent_id: True
+                concat_status: True
+                predictor: custom
+
+            gym_env: robust
 
             generator: sparse_rail_generator
             generator_config: small_v0_malf
@@ -34,7 +39,7 @@
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "apex", "priority_tree_obs", "deep"]
+                tags: ["small_v0", "apex", "tree", "robust"]
 
         model:
             fcnet_activation: relu

@@ -18,6 +18,7 @@ from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, Skip
     SparseRewardWrapper, \
     DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper, GlobalRewardWrapper
 from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as RailEnv
+from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.envs.utils.seq_schedule_generator import SequentialSparseSchedGen
 from flatlander.envs.utils.sequential_gym_env import SequentialFlatlandGymEnv
 
@@ -26,6 +27,7 @@ class FlatlandSparse(FlatlandBase):
     _gym_envs = {"default": FlatlandGymEnv,
                  "fill_missing": FillingFlatlandGymEnv,
                  "sequential": SequentialFlatlandGymEnv,
+                 "robust": RobustFlatlandGymEnv,
                  "global": GlobalFlatlandGymEnv}
 
     _sp_action_needed = ["priority_path", "path", 'shortest_path', 'shortest_path_priority_conflict']

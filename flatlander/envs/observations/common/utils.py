@@ -5,6 +5,10 @@ import numpy as np
 from flatland.envs.observations import Node
 
 
+def reverse_dir(direction):
+    return int((direction + 2) % 4)
+
+
 def max_lt(seq, val):
     """
     Return greatest item in seq for which item < val applies.
