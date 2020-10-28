@@ -19,8 +19,8 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         vf_clip_param: 500.0
         entropy_coeff: 0.01
 
-        train_batch_size: 256
-        rollout_fragment_length: 32
+        train_batch_size: 128
+        rollout_fragment_length: 4
         sgd_minibatch_size: 32
         num_sgd_iter: 8
         vf_share_layers: False
