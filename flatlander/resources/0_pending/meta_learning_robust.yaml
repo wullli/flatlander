@@ -11,7 +11,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
         lr: 0.0001
 
@@ -19,10 +19,10 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         vf_clip_param: 500.0
         entropy_coeff: 0.01
 
-        train_batch_size: 100
-        rollout_fragment_length: 5
-        sgd_minibatch_size: 10
-        num_sgd_iter: 10
+        train_batch_size: 256
+        rollout_fragment_length: 32
+        sgd_minibatch_size: 32
+        num_sgd_iter: 8
         vf_share_layers: False
 
         gamma: 0.0
