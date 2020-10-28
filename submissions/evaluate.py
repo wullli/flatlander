@@ -22,7 +22,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import tensorflow as tf
 
 tf.compat.v1.disable_eager_execution()
-seed = 32432
+seed = 345612
 
 
 def get_env():

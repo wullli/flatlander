@@ -1,35 +1,28 @@
-3_BASELINE_RESULT_flatland-sparse-small-tree_obs-robust-fc-apex:
-    run: APEX
-    env: flatland_sparse
+hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
+    run: SAC
+    env: flatland_sparse_hierarchical
     stop:
         timesteps_total: 15000000
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 20
-    checkpoint_score_attr: episode_reward_min
+    checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 1
+        num_gpus: 0
 
-        buffer_size: 100000
         lr: 0.0001
 
-        exploration_config:
-            type: PerWorkerEpsilonGreedy
-            initial_epsilon: 1.0
-            final_epsilon: 0.02
-            epsilon_timesteps: 50000
+        normalize_actions: False
 
         env_config:
-            observation: tree
+            number_of_agents: 5
+            observation: combined
             observation_config:
-                max_depth: 2
-                shortest_path_max_depth: 30
-                concat_agent_id: True
-                concat_status: True
-                predictor: custom
+                simple_meta:
+                shortest_path:
 
             gym_env: robust
 

@@ -4,7 +4,7 @@ from pprint import pprint
 import gym
 
 from flatland.envs.malfunction_generators import ParamMalfunctionGen, \
-    NoMalfunctionGen
+    NoMalfunctionGen, MalfunctionParameters
 from flatland.envs.persistence import RailEnvPersister
 from flatland.envs.rail_generators import sparse_rail_generator, complex_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
@@ -110,12 +110,10 @@ class FlatlandSparse(FlatlandBase):
 
         malfunction_generator = NoMalfunctionGen()
         if {'malfunction_rate', 'malfunction_min_duration', 'malfunction_max_duration'} <= self._config.keys():
-            stochastic_data = {
-                'malfunction_rate': self._config['malfunction_rate'],
-                'min_duration': self._config['malfunction_min_duration'],
-                'max_duration': self._config['malfunction_max_duration']
-            }
-            malfunction_generator = ParamMalfunctionGen(stochastic_data)
+            params = MalfunctionParameters(malfunction_rate=1 / self._config['malfunction_rate'],
+                                           max_duration=self._config['malfunction_max_duration'],
+                                           min_duration=self._config['malfunction_min_duration'])
+            malfunction_generator = ParamMalfunctionGen(params)
 
         speed_ratio_map = None
         if 'speed_ratio_map' in self._config:

@@ -70,7 +70,6 @@ class ProjectedDensityForRailEnv(ObservationBuilder):
         agent needs to reach the cell, encoding the time information.
         """
         density_map = np.zeros(shape=(self._height, self._width, self._depth), dtype=np.float32)
-        agent = self.env.agents[handle]
         if self._predictions[handle] is not None:
             for t, prediction in enumerate(self._predictions[handle]):
                 p = tuple(np.array(prediction[1:3]).astype(int))

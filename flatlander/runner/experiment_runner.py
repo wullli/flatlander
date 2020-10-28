@@ -2,12 +2,12 @@ import os
 from argparse import ArgumentParser
 from pathlib import Path
 
+import gym
 import ray
 import ray.tune.result as ray_results
 import yaml
 from gym.spaces import Tuple
 from ray.cluster_utils import Cluster
-from ray.rllib.evaluation import MultiAgentEpisode
 from ray.rllib.utils import try_import_tf, try_import_torch
 from ray.tune import run_experiments, register_env
 from ray.tune.logger import TBXLogger
@@ -20,6 +20,7 @@ from flatlander.envs.flatland_sparse import FlatlandSparse
 from flatlander.envs.observations import make_obs
 from flatlander.envs.utils.global_gym_env import GlobalFlatlandGymEnv
 from flatlander.envs.utils.gym_env_fill_missing import FillingFlatlandGymEnv
+from flatlander.logging.custom_metrics import on_episode_end
 from flatlander.logging.wandb_logger import WandbLogger
 from flatlander.utils.loader import load_envs, load_models
 
@@ -34,52 +35,6 @@ class ExperimentRunner:
         self.torch, _ = try_import_torch()
         load_envs(os.path.dirname(__file__))
         load_models(os.path.dirname(__file__))
-
-    @staticmethod
-    def on_episode_end(info):
-        episode: MultiAgentEpisode = info["episode"]
-
-        episode_steps = 0
-        episode_max_steps = 0
-        episode_num_agents = 0
-        episode_score = 0
-        episode_done_agents = 0
-        episode_num_swaps = 0
-
-        try:
-            for agent, agent_info in episode._agent_to_last_info.items():
-                if episode_max_steps == 0:
-                    episode_max_steps = agent_info["max_episode_steps"]
-                    episode_num_agents = agent_info["num_agents"]
-                episode_steps = max(episode_steps, agent_info["agent_step"])
-                episode_score += agent_info["agent_score"]
-                if "num_swaps" in agent_info:
-                    episode_num_swaps += agent_info["num_swaps"]
-                if agent_info["agent_done"]:
-                    episode_done_agents += 1
-        except:
-            for agent, agent_info in enumerate(episode._agent_to_last_info["group_1"]["_group_info"]):
-                if episode_max_steps == 0:
-                    episode_max_steps = agent_info["max_episode_steps"]
-                    episode_num_agents = agent_info["num_agents"]
-                episode_steps = max(episode_steps, agent_info["agent_step"])
-                episode_score += agent_info["agent_score"]
-                if "num_swaps" in agent_info:
-                    episode_num_swaps += agent_info["num_swaps"]
-                if agent_info["agent_done"]:
-                    episode_done_agents += 1
-
-        norm_factor = 1.0 / (episode_max_steps * episode_num_agents)
-        percentage_complete = float(episode_done_agents) / episode_num_agents
-
-        episode.custom_metrics["episode_steps"] = episode_steps
-        episode.custom_metrics["episode_max_steps"] = episode_max_steps
-        episode.custom_metrics["episode_num_agents"] = episode_num_agents
-        episode.custom_metrics["episode_return"] = episode.total_reward
-        episode.custom_metrics["episode_score"] = episode_score
-        episode.custom_metrics["episode_score_normalized"] = episode_score * norm_factor
-        episode.custom_metrics["episode_num_swaps"] = episode_num_swaps / 2
-        episode.custom_metrics["percentage_complete"] = percentage_complete
 
     @staticmethod
     def get_experiments(run_args, arg_parser: ArgumentParser = None):
@@ -139,6 +94,16 @@ class ExperimentRunner:
                          for i in range(config["env_config"]["observation_config"]["max_n_agents"])},
             "policy_mapping_fn": lambda agent_id: "pol_" + str(agent_id)}
 
+    def setup_hierarchical_policies(self, config: dict):
+        obs_space: gym.spaces.Tuple = make_obs(config["env_config"]["observation"],
+                             config["env_config"]["observation_config"]).observation_space()
+        config["multiagent"] = {
+            "policies": {"meta": (None, obs_space.spaces[0], gym.spaces.Box(high=1, low=0, shape=(1,)), {}),
+                         "agent": (None, obs_space.spaces[1], FillingFlatlandGymEnv.action_space, {})
+                         },
+            "policy_mapping_fn": lambda agent_id: "meta" if 'meta' in str(agent_id) else "agent"
+        }
+
     def apply_args(self, run_args, experiments: dict):
         verbose = 1
         webui_host = '127.0.0.1'
@@ -161,7 +126,7 @@ class ExperimentRunner:
                 webui_host = "0.0.0.0"
             if run_args.log_flatland_stats:
                 exp['config']['callbacks'] = {
-                    'on_episode_end': self.on_episode_end,
+                    'on_episode_end': on_episode_end,
                 }
             return experiments, verbose
 
@@ -210,6 +175,9 @@ class ExperimentRunner:
             if exp["run"] == "contrib/MADDPG":
                 exp.get("config")["env_config"]["learning_starts"] = 100
                 exp.get("config")["env_config"]["actions_are_logits"] = True
+
+            if exp["env"] == "flatland_sparse_hierarchical":
+                self.setup_hierarchical_policies(exp.get("config"))
 
             if args is not None:
                 experiments, verbose = self.apply_args(run_args=args, experiments=experiments)

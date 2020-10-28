@@ -1,0 +1,54 @@
+hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
+    run: PPO
+    env: flatland_meta
+    stop:
+        timesteps_total: 15000000
+    checkpoint_freq: 1
+    checkpoint_at_end: True
+    keep_checkpoints_num: 20
+    checkpoint_score_attr: episode_reward_mean
+    num_samples: 1
+    config:
+        num_workers: 7
+        num_envs_per_worker: 5
+        num_gpus: 0
+
+        lr: 0.0001
+
+        clip_rewards: False
+        vf_clip_param: 500.0
+        entropy_coeff: 0.01
+
+        train_batch_size: 100
+        rollout_fragment_length: 5
+        sgd_minibatch_size: 10
+        num_sgd_iter: 10
+        vf_share_layers: False
+
+        gamma: 0.0
+
+        env_config:
+            number_of_agents: 10
+            observation: meta
+            observation_config:
+                width: 25
+                height: 25
+                max_t: 50
+
+            gym_env: robust
+
+            generator: sparse_rail_generator
+            generator_config: small_v0_malf
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["small_v0", "apex", "tree", "robust"]
+
+        model:
+            custom_model: meta_obs_model
+            custom_model_config:
+                architecture: impala
+                architecture_options:
+                    residual_layers: [[16, 2], [32, 4]]
+

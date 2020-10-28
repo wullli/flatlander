@@ -4,6 +4,7 @@ from collections import defaultdict
 from tqdm import tqdm
 
 from flatlander.agents.rllib_agent import RllibAgent
+from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.planning.epsilon_greedy_planning import epsilon_greedy_plan
 from flatlander.planning.genetic_planning import genetic_plan
@@ -30,8 +31,10 @@ ROBUST = True
 
 def evaluate(config, run):
     start_time = timer()
-    obs_builder = make_obs(config["env_config"]['observation'],
-                           config["env_config"].get('observation_config')).builder()
+    #obs_builder = make_obs(config["env_config"]['observation'],
+    #                       config["env_config"].get('observation_config')).builder()
+
+    obs_builder = make_obs("agent_one_hot", {"max_n_agents": 50}).builder()
 
     evaluation_number = 0
     total_reward = 0
@@ -68,6 +71,8 @@ def evaluate(config, run):
 
             evaluation_number += 1
             episode_start_info(evaluation_number, remote_client=remote_client)
+            robust_env = RobustFlatlandGymEnv(rail_env=remote_client.env, observation_space=None)
+            sorted_handles = robust_env.prioritized_agents(handles=observation.keys())
 
             while True:
                 if PLAN and memorized_actions is not None:
@@ -79,9 +84,8 @@ def evaluate(config, run):
                             break
 
                 while not done['__all__']:
-                    robust_env = RobustFlatlandGymEnv(rail_env=remote_client.env, observation_space= None)
-                    actions = agent.compute_actions(observation, remote_client.env)
-                    robust_actions = robust_env.get_robust_actions(actions)
+                    actions = ShortestPathAgent().compute_actions(observation, remote_client.env)
+                    robust_actions = robust_env.get_robust_actions(actions, sorted_handles=sorted_handles)
 
                     observation, all_rewards, done, info = remote_client.env_step(robust_actions)
                     steps += 1

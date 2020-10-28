@@ -617,4 +617,4 @@ class PriorityTreeObs(ObservationBuilder):
             self.predictor.set_env(self.env)
 
     def _reverse_dir(self, direction):
-        return int((direction + 2) % 4)
+        return int((direction + 2) % 4) if direction is not None else None

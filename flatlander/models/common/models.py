@@ -5,7 +5,7 @@ import tensorflow as tf
 
 class FullyConnected(tf.Module):
     def __init__(self, layers: List[int] = None, activation=tf.tanh, layer_norm=False, activation_out=True,
-                 name="fully_connected_net"):
+                 name="fully_connected_net", **_):
         super().__init__(name)
         self.layers = [tf.keras.layers.Flatten()]
         with self.name_scope:
@@ -25,7 +25,7 @@ class FullyConnected(tf.Module):
 
 class NatureCNN(tf.Module):
 
-    def __init__(self, activation_out=True, name="nature_cnn_net"):
+    def __init__(self, activation_out=True, name="nature_cnn_net", **_):
         super().__init__(name)
         with self.name_scope:
             self.layers = [
@@ -58,7 +58,8 @@ class ImpalaResidualLayer(NamedTuple):
 
 class ImpalaCNN(tf.Module):
 
-    def __init__(self, residual_layers: Iterable[Tuple[int, int]] = None, activation_out=True, name="impala_cnn_net"):
+    def __init__(self, residual_layers: Iterable[Tuple[int, int]] = None, activation_out=True, name="impala_cnn_net",
+                 **_):
         super().__init__(name)
         residual_layers = residual_layers or [(16, 2), (32, 2), (32, 2)]
         self._residual_layers = []

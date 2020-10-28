@@ -68,3 +68,6 @@ class DoneRemovedTreeObsForRailEnv(TreeObsForRailEnv):
         self.env.dev_obs_dict[handle] = visited
 
         return root_node_observation
+
+    def _reverse_dir(self, direction):
+        return int((direction + 2) % 4) if direction is not None else None
