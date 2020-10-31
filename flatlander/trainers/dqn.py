@@ -5,7 +5,7 @@ from ray.rllib.agents.dqn.apex import ApexTrainer
 from ray.rllib.agents.dqn.dqn_tf_policy import DQNTFPolicy, ComputeTDErrorMixin
 from ray.rllib.agents.dqn.simple_q_tf_policy import TargetNetworkMixin
 from ray.rllib.utils import try_import_tf, override, DeveloperAPI
-from ray.rllib.utils.typing import TrainerConfigDict
+from ray.rllib.utils.types import TrainerConfigDict
 from ray.tune import register_trainable
 
 tf1, tf, tfv = try_import_tf()

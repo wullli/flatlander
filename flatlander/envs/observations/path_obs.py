@@ -1,3 +1,5 @@
+from typing import Optional, List
+
 import gym
 import numpy as np
 from flatland.core.env_observation_builder import ObservationBuilder
@@ -20,7 +22,7 @@ class PathObservation(Observation):
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        return gym.spaces.Box(low=0, high=1, shape=(12,))
+        return gym.spaces.Box(low=0, high=1, shape=(20,))
 
 
 class PathObservationBuilder(ObservationBuilder):
@@ -28,7 +30,34 @@ class PathObservationBuilder(ObservationBuilder):
         super().__init__()
         self._encode_one_hot = encode_one_hot
         self._directions = list(range(4))
-        self._path_size = len(self._directions) + 2
+        self._path_size = len(self._directions) + 6
+        self.location_has_agent = {}
+        self.location_has_agent_direction = {}
+        self.location_has_agent_malfunction = {}
+        self.location_has_agent_ready_to_depart = {}
+
+    def get_many(self, handles: Optional[List[int]] = None):
+        self.location_has_agent = {}
+        self.location_has_agent_direction = {}
+        self.location_has_agent_malfunction = {}
+        self.location_has_agent_ready_to_depart = {}
+
+        for _agent in self.env.agents:
+            if _agent.status in [RailAgentStatus.ACTIVE, RailAgentStatus.DONE] and \
+                    _agent.position:
+                self.location_has_agent[tuple(_agent.position)] = 1
+                self.location_has_agent_direction[tuple(_agent.position)] = _agent.direction
+                self.location_has_agent_malfunction[tuple(_agent.position)] = _agent.malfunction_data[
+                    'malfunction']
+
+            if _agent.status in [RailAgentStatus.READY_TO_DEPART] and \
+                    _agent.initial_position:
+                self.location_has_agent_ready_to_depart[tuple(_agent.initial_position)] = \
+                    self.location_has_agent_ready_to_depart.get(tuple(_agent.initial_position), 0) + 1
+
+        if handles is None:
+            handles = []
+        return {h: self.get(h) for h in handles}
 
     def reset(self):
         pass
@@ -62,12 +91,12 @@ class PathObservationBuilder(ObservationBuilder):
                 distance = max_distance if (
                         distance == np.inf or np.isnan(distance)) else distance
 
-                conflict = self.conflict(handle, pos, movement, is_sp=len(possible_steps) == 0)
+                loc_features = self.check_location(pos, movement)
                 next_possible_moves = self.env.rail.get_transitions(*pos, movement)
-                while np.count_nonzero(next_possible_moves) == 1 and not conflict:
+                while np.count_nonzero(next_possible_moves) == 1:
                     movement = np.argmax(next_possible_moves)
                     pos = get_new_position(pos, movement)
-                    conflict = self.conflict(handle, pos, movement, is_sp=len(possible_steps) == 0)
+                    loc_features = np.bitwise_or(self.check_location(pos, movement), loc_features)
                     next_possible_moves = self.env.rail.get_transitions(*pos, movement)
 
                 if self._encode_one_hot:
@@ -75,7 +104,7 @@ class PathObservationBuilder(ObservationBuilder):
                     next_move_one_hot[next_move] = 1
                     next_move = next_move_one_hot
 
-                possible_steps.append((next_move, [distance / max_distance], [int(conflict)]))
+                possible_steps.append((next_move, [distance / max_distance], loc_features))
 
         possible_steps = sorted(possible_steps, key=lambda step: step[1])
         obs = np.full(self._path_size * 2, fill_value=0)
@@ -84,24 +113,18 @@ class PathObservationBuilder(ObservationBuilder):
 
         return obs
 
-    def conflict(self, handle, pos, movement, is_sp=True):
-        conflict_handles = [a.handle for a in self.env.agents
-                            if pos == a.position and a.handle != handle]
-        potential_conflicts = []
-        if len(conflict_handles) > 0:
-            for conflict_handle in conflict_handles:
-                other_direction = self.env.agents[conflict_handle].direction
+    def check_location(self, position, direction):
+        location_features = np.zeros(5, dtype=int)
+        if position in self.location_has_agent:
+            location_features[0] = 1
+            if self.location_has_agent_malfunction[position]:
+                location_features[1] = 1
 
-                other_possible_moves = self.env.rail.get_transitions(*pos, other_direction)
-                other_movement = np.argmax(other_possible_moves)
+            if self.location_has_agent_ready_to_depart.get(position, 0) > 0:
+                location_features[2] = 1
 
-                own_possible_moves = self.env.rail.get_transitions(*pos, movement)
-                own_movement = np.argmax(own_possible_moves)
-
-                own_next_pos = get_new_position(pos, own_movement)
-                other_next_pos = get_new_position(pos, other_movement)
-                conflict = own_next_pos != other_next_pos
-
-                potential_conflicts.append(conflict)
-
-        return np.any(potential_conflicts)
+            if self.location_has_agent_direction[position] == direction:
+                location_features[3] = 1
+            else:
+                location_features[4] = 1
+        return location_features
