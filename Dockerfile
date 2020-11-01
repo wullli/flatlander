@@ -41,7 +41,7 @@ RUN wget \
 ENV PATH="${HOME}/miniconda3/bin:${PATH}"
 ENV CUDA_VISIBLE_DEVICES=1
 
-RUN conda env create -f ${HOME}/environment-gpu.yml
+RUN conda env create -f ${HOME}/environment.yml
 
 ENV PATH ${HOME}/miniconda3/envs/flatland-rl/bin:$PATH
 ENV CONDA_DEFAULT_ENV flatland-rl

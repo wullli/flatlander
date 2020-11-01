@@ -29,7 +29,7 @@ RENDER = True
 
 
 def get_env():
-    n_agents = 24
+    n_agents = 30
     config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
     # trainer = get_agent(config, run, 5)
@@ -99,4 +99,4 @@ def evaluate(n_episodes):
 
 
 if __name__ == "__main__":
-    evaluate(10, )
+    evaluate(10)

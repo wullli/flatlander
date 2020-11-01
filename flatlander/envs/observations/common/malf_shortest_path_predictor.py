@@ -20,7 +20,7 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
     def __init__(self, max_depth: int = 20):
         super().__init__(max_depth)
 
-    def get(self, handle: int = None):
+    def get(self, handle: int = None, positions=None, directions=None):
         """
         Called whenever get_many in the observation build is called.
         Requires distance_map to extract the shortest path.
@@ -81,8 +81,12 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
             if shortest_path:
                 shortest_path = shortest_path[1:]
 
-            new_direction = agent_virtual_direction
-            new_position = agent_virtual_position
+            if positions is not None and positions.get(agent.handle, None) is not None:
+                new_direction = directions[agent.handle]
+                new_position = positions[agent.handle]
+            else:
+                new_direction = agent_virtual_direction
+                new_position = agent_virtual_position
             visited = OrderedSet()
             for index in range(1, self.max_depth + 1):
 

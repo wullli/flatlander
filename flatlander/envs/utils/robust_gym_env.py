@@ -65,11 +65,14 @@ class RobustFlatlandGymEnv(gym.Env):
                 _, new_cell_valid, new_direction, new_position, transition_valid = \
                     self.rail_env._check_action_on_agent(action_dict[agent.handle], agent)
                 if new_cell_valid and transition_valid:
-                    positions[agent.handle] = new_position
-                    directions[agent.handle] = new_direction
-                    continue
-            positions[agent.handle] = self.get_virtual_position(agent)
-            directions[agent.handle] = agent.direction
+                    if new_position is not None:
+                        positions[agent.handle] = new_position
+                        directions[agent.handle] = new_direction
+                        continue
+            virt_pos = self.get_virtual_position(agent)
+            if virt_pos is not None:
+                positions[agent.handle] = virt_pos
+                directions[agent.handle] = agent.direction
 
         return positions, directions
 
@@ -103,17 +106,16 @@ class RobustFlatlandGymEnv(gym.Env):
             action_dict = self.get_rail_env_actions(action_dict)
 
         positions, directions = self.get_predictions(action_dict)
-        self.conflict_detector.map_predictions()
 
         robust_actions = {}
+        agent_conflicts, agent_malf = self.conflict_detector.detect_conflicts(handles=list(positions.keys()),
+                                                                              positions=positions,
+                                                                              directions=directions)
+
         for i, h in enumerate(sorted_handles):
             if h in action_dict.keys():
-                if positions[h] is not None:
-                    c_handles, _ = self.conflict_detector.detect_conflicts(
-                        position=positions[self.rail_env.agents[h].handle],
-                        agent=self.rail_env.agents[h],
-                        direction=directions[self.rail_env.agents[h].handle])
-                    if len([ch for ch in c_handles if sorted_handles.index(ch) < i]) > 0:
+                if positions.get(h, None) is not None:
+                    if len([ch for ch in agent_conflicts[h] if sorted_handles.index(ch) < i]) > 0:
                         robust_actions[h] = RailEnvActions.STOP_MOVING.value
                         continue
 

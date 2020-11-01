@@ -292,11 +292,10 @@ def possible_actions_sorted_by_distance(env: RailEnv, handle: int):
             agent.handle, next_action.next_position[0], next_action.next_position[
                 1], next_action.next_direction]
         if next_action_distance < best_dist:
-            if next_action_distance < best_dist:
-                other_dist = best_dist
-                other_action = best_next_action
-                best_dist = next_action_distance
-                best_next_action = next_action
+            other_dist = best_dist
+            other_action = best_next_action
+            best_dist = next_action_distance
+            best_next_action = next_action
 
     # always keep iteration order to make shortest paths deterministic
     if other_action is None:

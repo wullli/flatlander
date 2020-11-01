@@ -63,7 +63,6 @@ class PathObservationBuilder(ObservationBuilder):
         nan_inf_mask = ((distance_map != np.inf) * (np.abs(np.isnan(distance_map) - 1))).astype(np.bool)
         max_distance = np.max(distance_map[nan_inf_mask])
         possible_paths = []
-        conflict_handles = []
 
         for movement in self._directions:
             if possible_transitions[movement]:
@@ -71,10 +70,8 @@ class PathObservationBuilder(ObservationBuilder):
                 distance = distance_map[agent.handle][pos + (movement,)]
                 distance = max_distance if (distance == np.inf or np.isnan(distance)) else distance
 
-                conflict, malf = self.conflict_detector.detect_conflicts(
-                    position=pos,
-                    agent=self.env.agents[handle],
-                    direction=movement)
+                conflict, malf = self.conflict_detector.detect_conflicts_multi(position=pos, direction=movement,
+                                                                               agent=self.env.agents[handle])
 
                 malf = np.max(malf) if len(malf) > 0 else 0
                 possible_paths.append(np.array([distance / max_distance,

@@ -1,9 +1,9 @@
+from collections import defaultdict
+
 import numpy as np
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.core.grid.grid_utils import coordinate_to_position
-from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
-from flatland.envs.rail_env_shortest_paths import get_valid_move_actions_
 
 from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
 
@@ -15,21 +15,20 @@ class ShortestPathConflictDetector:
         self.distance_map = self.rail_env.distance_map.get()
         self.nan_inf_mask = ((self.distance_map != np.inf) * (np.abs(np.isnan(self.distance_map) - 1))).astype(np.bool)
         self.max_distance = np.max(self.distance_map[self.nan_inf_mask])
-        self._predictor = ShortestPathPredictorForRailEnv(max_depth=int(self.max_distance) * 2)
+        self._predictor = MalfShortestPathPredictorForRailEnv(max_depth=int(self.max_distance / 2))
         self._predictor.set_env(self.rail_env)
-        self.max_prediction_depth = 0
         self.predicted_pos = {}
         self.predicted_dir = {}
         self.multi_shortest_path = multi_shortest_path
 
-    def map_predictions(self, handles=None):
+    def map_predictions(self, handles=None, positions=None, directions=None):
         if handles is None:
             handles = [a.handle for a in self.rail_env.agents]
         if self._predictor:
             self.max_prediction_depth = 0
             self.predicted_pos = {}
             self.predicted_dir = {}
-            predictions = self._predictor.get()
+            predictions = self._predictor.get(positions=positions, directions=directions)
             if predictions:
                 for t in range(self._predictor.max_depth + 1):
                     pos_list = []
@@ -43,11 +42,62 @@ class ShortestPathConflictDetector:
                     self.predicted_dir.update({t: dir_list})
                 self.max_prediction_depth = len(self.predicted_pos)
 
-    def detect_conflicts(self,
-                         position,
-                         agent,
-                         direction,
-                         tot_dist=1):
+    def detect_conflicts(self, handles=None, positions=None, directions=None):
+        if self.multi_shortest_path:
+            agent_conflict_handles = defaultdict(lambda: [])
+            agent_malfunctions = defaultdict(lambda: [])
+            self.map_predictions(handles, positions, directions)
+            for h in handles:
+                agent_conflict_handles[h], agent_malfunctions[h] = self.detect_conflicts_multi(
+                    agent=self.rail_env.agents[h],
+                    position=positions[h],
+                    direction=directions[h])
+            return agent_conflict_handles, agent_malfunctions
+
+        else:
+            return self.detect_conflicts_single(handles=handles, positions=positions, directions=directions)
+
+    def detect_conflicts_single(self, handles=None, positions=None, directions=None):
+        """
+        More efficient implementation to detect conflicts using a shortest path predictor
+        """
+        if handles is None:
+            handles = [a.handle for a in self.rail_env.agents]
+
+        num_agents = self.rail_env.get_num_agents()
+        predictions = self._predictor.get(positions=positions,
+                                          directions=directions)
+        self.predicted_pos = {}
+        self.predicted_dir = {}
+        agent_conflict_handles = defaultdict(lambda: [])
+        agent_malfunctions = defaultdict(lambda: [])
+        for t in range(self._predictor.max_depth + 1):
+            pred_times = [max(0, t - 1), t]
+
+            for h in handles:
+                for pt in pred_times:
+                    self.accumulate_predictions(t, pt, handles, predictions, num_agents)
+                    handle_mask = np.zeros(self.rail_env.get_num_agents())
+                    handle_mask[h] = np.inf
+                    masked_preds = self.predicted_pos[pt] + handle_mask
+                    conf_handles = np.where(self.predicted_pos[t][h] == masked_preds)
+                    conf_dirs = np.where(self.predicted_dir[t][h] != self.predicted_dir[pt][conf_handles])
+                    conf_handles = conf_handles[0][conf_dirs]
+                    agent_conflict_handles[h].extend(list(conf_handles))
+
+                    for ch in conf_handles:
+                        if np.isnan(self.predicted_dir[pt][ch]):
+                            malf_current = self.rail_env.agents[ch].malfunction_data['malfunction']
+                            malf_remaining = max(malf_current - pt, 0)
+                            agent_malfunctions[h].append(min(malf_remaining, 0))
+
+        return agent_conflict_handles, agent_malfunctions
+
+    def detect_conflicts_multi(self,
+                               position,
+                               agent,
+                               direction,
+                               tot_dist=1):
         conflict_handles = []
         time_per_cell = int(np.reciprocal(agent.speed_data["speed"]))
         predicted_time = int(tot_dist * time_per_cell)
@@ -75,40 +125,15 @@ class ShortestPathConflictDetector:
                                     malfunctions.append(min(malf_remaining, 0))
 
             tot_dist += 1
-            if self.multi_shortest_path:
-                positions, directions = self.get_all_shortest_path_positions(position=position,
-                                                                             direction=direction,
-                                                                             handle=agent.handle)
-            else:
-                positions, directions = self.get_shortest_path_position(position=position,
-                                                                        direction=direction,
-                                                                        handle=agent.handle)
+            positions, directions = self.get_all_shortest_path_positions(position=position,
+                                                                         direction=direction,
+                                                                         handle=agent.handle)
             for pos, dir in zip(positions, directions):
-                new_chs, new_malfs = self.detect_conflicts(tuple(pos), agent, dir, tot_dist=tot_dist)
+                new_chs, new_malfs = self.detect_conflicts_multi(tuple(pos), agent, dir, tot_dist=tot_dist)
                 conflict_handles += new_chs
                 malfunctions += new_malfs
 
         return conflict_handles, malfunctions
-
-    def get_shortest_path_position(self, position, direction, handle):
-        best_dist = np.inf
-        best_next_action = None
-        distance_map = self.rail_env.distance_map
-
-        next_actions = get_valid_move_actions_(direction, position, distance_map.rail)
-
-        for next_action in next_actions:
-            next_action_distance = distance_map.get()[handle,
-                                                      next_action.next_position[0],
-                                                      next_action.next_position[1],
-                                                      next_action.next_direction]
-            if next_action_distance < best_dist:
-                if next_action_distance <= best_dist:
-                    best_dist = next_action_distance
-                    best_next_action = next_action
-        if best_next_action is None:
-            return [position], [direction]
-        return [best_next_action.next_position], [best_next_action.next_direction]
 
     def get_all_shortest_path_positions(self, position, direction, handle):
         """
@@ -133,3 +158,19 @@ class ShortestPathConflictDetector:
         sp_move = np.array(possible_moves)[sp_indexes]
 
         return sp_pos, sp_move
+
+    def accumulate_predictions(self, t, pt, handles, predictions, num_agents):
+        if self.predicted_pos.get(t, None) is None:
+            self.predicted_pos[t], self.predicted_dir[t] = self._get_predictions(t, handles,
+                                                                                 predictions, num_agents)
+        if self.predicted_pos.get(pt, None) is None:
+            self.predicted_pos[pt], self.predicted_dir[pt] = self._get_predictions(pt, handles,
+                                                                                   predictions, num_agents)
+
+    def _get_predictions(self, timestep: int, handles: list, predictions, num_agents):
+        positions = np.zeros(num_agents)
+        directions = np.zeros(num_agents)
+        for h in handles:
+            positions[h] = coordinate_to_position(self.rail_env.width, [predictions[h][timestep][1:3]])[0]
+            directions[h] = (predictions[h][timestep][3])
+        return positions, directions
