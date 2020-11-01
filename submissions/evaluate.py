@@ -29,7 +29,7 @@ RENDER = True
 
 
 def get_env():
-    n_agents = 50
+    n_agents = 24
     config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
     # trainer = get_agent(config, run, 5)
@@ -51,8 +51,8 @@ def get_env():
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=50,
-        height=50,
+        width=32,
+        height=32,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
