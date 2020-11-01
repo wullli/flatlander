@@ -300,6 +300,26 @@ def possible_actions_sorted_by_distance(env: RailEnv, handle: int):
         return possible_steps
 
 
+class NoStopShortestPathActionWrapper(gym.Wrapper):
+
+    def __init__(self, env) -> None:
+        super().__init__(env)
+        print("Apply ShortestPathActionWrapper")
+        self.action_space = gym.spaces.Discrete(n=2)  # shortest path, other direction
+
+    def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:
+        rail_env: RailEnv = self.env.unwrapped.rail_env
+        transformed_action_dict = {}
+        for agent_id, action in action_dict.items():
+            action += 1
+            transformed_action_dict[agent_id] = possible_actions_sorted_by_distance(rail_env, agent_id)[action - 1][0]
+        step_output = self.env.step(transformed_action_dict)
+        return step_output
+
+    def reset(self, random_seed: Optional[int] = None) -> Dict[int, Any]:
+        return self.env.reset(random_seed)
+
+
 class ShortestPathActionWrapper(gym.Wrapper):
 
     def __init__(self, env) -> None:

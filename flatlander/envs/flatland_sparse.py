@@ -16,7 +16,8 @@ from flatlander.envs.utils.gym_env import FlatlandGymEnv
 from flatlander.envs.utils.gym_env_fill_missing import FillingFlatlandGymEnv
 from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, SkipNoChoiceCellsWrapper, \
     SparseRewardWrapper, \
-    DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper, GlobalRewardWrapper
+    DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper, GlobalRewardWrapper, \
+    NoStopShortestPathActionWrapper
 from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as RailEnv
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.envs.utils.seq_schedule_generator import SequentialSparseSchedGen
@@ -30,7 +31,7 @@ class FlatlandSparse(FlatlandBase):
                  "robust": RobustFlatlandGymEnv,
                  "global": GlobalFlatlandGymEnv}
 
-    _sp_action_needed = ["priority_path", "path", 'shortest_path', 'shortest_path_priority_conflict']
+    _sp_action_needed = ["priority_path", 'shortest_path', 'shortest_path_priority_conflict']
 
     def __init__(self, env_config, fine_tune_env_path=None, max_steps=None, **kwargs) -> None:
         super().__init__(env_config.get("actions_are_logits", False), max_steps=max_steps)
@@ -68,6 +69,8 @@ class FlatlandSparse(FlatlandBase):
 
         if env_config['observation'] in self._sp_action_needed:
             self._env = ShortestPathActionWrapper(self._env)
+        if env_config['observation'] == 'path':
+            self._env = NoStopShortestPathActionWrapper(self._env)
         if env_config.get('sparse_reward', False):
             self._env = SparseRewardWrapper(self._env, finished_reward=env_config.get('done_reward', 1),
                                             not_finished_reward=env_config.get('not_finished_reward', -1))

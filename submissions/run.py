@@ -56,8 +56,8 @@ def evaluate(config, run):
 
             if n_agents != remote_client.env.get_num_agents():
                 n_agents = remote_client.env.get_num_agents()
-                trainer = get_agent(config, run, n_agents)
-                agent = RllibAgent(trainer, explore=False)
+                #trainer = get_agent(config, run, n_agents)
+                #agent = RllibAgent(trainer, explore=False)
 
             steps = 0
             done = defaultdict(lambda: False)
@@ -71,7 +71,7 @@ def evaluate(config, run):
 
             evaluation_number += 1
             episode_start_info(evaluation_number, remote_client=remote_client)
-            robust_env = RobustFlatlandGymEnv(rail_env=remote_client.env, observation_space=None)
+            robust_env = RobustFlatlandGymEnv(rail_env=remote_client.env, observation_space=None, allow_noop=True)
             sorted_handles = robust_env.prioritized_agents(handles=observation.keys())
 
             while True:
