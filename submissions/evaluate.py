@@ -24,19 +24,19 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import tensorflow as tf
 
 tf.compat.v1.disable_eager_execution()
-seed = 45234243
+seed = 234123
 RENDER = True
 
 
 def get_env():
-    n_agents = 30
+    n_agents = 50
     config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
     # trainer = get_agent(config, run, 5)
 
     rail_generator = sparse_rail_generator(
         seed=seed,
-        max_num_cities=6,
+        max_num_cities=4,
         grid_mode=False,
         max_rails_between_cities=2,
         max_rails_in_city=4,
@@ -51,12 +51,12 @@ def get_env():
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=32,
-        height=32,
+        width=40,
+        height=40,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
-        malfunction_generator=NoMalfunctionGen(),
+        malfunction_generator=malfunction_generator,
         obs_builder_object=SimpleMetaObservation({}).builder(),
         remove_agents_at_target=True,
         random_seed=seed,
@@ -74,7 +74,7 @@ def evaluate(n_episodes):
         obs, _ = env.reset(regenerate_schedule=True, regenerate_rail=True)
         if RENDER:
             env_renderer.reset()
-            env_renderer.render_env(show=True, frames=True, show_observations=False)
+            env_renderer.render_env(show=True, frames=True, show_observations=True)
 
         if not obs:
             break

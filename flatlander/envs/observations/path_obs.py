@@ -2,7 +2,6 @@ from typing import Optional, List
 
 import gym
 import numpy as np
-from flatland.core.env import Environment
 from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.envs.agent_utils import RailAgentStatus
