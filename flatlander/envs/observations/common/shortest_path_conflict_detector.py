@@ -10,7 +10,7 @@ from flatlander.envs.observations.common.malf_shortest_path_predictor import Mal
 
 class ShortestPathConflictDetector:
 
-    def __init__(self, rail_env: RailEnv, multi_shortest_path=False):
+    def __init__(self, rail_env: RailEnv, multi_shortest_path=True):
         self.rail_env = rail_env
         self.distance_map = self.rail_env.distance_map.get()
         self.nan_inf_mask = ((self.distance_map != np.inf) * (np.abs(np.isnan(self.distance_map) - 1))).astype(np.bool)
