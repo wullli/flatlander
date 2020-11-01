@@ -301,7 +301,7 @@ def possible_actions_sorted_by_distance(env: RailEnv, handle: int):
     if other_action is None:
         return [(best_next_action.action, best_dist)] * 2
     else:
-        return [(best_next_action.action, best_dist), (other_action, other_dist)]
+        return [(best_next_action.action, best_dist), (other_action.action, other_dist)]
 
 
 class NoStopShortestPathActionWrapper(gym.Wrapper):

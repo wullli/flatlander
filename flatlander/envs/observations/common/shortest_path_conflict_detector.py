@@ -4,6 +4,7 @@ import numpy as np
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.rail_env import RailEnv
+from flatland.envs.rail_env_shortest_paths import get_valid_move_actions_
 
 from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
 
@@ -111,8 +112,7 @@ class ShortestPathConflictDetector:
             if tot_dist < self.max_prediction_depth:
 
                 pred_times = [max(0, predicted_time - 1),
-                              predicted_time,
-                              min(self.max_prediction_depth - 1, predicted_time + 1)]
+                              predicted_time]
 
                 for pred_time in pred_times:
                     masked_preds = self.predicted_pos[pred_time] + handle_mask
@@ -127,9 +127,9 @@ class ShortestPathConflictDetector:
                                     malfunctions.append(malf_remaining)
 
             tot_dist += 1
-            positions, directions = self.get_all_shortest_path_positions(position=position,
-                                                                         direction=direction,
-                                                                         handle=agent.handle)
+            positions, directions = self.get_shortest_path_position(position=position,
+                                                                    direction=direction,
+                                                                    handle=agent.handle)
             for pos, dir in zip(positions, directions):
                 new_chs, new_malfs = self.detect_conflicts_multi(tuple(pos), agent, dir, tot_dist=tot_dist)
                 conflict_handles += new_chs
@@ -137,29 +137,25 @@ class ShortestPathConflictDetector:
 
         return conflict_handles, malfunctions
 
-    def get_all_shortest_path_positions(self, position, direction, handle):
-        """
-        Its possible that there are multiple shortest paths!
-        """
-        possible_transitions = self.rail_env.rail.get_transitions(*position, direction)
+    def get_shortest_path_position(self, position, direction, handle):
+        best_dist = np.inf
+        best_next_action = None
+        distance_map = self.rail_env.distance_map
 
-        possible_moves = []
-        possible_positions = []
-        distances = []
-        for movement in range(4):
-            if possible_transitions[movement]:
-                pos = get_new_position(position, movement)
-                distance = self.distance_map[handle][pos + (movement,)]
-                distances.append(distance)
-                possible_moves.append(movement)
-                possible_positions.append(pos)
+        next_actions = get_valid_move_actions_(direction, position, distance_map.rail)
 
-        min_dist = np.min(distances)
-        sp_indexes = np.array(distances) == min_dist
-        sp_pos = np.array(possible_positions)[sp_indexes]
-        sp_move = np.array(possible_moves)[sp_indexes]
-
-        return sp_pos, sp_move
+        for next_action in next_actions:
+            next_action_distance = distance_map.get()[handle,
+                                                      next_action.next_position[0],
+                                                      next_action.next_position[1],
+                                                      next_action.next_direction]
+            if next_action_distance < best_dist:
+                if next_action_distance <= best_dist:
+                    best_dist = next_action_distance
+                    best_next_action = next_action
+        if best_next_action is None:
+            return [position], [direction]
+        return [best_next_action.next_position], [best_next_action.next_direction]
 
     def accumulate_predictions(self, t, pt, handles, predictions, num_agents):
         if self.predicted_pos.get(t, None) is None:
