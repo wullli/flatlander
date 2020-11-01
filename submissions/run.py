@@ -3,8 +3,6 @@ from collections import defaultdict
 
 from tqdm import tqdm
 
-from flatlander.agents.rllib_agent import RllibAgent
-from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.planning.epsilon_greedy_planning import epsilon_greedy_plan
