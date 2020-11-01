@@ -6,7 +6,7 @@ SUBMISSON_TRAINING_flatland-sparse-small-tree_obs-robust-fc-apex:
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 20
-    checkpoint_score_attr: episode_reward_min
+    checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
         num_workers: 7
