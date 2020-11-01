@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 from flatlander.agents.rllib_agent import RllibAgent
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
+from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.planning.epsilon_greedy_planning import epsilon_greedy_plan
 from flatlander.planning.genetic_planning import genetic_plan
@@ -31,10 +32,8 @@ ROBUST = True
 
 def evaluate(config, run):
     start_time = timer()
-    #obs_builder = make_obs(config["env_config"]['observation'],
-    #                       config["env_config"].get('observation_config')).builder()
-
-    obs_builder = make_obs("agent_one_hot", {"max_n_agents": 50}).builder()
+    obs_builder = make_obs(config["env_config"]['observation'],
+                           config["env_config"].get('observation_config')).builder()
 
     evaluation_number = 0
     total_reward = 0
@@ -54,10 +53,10 @@ def evaluate(config, run):
             if not observation:
                 break
 
-            if n_agents != remote_client.env.get_num_agents():
+            if n_agents == 0:
                 n_agents = remote_client.env.get_num_agents()
-                #trainer = get_agent(config, run, n_agents)
-                #agent = RllibAgent(trainer, explore=False)
+                trainer = get_agent(config, run, n_agents)
+                agent = ShortestPathRllibAgent(trainer, explore=False)
 
             steps = 0
             done = defaultdict(lambda: False)
@@ -84,7 +83,7 @@ def evaluate(config, run):
                             break
 
                 while not done['__all__']:
-                    actions = ShortestPathAgent().compute_actions(observation, remote_client.env)
+                    actions = agent.compute_actions(observation, remote_client.env)
                     robust_actions = robust_env.get_robust_actions(actions, sorted_handles=sorted_handles)
 
                     observation, all_rewards, done, info = remote_client.env_step(robust_actions)

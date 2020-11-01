@@ -56,7 +56,7 @@ def get_env():
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
-        malfunction_generator=malfunction_generator,
+        malfunction_generator=NoMalfunctionGen(),
         obs_builder_object=SimpleMetaObservation({}).builder(),
         remove_agents_at_target=True,
         random_seed=seed,

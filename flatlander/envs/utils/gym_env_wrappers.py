@@ -7,6 +7,8 @@ import numpy as np
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.envs.agent_utils import EnvAgent, RailAgentStatus
 from flatland.envs.rail_env import RailEnv, RailEnvActions
+from flatland.envs.rail_env_shortest_paths import get_valid_move_actions_
+
 from flatlander.envs.utils.gym_env import StepOutput
 
 
@@ -277,27 +279,30 @@ def possible_actions_sorted_by_distance(env: RailEnv, handle: int):
     else:
         return None
 
-    possible_transitions = env.rail.get_transitions(*agent_virtual_position, agent.direction)
-    distance_map = env.distance_map.get()[handle]
-    possible_steps = []
-    for movement in list(range(4)):
-        if possible_transitions[movement]:
-            if movement == agent.direction:
-                action = RailEnvActions.MOVE_FORWARD
-            elif movement == (agent.direction + 1) % 4:
-                action = RailEnvActions.MOVE_RIGHT
-            elif movement == (agent.direction - 1) % 4:
-                action = RailEnvActions.MOVE_LEFT
-            else:
-                raise ValueError("Wtf, debug this shit.")
-            distance = distance_map[get_new_position(agent_virtual_position, movement) + (movement,)]
-            possible_steps.append((action, distance))
-    possible_steps = sorted(possible_steps, key=lambda step: step[1])
+    distance_map = env.distance_map
+    best_dist = np.inf
+    best_next_action = None
+    other_dist = None
+    other_action = None
 
-    if len(possible_steps) == 1:
-        return possible_steps * 2
+    next_actions = get_valid_move_actions_(agent.direction, agent_virtual_position, distance_map.rail)
+
+    for next_action in next_actions:
+        next_action_distance = distance_map.get()[
+            agent.handle, next_action.next_position[0], next_action.next_position[
+                1], next_action.next_direction]
+        if next_action_distance < best_dist:
+            if next_action_distance < best_dist:
+                other_dist = best_dist
+                other_action = best_next_action
+                best_dist = next_action_distance
+                best_next_action = next_action
+
+    # always keep iteration order to make shortest paths deterministic
+    if other_action is None:
+        return [(best_next_action.action, best_dist)] * 2
     else:
-        return possible_steps
+        return [(best_next_action.action, best_dist), (other_action, other_dist)]
 
 
 class NoStopShortestPathActionWrapper(gym.Wrapper):

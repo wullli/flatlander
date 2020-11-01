@@ -1,23 +1,26 @@
 import numpy as np
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.core.grid.grid_utils import coordinate_to_position
+from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
+from flatland.envs.rail_env_shortest_paths import get_valid_move_actions_
 
 from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
 
 
 class ShortestPathConflictDetector:
 
-    def __init__(self, rail_env: RailEnv):
+    def __init__(self, rail_env: RailEnv, multi_shortest_path=False):
         self.rail_env = rail_env
         self.distance_map = self.rail_env.distance_map.get()
         self.nan_inf_mask = ((self.distance_map != np.inf) * (np.abs(np.isnan(self.distance_map) - 1))).astype(np.bool)
         self.max_distance = np.max(self.distance_map[self.nan_inf_mask])
-        self._predictor = MalfShortestPathPredictorForRailEnv(max_depth=int(self.max_distance))
+        self._predictor = ShortestPathPredictorForRailEnv(max_depth=int(self.max_distance) * 2)
         self._predictor.set_env(self.rail_env)
         self.max_prediction_depth = 0
         self.predicted_pos = {}
         self.predicted_dir = {}
+        self.multi_shortest_path = multi_shortest_path
 
     def map_predictions(self, handles=None):
         if handles is None:
@@ -46,7 +49,7 @@ class ShortestPathConflictDetector:
                          direction,
                          tot_dist=1):
         conflict_handles = []
-        time_per_cell = np.reciprocal(agent.speed_data["speed"])
+        time_per_cell = int(np.reciprocal(agent.speed_data["speed"]))
         predicted_time = int(tot_dist * time_per_cell)
         handle_mask = np.zeros(self.rail_env.get_num_agents())
         handle_mask[agent.handle] = np.inf
@@ -72,9 +75,14 @@ class ShortestPathConflictDetector:
                                     malfunctions.append(min(malf_remaining, 0))
 
             tot_dist += 1
-            positions, directions = self.get_shortest_path_position(position=position,
-                                                                    direction=direction,
-                                                                    handle=agent.handle,)
+            if self.multi_shortest_path:
+                positions, directions = self.get_all_shortest_path_positions(position=position,
+                                                                             direction=direction,
+                                                                             handle=agent.handle)
+            else:
+                positions, directions = self.get_shortest_path_position(position=position,
+                                                                        direction=direction,
+                                                                        handle=agent.handle)
             for pos, dir in zip(positions, directions):
                 new_chs, new_malfs = self.detect_conflicts(tuple(pos), agent, dir, tot_dist=tot_dist)
                 conflict_handles += new_chs
@@ -83,6 +91,26 @@ class ShortestPathConflictDetector:
         return conflict_handles, malfunctions
 
     def get_shortest_path_position(self, position, direction, handle):
+        best_dist = np.inf
+        best_next_action = None
+        distance_map = self.rail_env.distance_map
+
+        next_actions = get_valid_move_actions_(direction, position, distance_map.rail)
+
+        for next_action in next_actions:
+            next_action_distance = distance_map.get()[handle,
+                                                      next_action.next_position[0],
+                                                      next_action.next_position[1],
+                                                      next_action.next_direction]
+            if next_action_distance < best_dist:
+                if next_action_distance <= best_dist:
+                    best_dist = next_action_distance
+                    best_next_action = next_action
+        if best_next_action is None:
+            return [position], [direction]
+        return [best_next_action.next_position], [best_next_action.next_direction]
+
+    def get_all_shortest_path_positions(self, position, direction, handle):
         """
         Its possible that there are multiple shortest paths!
         """
@@ -95,7 +123,6 @@ class ShortestPathConflictDetector:
             if possible_transitions[movement]:
                 pos = get_new_position(position, movement)
                 distance = self.distance_map[handle][pos + (movement,)]
-                distance = self.max_distance if (distance == np.inf or np.isnan(distance)) else distance
                 distances.append(distance)
                 possible_moves.append(movement)
                 possible_positions.append(pos)
