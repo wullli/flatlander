@@ -74,11 +74,11 @@ class PathObservationBuilder(ObservationBuilder):
 
                 malf = np.max(malf) if len(malf) > 0 else 0
                 possible_paths.append(np.array([distance / max_distance,
-                                                malf,
+                                                malf / self.env.malfunction_process_data.max_duration,
                                                 int(len(conflict) > 0)]))
 
         possible_steps = sorted(possible_paths, key=lambda path: path[1])
-        obs = np.full(self.path_size * 2, fill_value=0)
+        obs = np.full(self.path_size * 2, fill_value=0, dtype=np.float32)
         for i, path in enumerate(possible_steps):
             obs[i * self.path_size:self.path_size * (i + 1)] = path
 

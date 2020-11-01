@@ -124,7 +124,7 @@ class ShortestPathConflictDetector:
                                 if np.isnan(self.predicted_dir[pred_time][ca]):
                                     malf_current = self.rail_env.agents[ca].malfunction_data['malfunction']
                                     malf_remaining = max(malf_current - tot_dist, 0)
-                                    malfunctions.append(min(malf_remaining, 0))
+                                    malfunctions.append(malf_remaining)
 
             tot_dist += 1
             positions, directions = self.get_all_shortest_path_positions(position=position,
