@@ -15,7 +15,9 @@ class ShortestPathConflictDetector:
         self.distance_map = self.rail_env.distance_map.get()
         self.nan_inf_mask = ((self.distance_map != np.inf) * (np.abs(np.isnan(self.distance_map) - 1))).astype(np.bool)
         self.max_distance = np.max(self.distance_map[self.nan_inf_mask])
-        self._predictor = MalfShortestPathPredictorForRailEnv(max_depth=int(self.max_distance))
+        max_agent_dist = np.max([self.distance_map[a.handle][a.initial_position + (a.initial_direction,)]
+                                 for a in self.rail_env.agents])
+        self._predictor = MalfShortestPathPredictorForRailEnv(max_depth=int(max_agent_dist))
         self._predictor.set_env(self.rail_env)
         self.predicted_pos = {}
         self.predicted_dir = {}
