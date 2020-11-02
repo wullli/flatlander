@@ -36,7 +36,11 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
 
             if handles is None:
                 handles = []
-            return {h: self.get(h) for h in handles}
+            obs = {h: self.get(h) for h in handles}
+            obs_matrix = np.array(list(obs.values()))
+            obs_normed = obs_matrix / np.max(obs_matrix, axis=0)
+            obs = {h: obs_normed[i] for i, h in enumerate(handles)}
+            return obs
         else:
             return {h: [] for h in handles}
 
@@ -90,9 +94,9 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         possible_steps = sorted(possible_paths, key=lambda path: path[1])
 
         return np.array([distance / max_distance,
-                         nr_agents_same_start / len(self.env.agents),
-                         nr_agents_same_start_and_dir / len(self.env.agents),
-                         possible_steps[0][1] / self.env.get_num_agents()])
+                         nr_agents_same_start,
+                         nr_agents_same_start_and_dir,
+                         possible_steps[0][1]])
 
     def set_env(self, env: Environment):
         self.env: RailEnv = env
