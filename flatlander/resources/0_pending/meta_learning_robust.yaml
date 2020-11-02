@@ -21,7 +21,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         gamma: 0.0
 
         env_config:
-            number_of_agents: 1
+            number_of_agents: 18
             observation: simple_meta
 
             gym_env: robust
