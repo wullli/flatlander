@@ -69,7 +69,7 @@ class FlatlandSparse(FlatlandBase):
 
         if env_config['observation'] in self._sp_action_needed:
             self._env = ShortestPathActionWrapper(self._env)
-        if env_config['observation'] == 'path':
+        if env_config['observation'] == 'path' or env_config['observation'] == 'nr_conflicts_path':
             self._env = NoStopShortestPathActionWrapper(self._env)
         if env_config.get('sparse_reward', False):
             self._env = SparseRewardWrapper(self._env, finished_reward=env_config.get('done_reward', 1),
