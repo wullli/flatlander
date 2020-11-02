@@ -1,22 +1,18 @@
-import multiprocessing
 import os
-import time
 from collections import defaultdict
-from multiprocessing import Pool
 
 import numpy as np
-from flatland.envs.malfunction_generators import NoMalfunctionGen, MalfunctionParameters, ParamMalfunctionGen
+from flatland.envs.malfunction_generators import MalfunctionParameters, ParamMalfunctionGen
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatland.utils.rendertools import RenderTool
-from tqdm import tqdm
 
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs.observations import make_obs
 from flatlander.envs.observations.simple_meta_obs import SimpleMetaObservation
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
-from flatlander.utils.helper import is_done, init_run, get_agent
+from flatlander.submission.helper import is_done, init_run
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"

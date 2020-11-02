@@ -5,7 +5,7 @@ from time import time
 import numpy as np
 from flatland.envs.rail_env import RailEnv
 
-from flatlander.utils.helper import is_done
+from flatlander.submission.helper import is_done
 
 
 def promising(possible_transitions, departed):

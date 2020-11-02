@@ -47,4 +47,4 @@ SUBMISSIONS = {
 }
 
 RUN = SUBMISSIONS["apex_dqn_robust"]
-CURRENT_ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'current_env.pkl'))
+CURRENT_ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../utils/current_env.pkl'))

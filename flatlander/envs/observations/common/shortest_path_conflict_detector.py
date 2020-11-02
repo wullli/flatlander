@@ -1,12 +1,12 @@
 from collections import defaultdict
 
 import numpy as np
-from flatland.core.grid.grid4_utils import get_new_position
 from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_env_shortest_paths import get_valid_move_actions_
 
 from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
+from flatlander.utils.helper import get_save_agent_pos
 
 
 class ShortestPathConflictDetector:
@@ -23,6 +23,15 @@ class ShortestPathConflictDetector:
         self.predicted_pos = {}
         self.predicted_dir = {}
         self.multi_shortest_path = multi_shortest_path
+
+    def update(self):
+        agent_dists = np.array([self.distance_map[a.handle][get_save_agent_pos(a)
+                                                             + (a.initial_direction,)]
+                                 for a in self.rail_env.agents])
+        agent_dists[agent_dists == np.inf] = 0
+        max_agent_dist = np.max(agent_dists)
+        self._predictor = MalfShortestPathPredictorForRailEnv(max_depth=int(max_agent_dist))
+        self._predictor.set_env(self.rail_env)
 
     def map_predictions(self, handles=None, positions=None, directions=None):
         if handles is None:

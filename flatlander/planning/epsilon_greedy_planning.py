@@ -6,7 +6,7 @@ from flatland.envs.agent_utils import RailAgentStatus
 from flatland.envs.rail_env import RailEnv, RailEnvActions
 import numpy as np
 from flatlander.agents.heuristic_agent import HeuristicPriorityAgent
-from flatlander.utils.helper import get_agent_pos, is_done
+from flatlander.submission.helper import get_agent_pos, is_done
 
 
 def promising(possible_transitions, departed):

@@ -9,7 +9,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 
 from flatland.evaluators.client import FlatlandRemoteClient
-from flatlander.utils.helper import episode_start_info, episode_end_info
+from flatlander.submission.helper import episode_start_info, episode_end_info
 
 tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()

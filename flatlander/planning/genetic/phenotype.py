@@ -1,5 +1,5 @@
 from collections import defaultdict
-from copy import copy, deepcopy
+from copy import deepcopy
 from typing import List, Callable, Optional, Dict
 
 from flatland.envs.rail_env import RailEnv, RailEnvActions
@@ -7,7 +7,7 @@ from flatland.envs.agent_utils import RailAgentStatus
 from flatlander.agents.agent import Agent
 import numpy as np
 
-from flatlander.utils.helper import get_agent_pos, is_done
+from flatlander.submission.helper import get_agent_pos, is_done
 
 
 class Phenotype:

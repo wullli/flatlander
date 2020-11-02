@@ -5,7 +5,7 @@ import numpy as np
 from flatland.envs.persistence import RailEnvPersister
 from flatland.envs.rail_env import RailEnv
 
-from flatlander.utils.submissions import CURRENT_ENV_PATH
+from flatlander.submission.submissions import CURRENT_ENV_PATH
 
 
 def parallel_plan(planning_function: Callable, env: RailEnv, **kwargs):

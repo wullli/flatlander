@@ -102,6 +102,7 @@ class RobustFlatlandGymEnv(gym.Env):
         return {h: a + 1 for h, a in action_dict.items()}
 
     def get_robust_actions(self, action_dict, sorted_handles):
+        self.conflict_detector.update()
         if not self.allow_noop:
             action_dict = self.get_rail_env_actions(action_dict)
 
