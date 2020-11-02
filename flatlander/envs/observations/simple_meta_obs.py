@@ -63,7 +63,7 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         agent = self.env.agents[handle]
         init_pos = agent.initial_position
         init_dir = agent.initial_direction
-        agents_same_start = [a.handle for a in self.env.agents
+        agents_same_start = [a for a in self.env.agents
                              if a.initial_position == init_pos]
         nr_agents_same_start = len(agents_same_start)
         nr_agents_same_start_and_dir = len([a.handle for a in agents_same_start
