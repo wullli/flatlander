@@ -28,7 +28,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
             gym_env: robust
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: small_v0_malf
 
             wandb:
                 project: flatland
