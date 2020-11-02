@@ -1,3 +1,8 @@
+import os
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 from collections import defaultdict
 from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv

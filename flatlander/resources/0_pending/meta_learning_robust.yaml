@@ -11,7 +11,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
     config:
         num_workers: 15
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
         lr: 0.000005
 
