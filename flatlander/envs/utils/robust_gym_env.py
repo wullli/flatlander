@@ -31,6 +31,7 @@ class RobustFlatlandGymEnv(gym.Env):
                  render: bool = False,
                  regenerate_rail_on_reset: bool = True,
                  regenerate_schedule_on_reset: bool = True,
+                 max_nr_active_agents: bool = 26,
                  allow_noop=False, **_) -> None:
         super().__init__()
         self._agents_done = []
@@ -38,6 +39,7 @@ class RobustFlatlandGymEnv(gym.Env):
         self._agent_steps = defaultdict(int)
         self._regenerate_rail_on_reset = regenerate_rail_on_reset
         self._regenerate_schedule_on_reset = regenerate_schedule_on_reset
+        self._max_nr_active_agents = max_nr_active_agents
         if not isinstance(rail_env, RailEnv):
             self.rail_env = rail_env.unwrapped
         else:
@@ -109,12 +111,18 @@ class RobustFlatlandGymEnv(gym.Env):
         positions, directions = self.get_predictions(action_dict)
 
         robust_actions = {}
-        agent_conflicts, agent_malf = self.conflict_detector.detect_conflicts(handles=list(positions.keys()),
+        relevant_handles = []
+        for h in sorted_handles:
+            if positions.get(h, None) is not None:
+                relevant_handles.append(h)
+            if len(relevant_handles) >= self._max_nr_active_agents:
+                break
+
+        agent_conflicts, agent_malf = self.conflict_detector.detect_conflicts(handles=relevant_handles,
                                                                               positions=positions,
                                                                               directions=directions)
-
         for i, h in enumerate(sorted_handles):
-            if h in action_dict.keys():
+            if h in action_dict.keys() and h in relevant_handles:
                 if positions.get(h, None) is not None:
                     if self.rail_env.agents[h].status == RailAgentStatus.ACTIVE \
                             and np.all([self.rail_env.agents[ch].status == RailAgentStatus.READY_TO_DEPART
@@ -130,6 +138,8 @@ class RobustFlatlandGymEnv(gym.Env):
                         robust_actions[h] = RailEnvActions.STOP_MOVING.value
                         continue
 
+                robust_actions[h] = action_dict[h]
+            if h not in relevant_handles and positions.get(h, None) is None:
                 robust_actions[h] = action_dict[h]
         return robust_actions
 

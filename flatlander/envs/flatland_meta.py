@@ -2,14 +2,13 @@ from collections import defaultdict
 
 import gym
 from flatland.envs.agent_utils import RailAgentStatus
-import numpy as np
+
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs import get_generator_config
 from flatlander.envs.flatland_sparse import FlatlandSparse
 from flatlander.envs.observations import make_obs
 from flatlander.envs.utils.gym_env import StepOutput
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
-from flatlander.utils.helper import is_done
 
 
 class FlatlandMeta(FlatlandSparse):
@@ -66,10 +65,10 @@ class FlatlandMeta(FlatlandSparse):
             actions = ShortestPathAgent().compute_actions(self.last_obs, self._env.rail_env)
             _, _, done, _ = self._env.step(actions)
 
-        pc = np.sum(
-            np.array([1 for a in self._env.rail_env.agents if is_done(a)])) / self._env.rail_env.get_num_agents()
-        malf = np.sum([a.malfunction_data['nr_malfunctions'] for a in self._env.rail_env.agents])
-        # print("EPISODE PC:", pc, "NR MALFUNCTIONS:", malf)
+        #pc = np.sum(
+        #    np.array([1 for a in self._env.rail_env.agents if is_done(a)])) / self._env.rail_env.get_num_agents()
+        #malf = np.sum([a.malfunction_data['nr_malfunctions'] for a in self._env.rail_env.agents])
+        #print("EPISODE PC:", pc, "NR MALFUNCTIONS:", malf)
 
         d = {a.handle: a.status == RailAgentStatus.DONE or a.status == RailAgentStatus.DONE_REMOVED
              for a in self._env.rail_env.agents}
