@@ -11,7 +11,7 @@ SUBMISSON_TRAINING_flatland-sparse-small-tree_obs-robust-fc-apex:
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
         buffer_size: 200000
         lr: 0.00001
