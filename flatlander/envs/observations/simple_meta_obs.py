@@ -23,7 +23,7 @@ class SimpleMetaObservation(Observation):
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        return gym.spaces.Box(low=0, high=1, shape=(3,),
+        return gym.spaces.Box(low=0, high=1, shape=(4,),
                               dtype=np.float32)  # own distance to target & nr agents at start
 
 
