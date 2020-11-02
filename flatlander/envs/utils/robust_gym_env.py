@@ -31,7 +31,7 @@ class RobustFlatlandGymEnv(gym.Env):
                  render: bool = False,
                  regenerate_rail_on_reset: bool = True,
                  regenerate_schedule_on_reset: bool = True,
-                 max_nr_active_agents: bool = 26,
+                 max_nr_active_agents: int = 26,
                  allow_noop=False, **_) -> None:
         super().__init__()
         self._agents_done = []
@@ -118,6 +118,8 @@ class RobustFlatlandGymEnv(gym.Env):
             if len(relevant_handles) >= self._max_nr_active_agents:
                 break
 
+        self.rail_env.obs_builder.relevant_handles = relevant_handles
+
         agent_conflicts, agent_malf = self.conflict_detector.detect_conflicts(handles=relevant_handles,
                                                                               positions=positions,
                                                                               directions=directions)
@@ -187,4 +189,5 @@ class RobustFlatlandGymEnv(gym.Env):
         self.sorted_handles = self.prioritized_agents(obs.keys())
         self.conflict_detector = ShortestPathConflictDetector(rail_env=self.rail_env)
         self._prev_obs = obs
+        self.rail_env.obs_builder.relevant_handles = self.sorted_handles[:self._max_nr_active_agents]
         return {k: o for k, o in obs.items() if not k == '__all__'}

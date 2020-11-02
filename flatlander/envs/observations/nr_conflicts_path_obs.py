@@ -32,11 +32,12 @@ class PathObservationBuilder(ObservationBuilder):
         self._encode_one_hot = encode_one_hot
         self._directions = list(range(4))
         self.path_size = 4
+        self._relevant_handles = []
         self.conflict_detector: Optional[ShortestPathConflictDetector] = None
 
     def get_many(self, handles: Optional[List[int]] = None):
         self.conflict_detector = ShortestPathConflictDetector(rail_env=self.env)
-        self.conflict_detector.map_predictions()
+        self.conflict_detector.map_predictions(handles=self._relevant_handles)
 
         if handles is None:
             handles = []
@@ -44,6 +45,14 @@ class PathObservationBuilder(ObservationBuilder):
 
     def reset(self):
         pass
+
+    @property
+    def relevant_handles(self):
+        return self._relevant_handles
+
+    @relevant_handles.setter
+    def relevant_handles(self, value):
+        self._relevant_handles = value
 
     def get(self, handle: int = 0):
         self.env: RailEnv = self.env
@@ -69,10 +78,14 @@ class PathObservationBuilder(ObservationBuilder):
                 distance = distance_map[agent.handle][pos + (movement,)]
                 distance = max_distance if (distance == np.inf or np.isnan(distance)) else distance
 
-                conflict, malf = self.conflict_detector.detect_conflicts_multi(position=pos, direction=movement,
-                                                                               agent=self.env.agents[handle])
-
-                malf = np.max(malf) if len(malf) > 0 else 0
+                if handle in self._relevant_handles:
+                    conflict, malf = self.conflict_detector.detect_conflicts_multi(position=pos, direction=movement,
+                                                                                   handles=self._relevant_handles,
+                                                                                   agent=self.env.agents[handle])
+                    malf = np.max(malf) if len(malf) > 0 else 0
+                else:
+                    conflict = []
+                    malf = 0
                 possible_paths.append(np.array([distance / max_distance,  # normalized distance to target
                                                 malf / self.env.malfunction_process_data.max_duration,
                                                 len(set(conflict)) / self.env.get_num_agents(),

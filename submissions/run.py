@@ -9,7 +9,7 @@ from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatland.evaluators.client import FlatlandRemoteClient, TimeoutException
 from flatlander.envs.observations import make_obs
 from flatlander.submission.helper import episode_start_info, episode_end_info, init_run, get_agent
-from time import time, sleep
+from time import time
 import tensorflow as tf
 
 tf.compat.v1.disable_eager_execution()
@@ -47,7 +47,10 @@ def evaluate(config, run):
 
             evaluation_number += 1
             episode_start_info(evaluation_number, remote_client=remote_client)
-            robust_env = RobustFlatlandGymEnv(rail_env=remote_client.env, observation_space=None, allow_noop=True)
+            robust_env = RobustFlatlandGymEnv(rail_env=remote_client.env,
+                                              max_nr_active_agents=10,
+                                              observation_space=None,
+                                              allow_noop=True)
             sorted_handles = robust_env.prioritized_agents(handles=observation.keys())
 
             while True:

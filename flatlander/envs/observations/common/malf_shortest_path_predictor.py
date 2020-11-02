@@ -4,9 +4,10 @@ from flatland.core.env_prediction_builder import PredictionBuilder
 from flatland.envs.agent_utils import RailAgentStatus
 from flatland.envs.distance_map import DistanceMap
 from flatland.envs.rail_env import RailEnvActions
-from flatland.envs.rail_env_shortest_paths import get_shortest_paths
 import numpy as np
 from flatland.utils.ordered_set import OrderedSet
+
+from flatlander.envs.utils.shortest_path import get_shortest_paths
 
 
 class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
@@ -20,7 +21,7 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
     def __init__(self, max_depth: int = 20):
         super().__init__(max_depth)
 
-    def get(self, handle: int = None, positions=None, directions=None):
+    def get(self, handle: int = None, handles=None, positions=None, directions=None):
         """
         Called whenever get_many in the observation build is called.
         Requires distance_map to extract the shortest path.
@@ -48,9 +49,12 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
         if handle:
             agents = [self.env.agents[handle]]
 
+        if handles is not None:
+            agents = [self.env.agents[h] for h in handles]
+
         distance_map: DistanceMap = self.env.distance_map
 
-        shortest_paths = get_shortest_paths(distance_map, max_depth=self.max_depth)
+        shortest_paths = get_shortest_paths(distance_map, handles=handles, max_depth=self.max_depth)
 
         prediction_dict = {}
 

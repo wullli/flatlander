@@ -40,7 +40,7 @@ SUBMISSIONS = {
     "apex_dqn_robust": {
         "checkpoint_paths": {n_agents: os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         f"model_checkpoints/apex_dqn_robust/checkpoint_27/checkpoint-27"))
+                         f"model_checkpoints/apex_dqn_robust/checkpoint_38/checkpoint-38"))
             for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
         "agent": "apex"
     }

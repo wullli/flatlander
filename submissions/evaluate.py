@@ -12,7 +12,7 @@ from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs.observations import make_obs
 from flatlander.envs.observations.simple_meta_obs import SimpleMetaObservation
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
-from flatlander.submission.helper import is_done, init_run
+from flatlander.submission.helper import is_done, init_run, get_agent
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -25,10 +25,10 @@ RENDER = True
 
 
 def get_env():
-    n_agents = 26
+    n_agents = 100
     config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
-    # trainer = get_agent(config, run, 5)
+    trainer = get_agent(config, run)
 
     rail_generator = sparse_rail_generator(
         seed=seed,
