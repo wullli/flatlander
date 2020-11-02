@@ -122,25 +122,26 @@ class RobustFlatlandGymEnv(gym.Env):
                                                                               positions=positions,
                                                                               directions=directions)
         for i, h in enumerate(sorted_handles):
-            if h in action_dict.keys() and h in relevant_handles:
-                if positions.get(h, None) is not None:
-                    if self.rail_env.agents[h].status == RailAgentStatus.ACTIVE \
-                            and np.all([self.rail_env.agents[ch].status == RailAgentStatus.READY_TO_DEPART
-                                        for ch in agent_conflicts[h]]):
-                        robust_actions[h] = action_dict[h]
-                        continue
-                    if len([ch for ch in agent_conflicts[h] if sorted_handles.index(ch) < i]) > 0:
-                        robust_actions[h] = RailEnvActions.STOP_MOVING.value
-                        continue
-                    if self.rail_env.agents[h].status == RailAgentStatus.READY_TO_DEPART \
-                            and np.any([self.rail_env.agents[ch].status == RailAgentStatus.ACTIVE
-                                        for ch in agent_conflicts[h]]):
-                        robust_actions[h] = RailEnvActions.STOP_MOVING.value
-                        continue
+            if h in action_dict.keys():
+                if h in relevant_handles:
+                    if positions.get(h, None) is not None:
+                        if self.rail_env.agents[h].status == RailAgentStatus.ACTIVE \
+                                and np.all([self.rail_env.agents[ch].status == RailAgentStatus.READY_TO_DEPART
+                                            for ch in agent_conflicts[h]]):
+                            robust_actions[h] = action_dict[h]
+                            continue
+                        if len([ch for ch in agent_conflicts[h] if sorted_handles.index(ch) < i]) > 0:
+                            robust_actions[h] = RailEnvActions.STOP_MOVING.value
+                            continue
+                        if self.rail_env.agents[h].status == RailAgentStatus.READY_TO_DEPART \
+                                and np.any([self.rail_env.agents[ch].status == RailAgentStatus.ACTIVE
+                                            for ch in agent_conflicts[h]]):
+                            robust_actions[h] = RailEnvActions.STOP_MOVING.value
+                            continue
 
-                robust_actions[h] = action_dict[h]
-            if h not in relevant_handles and positions.get(h, None) is None:
-                robust_actions[h] = action_dict[h]
+                    robust_actions[h] = action_dict[h]
+                if h not in relevant_handles and positions.get(h, None) is None:
+                    robust_actions[h] = action_dict[h]
         return robust_actions
 
     def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:
