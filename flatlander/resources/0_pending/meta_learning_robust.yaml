@@ -28,7 +28,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
             gym_env: robust
 
             generator: sparse_rail_generator
-            generator_config: small_v0_malf
+            generator_config: medium_v0
 
             wandb:
                 project: flatland
@@ -37,6 +37,6 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
 
         model:
             fcnet_activation: relu
-            fcnet_hiddens: [8, 8]
+            fcnet_hiddens: [8, 4, 4]
             vf_share_layers: False
 
