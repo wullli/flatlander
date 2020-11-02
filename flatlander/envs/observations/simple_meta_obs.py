@@ -7,7 +7,6 @@ from flatland.core.env import Environment
 from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.envs.agent_utils import RailAgentStatus
-from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
 from flatlander.envs.observations import Observation, register_obs
 from flatlander.envs.observations.common.shortest_path_conflict_detector import ShortestPathConflictDetector
@@ -24,7 +23,7 @@ class SimpleMetaObservation(Observation):
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        return gym.spaces.Box(low=0, high=1, shape=(2,),
+        return gym.spaces.Box(low=0, high=1, shape=(3,),
                               dtype=np.float32)  # own distance to target & nr agents at start
 
 
