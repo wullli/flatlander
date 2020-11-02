@@ -17,7 +17,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         train_batch_size: 100
         min_iter_time_s: 0
 
-        lr_schedule: [[0, 0.0001]
+        lr_schedule: [[0, 0.0001],
                       [10000, 0.00001]]
         gamma: 0.0
 

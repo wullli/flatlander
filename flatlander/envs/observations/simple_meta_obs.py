@@ -61,6 +61,8 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         else:
             return None
 
+        handles = [a.handle for a in self.env.agents]
+
         distance_map = self.env.distance_map.get()
         nan_inf_mask = ((distance_map != np.inf) * (np.abs(np.isnan(distance_map) - 1))).astype(np.bool)
         max_distance = np.max(distance_map[nan_inf_mask])
@@ -87,6 +89,7 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
                 distance = max_distance if (distance == np.inf or np.isnan(distance)) else distance
 
                 conflict, malf = self.conflict_detector.detect_conflicts_multi(position=pos, direction=movement,
+                                                                               handles=handles,
                                                                                agent=self.env.agents[handle])
 
                 possible_paths.append(np.array([distance, len(set(conflict))]))
