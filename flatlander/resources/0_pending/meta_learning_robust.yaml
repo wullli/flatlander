@@ -9,11 +9,11 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 15
+        num_workers: 7
         num_envs_per_worker: 1
-        num_gpus: 1
+        num_gpus: 0
 
-        rollout_fragment_length: 20
+        rollout_fragment_length: 15
         train_batch_size: 100
         min_iter_time_s: 0
 
@@ -22,13 +22,13 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         gamma: 0.0
 
         env_config:
-            number_of_agents: 20
+            number_of_agents: 15
             observation: simple_meta
 
             gym_env: robust
 
             generator: sparse_rail_generator
-            generator_config: medium_v0
+            generator_config: small_v0
 
             wandb:
                 project: flatland

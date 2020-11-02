@@ -38,7 +38,7 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
                 handles = []
             obs = {h: self.get(h) for h in handles}
             obs_matrix = np.array(list(obs.values()))
-            obs_normed = obs_matrix / np.max(obs_matrix, axis=0)
+            obs_normed = obs_matrix / (np.max(obs_matrix, axis=0) + 1e-10)
             obs = {h: obs_normed[i] for i, h in enumerate(handles)}
             return obs
         else:
