@@ -63,8 +63,11 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         agent = self.env.agents[handle]
         init_pos = agent.initial_position
         init_dir = agent.initial_direction
-        nr_agents_same_start = len([a.handle for a in self.env.agents
-                                    if a.initial_position == agent.initial_position])
+        agents_same_start = [a.handle for a in self.env.agents
+                             if a.initial_position == init_pos]
+        nr_agents_same_start = len(agents_same_start)
+        nr_agents_same_start_and_dir = len([a.handle for a in agents_same_start
+                                            if a.initial_direction == init_dir])
         distance = distance_map[handle][init_pos + (init_dir,)]
         distance = max_distance if (
                 distance == np.inf or np.isnan(distance)) else distance
@@ -88,6 +91,7 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
 
         return np.array([distance / max_distance,
                          nr_agents_same_start / len(self.env.agents),
+                         nr_agents_same_start_and_dir / len(self.env.agents),
                          possible_steps[0][1] / self.env.get_num_agents()])
 
     def set_env(self, env: Environment):
