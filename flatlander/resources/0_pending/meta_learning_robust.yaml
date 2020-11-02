@@ -13,7 +13,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         num_envs_per_worker: 1
         num_gpus: 1
 
-        rollout_fragment_length: 10
+        rollout_fragment_length: 20
         train_batch_size: 100
         min_iter_time_s: 0
 
