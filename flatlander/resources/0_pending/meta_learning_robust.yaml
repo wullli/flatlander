@@ -14,14 +14,13 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         num_gpus: 1
 
         rollout_fragment_length: 5
-        train_batch_size: 75
-        timesteps_per_iteration: 750
+        train_batch_size: 50
         min_iter_time_s: 1
 
         gamma: 0.0
 
         env_config:
-            number_of_agents: 18
+            number_of_agents: 5
             observation: simple_meta
 
             gym_env: robust
