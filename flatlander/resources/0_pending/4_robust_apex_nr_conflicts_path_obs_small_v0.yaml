@@ -1,6 +1,6 @@
-hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
-    run: PPO
-    env: flatland_meta
+SUBMISSON_TRAINING_flatland-sparse-small-tree_obs-robust-fc-apex:
+    run: APEX
+    env: flatland_sparse
     stop:
         timesteps_total: 15000000
     checkpoint_freq: 1
@@ -13,23 +13,18 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         num_envs_per_worker: 5
         num_gpus: 1
 
-        lr: 0.0001
+        buffer_size: 200000
+        lr: 0.00001
 
-        clip_rewards: False
-        vf_clip_param: 500.0
-        entropy_coeff: 0.01
-
-        train_batch_size: 128
-        rollout_fragment_length: 4
-        sgd_minibatch_size: 32
-        num_sgd_iter: 8
-        vf_share_layers: False
-
-        gamma: 0.0
+        exploration_config:
+            type: PerWorkerEpsilonGreedy
+            initial_epsilon: 1.0
+            final_epsilon: 0.02
+            epsilon_timesteps: 50000
 
         env_config:
-            number_of_agents: 18
-            observation: simple_meta
+            number_of_agents: 10
+            observation: nr_conflicts_path
 
             gym_env: robust
 
@@ -43,6 +38,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
 
         model:
             fcnet_activation: relu
-            fcnet_hiddens: [16, 16]
-            vf_share_layers: False
+            fcnet_hiddens: [32, 32]
+            vf_share_layers: True  # False
+
 

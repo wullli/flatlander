@@ -5,9 +5,12 @@ import numpy as np
 
 from flatland.core.env import Environment
 from flatland.core.env_observation_builder import ObservationBuilder
+from flatland.core.grid.grid4_utils import get_new_position
+from flatland.envs.agent_utils import RailAgentStatus
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
 from flatlander.envs.observations import Observation, register_obs
+from flatlander.envs.observations.common.shortest_path_conflict_detector import ShortestPathConflictDetector
 
 
 @register_obs("simple_meta")
@@ -27,14 +30,16 @@ class SimpleMetaObservation(Observation):
 
 class SimpleMetaObservationBuilder(ObservationBuilder):
 
-    def get_many(self, handles: Optional[List[int]] = None) -> Dict[int, np.ndarray]:
-        """
-        get density maps for agents and compose the observation with agent's and other's density maps
-        """
-        obs = {}
-        for handle in handles:
-            obs[handle] = self.get(handle)
-        return obs
+    def get_many(self, handles: Optional[List[int]] = None):
+        if self.env._elapsed_steps == 0:
+            self.conflict_detector = ShortestPathConflictDetector(rail_env=self.env)
+            self.conflict_detector.map_predictions()
+
+            if handles is None:
+                handles = []
+            return {h: self.get(h) for h in handles}
+        else:
+            return {h: [] for h in handles}
 
     def get(self, handle: int = 0):
         """
@@ -42,6 +47,17 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         the agent and its target based on the distance to the agent, i.e. the number of time steps the
         agent needs to reach the cell, encoding the time information.
         """
+        self.env: RailEnv = self.env
+        agent = self.env.agents[handle]
+        if agent.status == RailAgentStatus.READY_TO_DEPART:
+            agent_virtual_position = agent.initial_position
+        elif agent.status == RailAgentStatus.ACTIVE:
+            agent_virtual_position = agent.position
+        elif agent.status == RailAgentStatus.DONE:
+            agent_virtual_position = agent.target
+        else:
+            return None
+
         distance_map = self.env.distance_map.get()
         nan_inf_mask = ((distance_map != np.inf) * (np.abs(np.isnan(distance_map) - 1))).astype(np.bool)
         max_distance = np.max(distance_map[nan_inf_mask])
@@ -53,7 +69,27 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         distance = distance_map[handle][init_pos + (init_dir,)]
         distance = max_distance if (
                 distance == np.inf or np.isnan(distance)) else distance
-        return np.array([distance / max_distance, nr_agents_same_start / len(self.env.agents)])
+
+        possible_transitions = self.env.rail.get_transitions(*agent_virtual_position, agent.direction)
+        distance_map = self.env.distance_map.get()
+        possible_paths = []
+
+        for movement in range(4):
+            if possible_transitions[movement]:
+                pos = get_new_position(agent_virtual_position, movement)
+                distance = distance_map[agent.handle][pos + (movement,)]
+                distance = max_distance if (distance == np.inf or np.isnan(distance)) else distance
+
+                conflict, malf = self.conflict_detector.detect_conflicts_multi(position=pos, direction=movement,
+                                                                               agent=self.env.agents[handle])
+
+                possible_paths.append(np.array([distance, len(conflict)]))
+
+        possible_steps = sorted(possible_paths, key=lambda path: path[1])
+
+        return np.array([distance / max_distance,
+                         nr_agents_same_start / len(self.env.agents),
+                         possible_steps[0][1] / self.env.get_num_agents()])
 
     def set_env(self, env: Environment):
         self.env: RailEnv = env
