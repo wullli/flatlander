@@ -82,7 +82,7 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
                 conflict, malf = self.conflict_detector.detect_conflicts_multi(position=pos, direction=movement,
                                                                                agent=self.env.agents[handle])
 
-                possible_paths.append(np.array([distance, len(conflict)]))
+                possible_paths.append(np.array([distance, len(set(conflict))]))
 
         possible_steps = sorted(possible_paths, key=lambda path: path[1])
 

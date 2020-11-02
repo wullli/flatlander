@@ -1,5 +1,5 @@
 hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
-    run: PPO
+    run: IMPALA
     env: flatland_meta
     stop:
         timesteps_total: 15000000
@@ -15,26 +15,16 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
 
         lr: 0.0001
 
-        clip_rewards: False
-        vf_clip_param: 500.0
-        entropy_coeff: 0.01
-
-        train_batch_size: 128
-        rollout_fragment_length: 4
-        sgd_minibatch_size: 32
-        num_sgd_iter: 8
-        vf_share_layers: False
-
         gamma: 0.0
 
         env_config:
-            number_of_agents: 18
+            number_of_agents: 5
             observation: simple_meta
 
             gym_env: robust
 
             generator: sparse_rail_generator
-            generator_config: small_v0_malf
+            generator_config: small_v0
 
             wandb:
                 project: flatland
