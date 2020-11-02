@@ -14,12 +14,11 @@ SUBMISSON_TRAINING_flatland-sparse-small-tree_obs-robust-fc-apex:
         num_gpus: 1
 
         buffer_size: 200000
-        lr: 0.00001
 
         exploration_config:
             type: PerWorkerEpsilonGreedy
             initial_epsilon: 1.0
-            final_epsilon: 0.01
+            final_epsilon: 0.02
             epsilon_timesteps: 50000
 
         env_config:
