@@ -9,7 +9,8 @@ from flatland.envs.rail_env import RailEnv, RailEnvActions
 from flatlander.envs.observations.common.shortest_path_conflict_detector import ShortestPathConflictDetector
 from flatlander.envs.observations.common.timeless_conflict_detector import TimelessConflictDetector
 from flatlander.envs.utils.priorization.helper import get_virtual_position
-from flatlander.envs.utils.priorization.priorizer import Priorizer, NrAgentsWaitingPriorizer
+from flatlander.envs.utils.priorization.priorizer import Priorizer, NrAgentsWaitingPriorizer, DistToTargetPriorizer, \
+    NrAgentsSameStart
 
 
 class StepOutput(NamedTuple):
@@ -35,8 +36,8 @@ class RobustFlatlandGymEnv(gym.Env):
                  regenerate_rail_on_reset: bool = True,
                  regenerate_schedule_on_reset: bool = True,
                  max_nr_active_agents: int = 50,
-                 priorizer: Priorizer = NrAgentsWaitingPriorizer(),
-                 conflict_detector=TimelessConflictDetector(),
+                 priorizer: Priorizer = NrAgentsSameStart(),
+                 conflict_detector=ShortestPathConflictDetector(),
                  allow_noop=False, **_) -> None:
 
         super().__init__()

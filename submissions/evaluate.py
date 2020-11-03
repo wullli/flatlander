@@ -8,14 +8,9 @@ from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatland.utils.rendertools import RenderTool
 
-from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
 from flatlander.envs.observations import make_obs
-from flatlander.envs.observations.dummy_obs import DummyObs
-from flatlander.envs.observations.simple_meta_obs import SimpleMetaObservation
-from flatlander.envs.utils.cpr_gym_env import CprFlatlandGymEnv
-from flatlander.envs.utils.priorization.priorizer import DistToTargetPriorizer, NrAgentsWaitingPriorizer, \
-    NrAgentsSameStart
+from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.submission.helper import is_done, init_run, get_agent
 
@@ -30,7 +25,7 @@ RENDER = True
 
 
 def get_env():
-    n_agents = 200
+    n_agents = 100
     config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
     trainer = ShortestPathRllibAgent(get_agent(config, run))
@@ -58,7 +53,7 @@ def get_env():
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
         malfunction_generator=malfunction_generator,
-        obs_builder_object=DummyObs(),
+        obs_builder_object=obs_builder,
         remove_agents_at_target=True,
         random_seed=seed,
     )
@@ -82,15 +77,15 @@ def evaluate(n_episodes):
 
         steps = 0
         done = defaultdict(lambda: False)
-        robust_env = CprFlatlandGymEnv(rail_env=env,
-                                       max_nr_active_agents=100,
-                                       observation_space=None,
-                                       priorizer=NrAgentsSameStart(),
-                                       allow_noop=True)
+        robust_env = RobustFlatlandGymEnv(rail_env=env,
+                                          max_nr_active_agents=100,
+                                          observation_space=None,
+                                          priorizer=NrAgentsSameStart(),
+                                          allow_noop=True)
         sorted_handles = robust_env.priorizer.priorize(handles=list(obs.keys()), rail_env=env)
 
         while not done['__all__']:
-            actions = ShortestPathAgent().compute_actions(obs, env)
+            actions = agent.compute_actions(obs, env)
             robust_actions = robust_env.get_robust_actions(actions, sorted_handles)
             obs, all_rewards, done, info = env.step(robust_actions)
             if RENDER:

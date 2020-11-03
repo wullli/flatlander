@@ -9,7 +9,7 @@ from flatland.envs.rail_env import RailEnv, RailEnvActions
 from flatlander.envs.observations.common.shortest_path_conflict_detector import ShortestPathConflictDetector
 from flatlander.envs.observations.common.timeless_conflict_detector import TimelessConflictDetector
 from flatlander.envs.utils.priorization.helper import get_virtual_position
-from flatlander.envs.utils.priorization.priorizer import Priorizer, NrAgentsWaitingPriorizer
+from flatlander.envs.utils.priorization.priorizer import Priorizer, NrAgentsWaitingPriorizer, NrAgentsSameStart
 
 
 class StepOutput(NamedTuple):
@@ -35,7 +35,7 @@ class CprFlatlandGymEnv(gym.Env):
                  regenerate_rail_on_reset: bool = True,
                  regenerate_schedule_on_reset: bool = True,
                  max_nr_active_agents: int = 50,
-                 priorizer: Priorizer = NrAgentsWaitingPriorizer(),
+                 priorizer: Priorizer = NrAgentsSameStart(),
                  conflict_detector=TimelessConflictDetector(),
                  allow_noop=False, **_) -> None:
 
@@ -160,7 +160,8 @@ class CprFlatlandGymEnv(gym.Env):
                                          regenerate_schedule=self._regenerate_schedule_on_reset,
                                          random_seed=random_seed)
         self.sorted_handles = self.priorizer.priorize(list(obs.keys()), self.rail_env)
-        self.conflict_detector = ShortestPathConflictDetector(rail_env=self.rail_env)
+        self.conflict_detector = ShortestPathConflictDetector()
+        self.conflict_detector.set_env(rail_env=self.rail_env)
         self._prev_obs = obs
         self.rail_env.obs_builder.relevant_handles = self.sorted_handles[:self._max_nr_active_agents]
         return {k: o for k, o in obs.items() if not k == '__all__'}

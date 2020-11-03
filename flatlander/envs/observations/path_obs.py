@@ -37,7 +37,7 @@ class PathObservationBuilder(ObservationBuilder):
 
     def get_many(self, handles: Optional[List[int]] = None):
         self.env: RailEnv = self.env
-        self.conflict_detector = ShortestPathConflictDetector()
+        self.conflict_detector = ShortestPathConflictDetector(branch_only=True)
         self.conflict_detector.set_env(self.env)
         self.conflict_detector.map_predictions(handles=self._relevant_handles)
 
@@ -85,6 +85,7 @@ class PathObservationBuilder(ObservationBuilder):
                     conflict, malf = self.conflict_detector.detect_conflicts_multi(position=pos, direction=movement,
                                                                                    handles=self._relevant_handles,
                                                                                    break_after_first=True,
+                                                                                   only_branch=True,
                                                                                    agent=self.env.agents[handle])
                     malf = np.max(malf) if len(malf) > 0 else 0
                 else:

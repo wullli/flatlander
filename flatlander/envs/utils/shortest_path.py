@@ -10,6 +10,7 @@ from flatland.envs.rail_trainrun_data_structures import Waypoint
 
 def get_shortest_paths(distance_map: DistanceMap,
                        max_depth: Optional[int] = None,
+                       branch_only=False,
                        handles: List[int] = None) -> Dict[int, Optional[List[Waypoint]]]:
     """
     Computes the shortest path for each agent to its target and the action to be taken to do so.
@@ -54,6 +55,8 @@ def get_shortest_paths(distance_map: DistanceMap,
         depth = 0
         while (position != agent.target and (max_depth is None or depth < max_depth)):
             next_actions = get_valid_move_actions_(direction, position, distance_map.rail)
+            if len(next_actions) > 1 and branch_only:
+                return
             best_next_action = None
             for next_action in next_actions:
                 next_action_distance = distance_map.get()[

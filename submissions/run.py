@@ -1,16 +1,16 @@
 import os
 
-from flatlander.agents.shortest_path_agent import ShortestPathAgent
-from flatlander.envs.observations.dummy_obs import DummyObs
-from flatlander.envs.utils.cpr_gym_env import CprFlatlandGymEnv
 from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from collections import defaultdict
+from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
+from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatland.evaluators.client import FlatlandRemoteClient, TimeoutException
-from flatlander.submission.helper import episode_start_info, episode_end_info
+from flatlander.envs.observations import make_obs
+from flatlander.submission.helper import episode_start_info, episode_end_info, init_run, get_agent
 from time import time
 import tensorflow as tf
 
@@ -27,19 +27,19 @@ def skip(done):
         print('!', end='', flush=True)
 
 
-def evaluate():
+def evaluate(config, run):
     start_time = time()
-    #obs_builder = make_obs(config["env_config"]['observation'],
-    #                       config["env_config"].get('observation_config')).builder()
+    obs_builder = make_obs(config["env_config"]['observation'],
+                           config["env_config"].get('observation_config')).builder()
     evaluation_number = 0
     total_reward = 0
     all_rewards = []
-    # trainer = get_agent(config, run)
-    # agent = ShortestPathRllibAgent(trainer, explore=False)
+    trainer = get_agent(config, run)
+    agent = ShortestPathRllibAgent(trainer, explore=False)
 
     while True:
         try:
-            observation, info = remote_client.env_create(obs_builder_object=DummyObs())
+            observation, info = remote_client.env_create(obs_builder_object=obs_builder)
 
             if not observation:
                 break
@@ -49,17 +49,17 @@ def evaluate():
 
             evaluation_number += 1
             episode_start_info(evaluation_number, remote_client=remote_client)
-            robust_env = CprFlatlandGymEnv(rail_env=remote_client.env,
-                                           max_nr_active_agents=100,
-                                           observation_space=None,
-                                           priorizer=NrAgentsSameStart(),
-                                           allow_noop=True)
+            robust_env = RobustFlatlandGymEnv(rail_env=remote_client.env,
+                                              max_nr_active_agents=100,
+                                              observation_space=None,
+                                              priorizer=NrAgentsSameStart(),
+                                              allow_noop=True)
             sorted_handles = robust_env.priorizer.priorize(handles=observation.keys(), rail_env=remote_client.env)
 
             while True:
                 try:
                     while not done['__all__']:
-                        actions = ShortestPathAgent().compute_actions(observation, remote_client.env)
+                        actions = agent.compute_actions(observation, remote_client.env)
                         robust_actions = robust_env.get_robust_actions(actions, sorted_handles=sorted_handles)
 
                         observation, all_rewards, done, info = remote_client.env_step(robust_actions)
@@ -88,5 +88,5 @@ def evaluate():
 
 
 if __name__ == "__main__":
-    #config, run = init_run()
-    evaluate()
+    config, run = init_run()
+    evaluate(config, run)

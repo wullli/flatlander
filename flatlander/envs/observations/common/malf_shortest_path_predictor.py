@@ -18,8 +18,9 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
     The prediction acts as if no other agent is in the environment and always takes the forward action.
     """
 
-    def __init__(self, max_depth: int = 20):
+    def __init__(self, max_depth: int = 20, branch_only=False):
         super().__init__(max_depth)
+        self.branch_only = branch_only
 
     def get(self, handle: int = None, handles=None, positions=None, directions=None):
         """
@@ -54,7 +55,8 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
 
         distance_map: DistanceMap = self.env.distance_map
 
-        shortest_paths = get_shortest_paths(distance_map, handles=handles, max_depth=self.max_depth)
+        shortest_paths = get_shortest_paths(distance_map, handles=handles, max_depth=self.max_depth,
+                                            branch_only=self.branch_only)
 
         prediction_dict = {}
 
@@ -93,6 +95,11 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
                 new_position = agent_virtual_position
             visited = OrderedSet()
             for index in range(1, self.max_depth + 1):
+
+                if self.branch_only:
+                    cell_transitions = self.env.rail.get_transitions(*new_position, new_direction)
+                    if np.count_nonzero(cell_transitions) > 1:
+                        break
 
                 if not shortest_path:
                     prediction[index] = [index, *new_position, new_direction, RailEnvActions.STOP_MOVING]
