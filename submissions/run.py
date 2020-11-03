@@ -59,7 +59,7 @@ def evaluate(config, run):
                         actions = agent.compute_actions(observation, remote_client.env)
                         robust_actions = robust_env.get_robust_actions(actions, sorted_handles=sorted_handles)
 
-                        observation, all_rewards, done, info = remote_client.env_step({})
+                        observation, all_rewards, done, info = remote_client.env_step(robust_actions)
                         steps += 1
                         print('.', end='', flush=True)
 
