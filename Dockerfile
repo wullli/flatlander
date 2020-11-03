@@ -41,12 +41,18 @@ RUN wget \
 ENV PATH="${HOME}/miniconda3/bin:${PATH}"
 ENV CUDA_VISIBLE_DEVICES=1
 
-RUN conda env create -f ${HOME}/environment.yml
+RUN conda update -n base -c defaults conda
+RUN conda env create -f ${HOME}/environment.yml --verbose
 
 ENV PATH ${HOME}/miniconda3/envs/flatland-rl/bin:$PATH
 ENV CONDA_DEFAULT_ENV flatland-rl
 ENV CONDA_PREFIX ${HOME}/miniconda3/envs/flatland-rl
+
+RUN python3 -m pip install -r ${HOME}/requirements.txt
+
 ENV AICROWD_TESTS_FOLDER ${HOME}/scratch/test-envs
+
+
 
 SHELL ["/bin/bash", "-c"]
 
