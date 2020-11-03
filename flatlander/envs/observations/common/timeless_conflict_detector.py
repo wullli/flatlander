@@ -65,6 +65,7 @@ class TimelessConflictDetector(ConflictDetector):
                             if self.rail_env.agents[r.handle].status == RailAgentStatus.ACTIVE or \
                                self.rail_env.agents[r.handle].status == self.rail_env.agents[h].status:
                                 is_reserved = True
+                                break
                             else:
                                 replaced_handles.append(r.handle)
 

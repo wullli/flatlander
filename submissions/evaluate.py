@@ -30,7 +30,7 @@ RENDER = True
 
 
 def get_env():
-    n_agents = 100
+    n_agents = 200
     config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
     trainer = ShortestPathRllibAgent(get_agent(config, run))
