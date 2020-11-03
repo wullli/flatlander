@@ -1,6 +1,7 @@
 import math
 from typing import Optional, List, Dict
 
+from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.agent_utils import RailAgentStatus
 from flatland.envs.distance_map import DistanceMap
 from flatland.envs.rail_env_shortest_paths import get_valid_move_actions_

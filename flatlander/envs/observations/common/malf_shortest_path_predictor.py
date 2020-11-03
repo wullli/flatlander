@@ -94,7 +94,6 @@ class MalfShortestPathPredictorForRailEnv(PredictionBuilder):
             visited = OrderedSet()
             for index in range(1, self.max_depth + 1):
 
-                # if there is a malfunction, stop moving until max_depth is reached
                 if not shortest_path:
                     prediction[index] = [index, *new_position, new_direction, RailEnvActions.STOP_MOVING]
                     visited.add((*new_position, agent.direction))

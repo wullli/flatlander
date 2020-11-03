@@ -9,6 +9,7 @@ from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatland.utils.rendertools import RenderTool
 
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
+from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
 from flatlander.envs.observations import make_obs
 from flatlander.envs.observations.simple_meta_obs import SimpleMetaObservation
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
@@ -25,10 +26,10 @@ RENDER = True
 
 
 def get_env():
-    n_agents = 100
+    n_agents = 25
     config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
-    trainer = get_agent(config, run)
+    trainer = ShortestPathRllibAgent(get_agent(config, run))
 
     rail_generator = sparse_rail_generator(
         seed=seed,
@@ -47,18 +48,18 @@ def get_env():
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=32,
-        height=32,
+        width=42,
+        height=42,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
         malfunction_generator=malfunction_generator,
-        obs_builder_object=SimpleMetaObservation({}).builder(),
+        obs_builder_object=obs_builder,
         remove_agents_at_target=True,
         random_seed=seed,
     )
 
-    return env, None
+    return env, trainer
 
 
 def evaluate(n_episodes):
@@ -81,7 +82,7 @@ def evaluate(n_episodes):
         sorted_handles = robust_env.prioritized_agents(handles=obs.keys())
 
         while not done['__all__']:
-            actions = ShortestPathAgent().compute_actions(obs, env)
+            actions = agent.compute_actions(obs, env)
             robust_actions = robust_env.get_robust_actions(actions, sorted_handles)
             obs, all_rewards, done, info = env.step(robust_actions)
             if RENDER:
@@ -95,4 +96,12 @@ def evaluate(n_episodes):
 
 
 if __name__ == "__main__":
-    evaluate(10)
+    import cProfile
+    pr = cProfile.Profile()
+    pr.enable()
+
+    evaluate(1)
+
+    pr.disable()
+    pr.print_stats(sort='cumtime')
+

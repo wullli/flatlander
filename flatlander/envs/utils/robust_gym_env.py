@@ -31,7 +31,7 @@ class RobustFlatlandGymEnv(gym.Env):
                  render: bool = False,
                  regenerate_rail_on_reset: bool = True,
                  regenerate_schedule_on_reset: bool = True,
-                 max_nr_active_agents: int = 26,
+                 max_nr_active_agents: int = 50,
                  allow_noop=False, **_) -> None:
         super().__init__()
         self._agents_done = []
@@ -124,18 +124,22 @@ class RobustFlatlandGymEnv(gym.Env):
                                                                               positions=positions,
                                                                               directions=directions)
         for i, h in enumerate(sorted_handles):
+            agent = self.rail_env.agents[h]
             if h in action_dict.keys():
                 if h in relevant_handles:
                     if positions.get(h, None) is not None:
-                        if self.rail_env.agents[h].status == RailAgentStatus.ACTIVE \
+                        if agent.status == RailAgentStatus.ACTIVE \
                                 and np.all([self.rail_env.agents[ch].status == RailAgentStatus.READY_TO_DEPART
                                             for ch in agent_conflicts[h]]):
                             robust_actions[h] = action_dict[h]
                             continue
                         if len([ch for ch in agent_conflicts[h] if sorted_handles.index(ch) < i]) > 0:
-                            robust_actions[h] = RailEnvActions.STOP_MOVING.value
+                            if agent.moving:
+                                robust_actions[h] = RailEnvActions.STOP_MOVING.value
+                            else:
+                                robust_actions[h] = RailEnvActions.DO_NOTHING.value
                             continue
-                        if self.rail_env.agents[h].status == RailAgentStatus.READY_TO_DEPART \
+                        if agent.status == RailAgentStatus.READY_TO_DEPART \
                                 and np.any([self.rail_env.agents[ch].status == RailAgentStatus.ACTIVE
                                             for ch in agent_conflicts[h]]):
                             robust_actions[h] = RailEnvActions.STOP_MOVING.value

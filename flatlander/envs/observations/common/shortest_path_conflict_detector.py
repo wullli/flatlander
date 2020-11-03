@@ -26,8 +26,8 @@ class ShortestPathConflictDetector:
 
     def update(self):
         agent_dists = np.array([self.distance_map[a.handle][get_save_agent_pos(a)
-                                                             + (a.initial_direction,)]
-                                 for a in self.rail_env.agents])
+                                                            + (a.direction,)]
+                                for a in self.rail_env.agents])
         agent_dists[agent_dists == np.inf] = 0
         max_agent_dist = np.max(agent_dists)
         self._predictor = MalfShortestPathPredictorForRailEnv(max_depth=int(max_agent_dist))
@@ -111,6 +111,7 @@ class ShortestPathConflictDetector:
                                agent,
                                direction,
                                handles=None,
+                               break_after_first=False,
                                tot_dist=1):
         conflict_handles = []
         time_per_cell = int(np.reciprocal(agent.speed_data["speed"]))
@@ -132,6 +133,8 @@ class ShortestPathConflictDetector:
                         for ca in conflicting_agents[0]:
                             if direction != self.predicted_dir[pred_time][ca]:
                                 conflict_handles.append(ca)
+                                if break_after_first:
+                                    break
                                 if np.isnan(self.predicted_dir[pred_time][ca]):
                                     malf_current = self.rail_env.agents[ca].malfunction_data['malfunction']
                                     malf_remaining = max(malf_current - tot_dist, 0)
@@ -141,6 +144,9 @@ class ShortestPathConflictDetector:
             positions, directions = self.get_shortest_path_position(position=position,
                                                                     direction=direction,
                                                                     handle=agent.handle)
+            if break_after_first and len(conflict_handles) > 0:
+                return conflict_handles, malfunctions
+
             for pos, dir in zip(positions, directions):
                 new_chs, new_malfs = self.detect_conflicts_multi(tuple(pos), agent, dir, tot_dist=tot_dist,
                                                                  handles=handles)
