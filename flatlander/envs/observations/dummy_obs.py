@@ -5,3 +5,6 @@ class DummyObs(ObservationBuilder):
 
     def get(self, handle: int = 0):
         return []
+
+    def reset(self):
+        pass

@@ -19,7 +19,7 @@ class StepOutput(NamedTuple):
     info: Any
 
 
-class RobustFlatlandGymEnv(gym.Env):
+class CprFlatlandGymEnv(gym.Env):
     action_space = gym.spaces.Discrete(4)
 
     metadata = {
@@ -105,32 +105,18 @@ class RobustFlatlandGymEnv(gym.Env):
                 break
 
         self.rail_env.obs_builder.relevant_handles = relevant_handles
+        allowed_handles = self.conflict_detector.allowed_handles(handles=relevant_handles,
+                                                                 positions=positions,
+                                                                 directions=directions)
 
-        agent_conflicts, agent_malf = self.conflict_detector.detect_conflicts(handles=relevant_handles,
-                                                                              positions=positions,
-                                                                              directions=directions)
         for i, h in enumerate(sorted_handles):
-            agent = self.rail_env.agents[h]
             if h in action_dict.keys():
-                if h in relevant_handles:
-                    if positions.get(h, None) is not None:
-                        if agent.status == RailAgentStatus.ACTIVE \
-                                and np.all([self.rail_env.agents[ch].status == RailAgentStatus.READY_TO_DEPART
-                                            for ch in agent_conflicts[h]]):
-                            robust_actions[h] = action_dict[h]
-                            continue
-                        if len([ch for ch in agent_conflicts[h] if sorted_handles.index(ch) < i]) > 0:
-                            robust_actions[h] = RailEnvActions.STOP_MOVING.value
-                            continue
-                        if agent.status == RailAgentStatus.READY_TO_DEPART \
-                                and np.any([self.rail_env.agents[ch].status == RailAgentStatus.ACTIVE
-                                            for ch in agent_conflicts[h]]):
-                            robust_actions[h] = RailEnvActions.STOP_MOVING.value
-                            continue
-
+                if h in allowed_handles:
                     robust_actions[h] = action_dict[h]
-                if h not in relevant_handles and positions.get(h, None) is None:
+                elif h not in allowed_handles and positions.get(h, None) is None:
                     robust_actions[h] = action_dict[h]
+                else:
+                    robust_actions[h] = RailEnvActions.STOP_MOVING.value
         return robust_actions
 
     def step(self, action_dict: Dict[int, RailEnvActions]) -> StepOutput:

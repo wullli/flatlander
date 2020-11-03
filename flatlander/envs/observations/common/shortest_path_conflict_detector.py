@@ -5,13 +5,25 @@ from flatland.core.grid.grid_utils import coordinate_to_position
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_env_shortest_paths import get_valid_move_actions_
 
+from flatlander.envs.observations.common.conflict_detector import ConflictDetector
 from flatlander.envs.observations.common.malf_shortest_path_predictor import MalfShortestPathPredictorForRailEnv
+from flatlander.envs.observations.common.utils import reverse_dir
 from flatlander.utils.helper import get_save_agent_pos
 
 
-class ShortestPathConflictDetector:
+class ShortestPathConflictDetector(ConflictDetector):
 
-    def __init__(self, rail_env: RailEnv, multi_shortest_path=False):
+    def __init__(self, multi_shortest_path=False):
+        super().__init__()
+        self.distance_map = None
+        self.nan_inf_mask = None
+        self.max_distance = None
+        self._predictor = None
+        self.predicted_pos = {}
+        self.predicted_dir = {}
+        self.multi_shortest_path = multi_shortest_path
+
+    def set_env(self, rail_env: RailEnv):
         self.rail_env = rail_env
         self.distance_map = self.rail_env.distance_map.get()
         self.nan_inf_mask = ((self.distance_map != np.inf) * (np.abs(np.isnan(self.distance_map) - 1))).astype(np.bool)
@@ -20,9 +32,6 @@ class ShortestPathConflictDetector:
                                  for a in self.rail_env.agents])
         self._predictor = MalfShortestPathPredictorForRailEnv(max_depth=int(max_agent_dist))
         self._predictor.set_env(self.rail_env)
-        self.predicted_pos = {}
-        self.predicted_dir = {}
-        self.multi_shortest_path = multi_shortest_path
 
     def update(self):
         agent_dists = np.array([self.distance_map[a.handle][get_save_agent_pos(a)
@@ -131,7 +140,10 @@ class ShortestPathConflictDetector:
                     if int_position in masked_preds:
                         conflicting_agents = np.where(masked_preds == int_position)
                         for ca in conflicting_agents[0]:
-                            if direction != self.predicted_dir[pred_time][ca]:
+                            cell_transitions = self.rail_env.rail.get_transitions(*position, direction)
+                            if direction != self.predicted_dir[pred_time][ca] \
+                                    and (np.isnan(self.predicted_dir[pred_time][ca]) or cell_transitions[
+                                    reverse_dir(self.predicted_dir[pred_time][ca])] == 1):
                                 conflict_handles.append(ca)
                                 if break_after_first:
                                     break

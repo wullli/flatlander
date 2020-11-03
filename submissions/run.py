@@ -1,5 +1,10 @@
 import os
 
+from flatlander.agents.shortest_path_agent import ShortestPathAgent
+from flatlander.envs.observations.dummy_obs import DummyObs
+from flatlander.envs.utils.cpr_gym_env import CprFlatlandGymEnv
+from flatlander.envs.utils.priorization.priorizer import DistToTargetPriorizer, NrAgentsSameStart
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -37,7 +42,7 @@ def evaluate(config, run):
 
     while True:
         try:
-            observation, info = remote_client.env_create(obs_builder_object=obs_builder)
+            observation, info = remote_client.env_create(obs_builder_object=DummyObs())
 
             if not observation:
                 break
@@ -47,16 +52,17 @@ def evaluate(config, run):
 
             evaluation_number += 1
             episode_start_info(evaluation_number, remote_client=remote_client)
-            robust_env = RobustFlatlandGymEnv(rail_env=remote_client.env,
-                                              max_nr_active_agents=10,
-                                              observation_space=None,
-                                              allow_noop=True)
-            sorted_handles = robust_env.prioritized_agents(handles=observation.keys())
+            robust_env = CprFlatlandGymEnv(rail_env=remote_client.env,
+                                           max_nr_active_agents=50,
+                                           observation_space=None,
+                                           priorizer=DistToTargetPriorizer(),
+                                           allow_noop=True)
+            sorted_handles = robust_env.priorizer.priorize(handles=observation.keys(), rail_env=remote_client.env)
 
             while True:
                 try:
                     while not done['__all__']:
-                        actions = agent.compute_actions(observation, remote_client.env)
+                        actions = ShortestPathAgent().compute_actions(observation, remote_client.env)
                         robust_actions = robust_env.get_robust_actions(actions, sorted_handles=sorted_handles)
 
                         observation, all_rewards, done, info = remote_client.env_step(robust_actions)
