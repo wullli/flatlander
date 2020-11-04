@@ -54,11 +54,12 @@ def evaluate(config, run):
                                               observation_space=None,
                                               priorizer=NrAgentsSameStart(),
                                               allow_noop=True)
-            sorted_handles = robust_env.priorizer.priorize(handles=observation.keys(), rail_env=remote_client.env)
 
             while True:
                 try:
                     while not done['__all__']:
+                        sorted_handles = robust_env.priorizer.priorize(handles=observation.keys(),
+                                                                       rail_env=remote_client.env)
                         actions = agent.compute_actions(observation, remote_client.env)
                         robust_actions = robust_env.get_robust_actions(actions, sorted_handles=sorted_handles)
 

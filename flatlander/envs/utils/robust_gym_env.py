@@ -175,7 +175,8 @@ class RobustFlatlandGymEnv(gym.Env):
                                          regenerate_schedule=self._regenerate_schedule_on_reset,
                                          random_seed=random_seed)
         self.sorted_handles = self.priorizer.priorize(list(obs.keys()), self.rail_env)
-        self.conflict_detector = ShortestPathConflictDetector(rail_env=self.rail_env)
+        self.conflict_detector = ShortestPathConflictDetector()
+        self.conflict_detector.set_env(self.rail_env)
         self._prev_obs = obs
         self.rail_env.obs_builder.relevant_handles = self.sorted_handles[:self._max_nr_active_agents]
         return {k: o for k, o in obs.items() if not k == '__all__'}

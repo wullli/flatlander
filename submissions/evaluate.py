@@ -20,12 +20,12 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import tensorflow as tf
 
 tf.compat.v1.disable_eager_execution()
-seed = 234123
+seed = 343
 RENDER = True
 
 
 def get_env():
-    n_agents = 100
+    n_agents = 50
     config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
     trainer = ShortestPathRllibAgent(get_agent(config, run))
@@ -82,9 +82,10 @@ def evaluate(n_episodes):
                                           observation_space=None,
                                           priorizer=NrAgentsSameStart(),
                                           allow_noop=True)
-        sorted_handles = robust_env.priorizer.priorize(handles=list(obs.keys()), rail_env=env)
 
         while not done['__all__']:
+            sorted_handles = robust_env.priorizer.priorize(handles=obs,
+                                                           rail_env=env)
             actions = agent.compute_actions(obs, env)
             robust_actions = robust_env.get_robust_actions(actions, sorted_handles)
             obs, all_rewards, done, info = env.step(robust_actions)

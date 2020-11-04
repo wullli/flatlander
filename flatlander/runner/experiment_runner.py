@@ -195,7 +195,7 @@ class ExperimentRunner:
             for _ in range(args.ray_num_nodes):
                 cluster.add_node(
                     num_cpus=args.ray_num_cpus or 1,
-                    num_gpus=args.ray_num_gpus or 0,
+                    num_gpus=args.ray_num_gpus or 1,
                     object_store_memory=args.ray_object_store_memory,
                     memory=args.ray_memory,
                     redis_max_memory=args.ray_redis_max_memory)
