@@ -1,29 +1,22 @@
 hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
-    run: IMPALA
+    run: SAC
     env: flatland_sparse
     stop:
         timesteps_total: 15000000
     checkpoint_freq: 1
     checkpoint_at_end: True
-    keep_checkpoints_num: 200
+    keep_checkpoints_num: 1000
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 1
+        num_gpus: 0
 
         gamma: 0.9999
+        normalize_actions: False
 
-        train_batch_size: 1000
-        rollout_fragment_length: 50
-        num_sgd_iter: 10
-        min_iter_time_s: 5
-        grad_clip: 100.0
-        lr: 0.00005
-
-        replay_proportion: 0.5
-        replay_buffer_num_slots: 1000
+        min_iter_time_s: 10
 
         env_config:
             number_of_agents: 20
@@ -44,10 +37,5 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["priorization_learning", "impala", "combined", "robust"]
-
-        model:
-            fcnet_activation: relu
-            fcnet_hiddens: [256, 256, 256]
-            vf_share_layers: False
+                tags: ["priorization_learning", "sac", "combined", "robust"]
 

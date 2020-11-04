@@ -1,5 +1,6 @@
 import os
 
+from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -34,8 +35,8 @@ def evaluate(config, run):
     evaluation_number = 0
     total_reward = 0
     all_rewards = []
-    trainer = get_agent(config, run)
-    agent = ShortestPathRllibAgent(trainer, explore=False)
+    prio_agent = get_agent(config, run)
+    sp_agent = ShortestPathAgent()
 
     while True:
         try:
@@ -58,10 +59,13 @@ def evaluate(config, run):
             while True:
                 try:
                     while not done['__all__']:
-                        sorted_handles = robust_env.priorizer.priorize(handles=observation.keys(),
-                                                                       rail_env=remote_client.env)
-                        actions = agent.compute_actions(observation, remote_client.env)
-                        robust_actions = robust_env.get_robust_actions(actions, sorted_handles=sorted_handles)
+                        priorities = prio_agent.compute_actions(observation)
+                        sorted_priorities = {k: v for k, v in sorted(priorities.items(),
+                                                                     key=lambda item: item[1],
+                                                                     reverse=True)}
+                        sorted_handles = list(sorted_priorities.keys())
+                        rail_actions = sp_agent.compute_actions(observation, remote_client.env)
+                        robust_actions = robust_env.get_robust_actions(rail_actions, sorted_handles=sorted_handles)
 
                         observation, all_rewards, done, info = remote_client.env_step(robust_actions)
                         steps += 1

@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-from ray.rllib.agents import sac, ppo, dqn
+from ray.rllib.agents import sac, ppo, dqn, impala
 
 
 def _get_tune_time_schedule():
@@ -27,6 +27,7 @@ def get_tune_time(n_agents):
 AGENT_MAP = {"sac": sac.SACTrainer,
              "ppo": ppo.PPOTrainer,
              "dqn": dqn.DQNTrainer,
+             "impala": impala.ImpalaTrainer,
              "apex": dqn.ApexTrainer}
 
 SUBMISSIONS = {
@@ -43,8 +44,16 @@ SUBMISSIONS = {
                          f"model_checkpoints/apex_dqn_robust/checkpoint_27/checkpoint-27"))
             for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
         "agent": "apex"
+    },
+    "impala_priorization": {
+        "checkpoint_paths": {n_agents: os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
+                         f"model_checkpoints/priorization/checkpoint_507/checkpoint-507"))
+            for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
+        "agent": "impala"
     }
+
 }
 
-RUN = SUBMISSIONS["apex_dqn_robust"]
+RUN = SUBMISSIONS["impala_priorization"]
 CURRENT_ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../utils/current_env.pkl'))

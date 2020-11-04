@@ -1,0 +1,32 @@
+env: flatland_sparse
+num_workers: 0
+num_envs_per_worker: 0
+num_gpus: 0
+
+gamma: 0.9999
+
+env_config:
+    number_of_agents: 20
+    observation: combined
+    observation_config:
+        tree:
+            max_depth: 2
+            shortest_path_max_depth: 30
+            predictor: custom
+        small_meta:
+
+    gym_env: robust
+    priorization: True
+
+    generator: sparse_rail_generator
+    generator_config: medium_v0
+
+    wandb:
+        project: flatland
+        entity: wullli
+        tags: ["priorization_learning", "impala", "combined", "robust"]
+
+model:
+    fcnet_activation: relu
+    fcnet_hiddens: [256, 256, 256]
+    vf_share_layers: False
