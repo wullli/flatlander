@@ -11,12 +11,13 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
     config:
         num_workers: 7
         num_envs_per_worker: 5
-        num_gpus: 0
+        num_gpus: 1
 
         gamma: 0.9999
         normalize_actions: False
 
         min_iter_time_s: 10
+        timesteps_per_iteration: 1000
 
         env_config:
             number_of_agents: 20
