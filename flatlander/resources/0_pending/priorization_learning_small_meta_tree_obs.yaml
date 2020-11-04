@@ -5,7 +5,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         timesteps_total: 15000000
     checkpoint_freq: 1
     checkpoint_at_end: True
-    keep_checkpoints_num: 20
+    keep_checkpoints_num: 200
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
@@ -20,6 +20,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
         num_sgd_iter: 10
         min_iter_time_s: 5
         grad_clip: 100.0
+        lr: 0.00005
 
         replay_proportion: 0.5
         replay_buffer_num_slots: 1000
