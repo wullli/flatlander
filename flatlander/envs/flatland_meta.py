@@ -9,6 +9,9 @@ from flatlander.envs.flatland_sparse import FlatlandSparse
 from flatlander.envs.observations import make_obs
 from flatlander.envs.utils.gym_env import StepOutput
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
+import numpy as np
+
+from flatlander.utils.helper import is_done
 
 
 class FlatlandMeta(FlatlandSparse):
@@ -57,6 +60,7 @@ class FlatlandMeta(FlatlandSparse):
         return self._scheduling_step(action_dict)
 
     def _scheduling_step(self, action):
+        norm_factor = self._env.rail_env._max_episode_steps * self._env.rail_env.get_num_agents()
         sorted_actions = {k: v for k, v in sorted(action.items(), key=lambda item: item[1], reverse=True)}
         self._env.sorted_handles = list(sorted_actions.keys())
 
@@ -65,16 +69,16 @@ class FlatlandMeta(FlatlandSparse):
             actions = ShortestPathAgent().compute_actions(self.last_obs, self._env.rail_env)
             _, _, done, _ = self._env.step(actions)
 
-        #pc = np.sum(
-        #    np.array([1 for a in self._env.rail_env.agents if is_done(a)])) / self._env.rail_env.get_num_agents()
-        #malf = np.sum([a.malfunction_data['nr_malfunctions'] for a in self._env.rail_env.agents])
-        #print("EPISODE PC:", pc, "NR MALFUNCTIONS:", malf)
+        pc = np.sum(
+            np.array([1 for a in self._env.rail_env.agents if is_done(a)])) / self._env.rail_env.get_num_agents()
+        malf = np.sum([a.malfunction_data['nr_malfunctions'] for a in self._env.rail_env.agents])
+        print("EPISODE PC:", pc, "NR MALFUNCTIONS:", malf)
 
         d = {a.handle: a.status == RailAgentStatus.DONE or a.status == RailAgentStatus.DONE_REMOVED
              for a in self._env.rail_env.agents}
         d['__all__'] = True
 
-        r = {a.handle: self._env._agent_scores[a.handle] for a in self._env.rail_env.agents}
+        r = {a.handle: self._env._agent_scores[a.handle] / norm_factor for a in self._env.rail_env.agents}
         o = self.last_obs
         return StepOutput(obs=o, reward=r, done=d, info={a.handle: {
             'max_episode_steps': self._env.rail_env._max_episode_steps,

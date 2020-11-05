@@ -1,5 +1,5 @@
 hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
-    run: IMPALA
+    run: SAC
     env: flatland_meta
     stop:
         timesteps_total: 15000000
@@ -15,11 +15,11 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
 
         rollout_fragment_length: 15
         train_batch_size: 100
-        min_iter_time_s: 0
+        min_iter_time_s: 1
 
-        lr_schedule: [[0, 0.0001],
-                      [10000, 0.00001]]
         gamma: 0.0
+
+        normalize_actions: False
 
         env_config:
             number_of_agents: 15
@@ -28,15 +28,18 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
             gym_env: robust
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: medium_v0
 
             wandb:
                 project: flatland
                 entity: wullli
                 tags: ["small_v0", "apex", "tree", "robust"]
 
-        model:
+        Q_model:
             fcnet_activation: relu
-            fcnet_hiddens: [8, 4, 4]
-            vf_share_layers: False
+            fcnet_hiddens: [8, 8]
+
+        policy_model:
+            fcnet_activation: relu
+            fcnet_hiddens: [8, 8]
 

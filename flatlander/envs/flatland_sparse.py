@@ -17,7 +17,7 @@ from flatlander.envs.utils.gym_env_fill_missing import FillingFlatlandGymEnv
 from flatlander.envs.utils.gym_env_wrappers import AvailableActionsWrapper, SkipNoChoiceCellsWrapper, \
     SparseRewardWrapper, \
     DeadlockWrapper, ShortestPathActionWrapper, DeadlockResolutionWrapper, GlobalRewardWrapper, \
-    NoStopShortestPathActionWrapper, PriorizationWrapper
+    NoStopShortestPathActionWrapper, PriorizationWrapper, SparsePriorizationWrapper
 from flatlander.envs.utils.gym_env_wrappers import FlatlandRenderWrapper as RailEnv
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.envs.utils.seq_schedule_generator import SequentialSparseSchedGen
@@ -73,6 +73,8 @@ class FlatlandSparse(FlatlandBase):
             self._env = NoStopShortestPathActionWrapper(self._env)
         if env_config.get('priorization', False):
             self._env = PriorizationWrapper(self._env)
+        if env_config.get('sparse_priorization', False):
+            self._env = SparsePriorizationWrapper(self._env)
         if env_config.get('sparse_reward', False):
             self._env = SparseRewardWrapper(self._env, finished_reward=env_config.get('done_reward', 1),
                                             not_finished_reward=env_config.get('not_finished_reward', -1))

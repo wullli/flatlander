@@ -31,7 +31,8 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
 
     def get_many(self, handles: Optional[List[int]] = None):
         if self.env._elapsed_steps == 0:
-            self.conflict_detector = ShortestPathConflictDetector(rail_env=self.env)
+            self.conflict_detector = ShortestPathConflictDetector()
+            self.conflict_detector.set_env(self.env)
             self.conflict_detector.map_predictions()
 
             if handles is None:

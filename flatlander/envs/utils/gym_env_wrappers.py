@@ -184,6 +184,50 @@ class PriorizationWrapper(gym.Wrapper):
         return self.env.reset(random_seed)
 
 
+class SparsePriorizationWrapper(gym.Wrapper):
+    def __init__(self, env) -> None:
+        super().__init__(env)
+        print("Apply SparsePriorizationWrapper")
+        self.action_space = gym.spaces.Box(low=0, high=1, shape=(1,))  # shortest path, other direction
+        self.sp_agent = ShortestPathAgent()
+        self.norm_factor = self.unwrapped.rail_env._max_episode_steps * self.unwrapped.rail_env.get_num_agents()
+
+    def step(self, action_dict: Dict[int, float]) -> StepOutput:
+        rail_env: RailEnv = self.unwrapped.rail_env
+
+        sorted_actions = {k: v for k, v in sorted(action_dict.items(),
+                                                  key=lambda item: item[1],
+                                                  reverse=True)}
+        self.env.sorted_handles = list(sorted_actions.keys())
+
+        cum_done = defaultdict(lambda: False)
+        cum_rew = defaultdict(lambda: 0)
+        rail_actions = self.sp_agent.compute_actions({h: None for h in action_dict.keys()}, env=rail_env)
+        o, r, done, i = self.env.step(rail_actions)
+        r = {h: rew / self.norm_factor for h, rew in r.items()}
+        for h, rew in r.items():
+            cum_rew[h] += rew
+
+        for h, curr_d in done.items():
+            cum_done[h] = curr_d or cum_done[h]
+        while not rail_env._elapsed_steps % 10 == 0 and not cum_done.get('__all__', False):
+
+            rail_actions = self.sp_agent.compute_actions({h: None for h in action_dict.keys()}, env=rail_env)
+            o, r, done, i = self.env.step(rail_actions)
+            r = {h: rew / self.norm_factor for h, rew in r.items()}
+
+            for h, curr_d in done.items():
+                cum_done[h] = curr_d or cum_done[h]
+
+            for h, rew in r.items():
+                cum_rew[h] += rew
+
+        return StepOutput(o, cum_rew, cum_done, i)
+
+    def reset(self, random_seed: Optional[int] = None) -> Dict[int, Any]:
+        return self.env.reset(random_seed)
+
+
 class SparseRewardWrapper(gym.Wrapper):
 
     def __init__(self, env, finished_reward=1, not_finished_reward=-1) -> None:
@@ -318,7 +362,8 @@ class NoStopShortestPathActionWrapper(gym.Wrapper):
         transformed_action_dict = {}
         for agent_id, action in action_dict.items():
             action += 1
-            transformed_action_dict[agent_id] = ShortestPathAgent.possible_actions_sorted_by_distance(rail_env, agent_id)[action - 1][0]
+            transformed_action_dict[agent_id] = \
+                ShortestPathAgent.possible_actions_sorted_by_distance(rail_env, agent_id)[action - 1][0]
         return transformed_action_dict
 
     def __init__(self, env) -> None:
@@ -331,7 +376,8 @@ class NoStopShortestPathActionWrapper(gym.Wrapper):
         transformed_action_dict = {}
         for agent_id, action in action_dict.items():
             action += 1
-            transformed_action_dict[agent_id] = ShortestPathAgent.possible_actions_sorted_by_distance(rail_env, agent_id)[action - 1][0]
+            transformed_action_dict[agent_id] = \
+                ShortestPathAgent.possible_actions_sorted_by_distance(rail_env, agent_id)[action - 1][0]
         step_output = self.env.step(transformed_action_dict)
         return step_output
 
@@ -354,8 +400,9 @@ class ShortestPathActionWrapper(gym.Wrapper):
                 transformed_action_dict[agent_id] = action
             else:
                 assert action in [1, 2]
-                transformed_action_dict[agent_id] = ShortestPathAgent.possible_actions_sorted_by_distance(rail_env, agent_id)[action - 1][
-                    0]
+                transformed_action_dict[agent_id] = \
+                    ShortestPathAgent.possible_actions_sorted_by_distance(rail_env, agent_id)[action - 1][
+                        0]
         step_output = self.env.step(transformed_action_dict)
         return step_output
 

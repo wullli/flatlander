@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs.observations import make_obs
+from flatlander.envs.observations.dummy_obs import DummyObs
 from flatlander.envs.utils.priorization.priorizer import DistToTargetPriorizer
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.submission.helper import is_done, init_run, get_agent
@@ -22,14 +23,14 @@ import tensorflow as tf
 
 tf.compat.v1.disable_eager_execution()
 seed = 0
-RENDER = True
+RENDER = False
 
 
 def get_env():
-    n_agents = 100
-    config, run = init_run()
+    n_agents = 15
+    #config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
-    trainer = get_agent(config, run)
+    #trainer = get_agent(config, run)
 
     rail_generator = sparse_rail_generator(
         seed=seed,
@@ -39,8 +40,8 @@ def get_env():
         max_rails_in_city=4,
     )
 
-    obs_builder = make_obs(config["env_config"]['observation'],
-                           config["env_config"].get('observation_config')).builder()
+    #obs_builder = make_obs(config["env_config"]['observation'],
+    #                       config["env_config"].get('observation_config')).builder()
 
     params = MalfunctionParameters(malfunction_rate=1 / 250,
                                    max_duration=50,
@@ -48,18 +49,18 @@ def get_env():
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=42,
-        height=42,
+        width=35,
+        height=35,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
         malfunction_generator=malfunction_generator,
-        obs_builder_object=obs_builder,
+        obs_builder_object=DummyObs(),
         remove_agents_at_target=True,
         random_seed=seed,
     )
 
-    return env, trainer
+    return env, None
 
 
 def evaluate(n_episodes):
@@ -73,7 +74,7 @@ def evaluate(n_episodes):
         obs, _ = env.reset(regenerate_schedule=True, regenerate_rail=True)
         if RENDER:
             env_renderer.reset()
-            env_renderer.render_env(show=True, frames=True, show_observations=True)
+            env_renderer.render_env(show=True, frames=True, show_observations=False)
 
         if not obs:
             break
@@ -82,17 +83,13 @@ def evaluate(n_episodes):
         ep_return = 0
         done = defaultdict(lambda: False)
         robust_env = RobustFlatlandGymEnv(rail_env=env,
-                                          max_nr_active_agents=100,
+                                          max_nr_active_agents=200,
                                           observation_space=None,
                                           priorizer=DistToTargetPriorizer(),
                                           allow_noop=True)
+        sorted_handles = robust_env.priorizer.priorize(handles=list(obs.keys()), rail_env=env)
 
         while not done['__all__']:
-            priorities = prio_agent.compute_actions(obs)
-            sorted_priorities = {k: v for k, v in sorted(priorities.items(),
-                                                         key=lambda item: item[1],
-                                                         reverse=True)}
-            sorted_handles = list(sorted_priorities.keys())
             actions = ShortestPathAgent().compute_actions(obs, env)
             robust_actions = robust_env.get_robust_actions(actions, sorted_handles)
             obs, all_rewards, done, info = env.step(robust_actions)
@@ -106,7 +103,7 @@ def evaluate(n_episodes):
         print("EPISODE PC:", pc)
         n_episodes += 1
         pcs.append(pc)
-        returns.append(ep_return)
+        returns.append(ep_return / (env._max_episode_steps * env.get_num_agents()))
     return pcs, returns
 
 

@@ -55,14 +55,21 @@ def evaluate(config, run):
                                               priorizer=NrAgentsSameStart(),
                                               allow_noop=True)
 
+            priorities = prio_agent.compute_actions(observation)
+            sorted_priorities = {k: v for k, v in sorted(priorities.items(),
+                                                         key=lambda item: item[1],
+                                                         reverse=True)}
+            sorted_handles = list(sorted_priorities.keys())
+
             while True:
                 try:
                     while not done['__all__']:
-                        priorities = prio_agent.compute_action(observation)
-                        sorted_priorities = {k: v for k, v in sorted(priorities.items(),
-                                                                     key=lambda item: item[1],
-                                                                     reverse=True)}
-                        sorted_handles = list(sorted_priorities.keys())
+                        if remote_client.env._elapsed_steps % 10 == 0:
+                            priorities = prio_agent.compute_actions(observation)
+                            sorted_priorities = {k: v for k, v in sorted(priorities.items(),
+                                                                         key=lambda item: item[1],
+                                                                         reverse=True)}
+                            sorted_handles = list(sorted_priorities.keys())
                         rail_actions = sp_agent.compute_actions(observation, remote_client.env)
                         robust_actions = robust_env.get_robust_actions(rail_actions, sorted_handles=sorted_handles)
 

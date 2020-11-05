@@ -48,7 +48,7 @@ SUBMISSIONS = {
     "impala_priorization": {
         "checkpoint_paths": {n_agents: os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         f"model_checkpoints/priorization/checkpoint_801/checkpoint-801"))
+                         f"model_checkpoints/priorization/checkpoint_14168/checkpoint-14168"))
             for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
         "agent": "sac"
     }

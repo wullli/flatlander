@@ -178,5 +178,6 @@ class RobustFlatlandGymEnv(gym.Env):
         self.conflict_detector = ShortestPathConflictDetector()
         self.conflict_detector.set_env(self.rail_env)
         self._prev_obs = obs
-        self.rail_env.obs_builder.relevant_handles = self.sorted_handles[:self._max_nr_active_agents]
+        self.rail_env.obs_builder.relevant_handles = self.sorted_handles[:min(self._max_nr_active_agents,
+                                                                              self.rail_env.get_num_agents())]
         return {k: o for k, o in obs.items() if not k == '__all__'}
