@@ -1,7 +1,9 @@
 import os
+from copy import deepcopy
 
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart
+import numpy as np
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -18,6 +20,7 @@ tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()
 
 TIME_LIMIT = 60 * 60 * 8
+EXPLORE = True
 
 
 def skip(done):
@@ -36,6 +39,7 @@ def evaluate(config, run):
     all_rewards = []
     prio_agent = get_agent(config, run)
     sp_agent = ShortestPathAgent()
+    num_explorations = 3
 
     while True:
         try:
@@ -45,7 +49,6 @@ def evaluate(config, run):
                 break
 
             steps = 0
-            done = defaultdict(lambda: False)
 
             evaluation_number += 1
             episode_start_info(evaluation_number, remote_client=remote_client)
@@ -55,21 +58,42 @@ def evaluate(config, run):
                                               priorizer=NrAgentsSameStart(),
                                               allow_noop=True)
 
-            priorities = prio_agent.compute_actions(observation)
-            sorted_priorities = {k: v for k, v in sorted(priorities.items(),
-                                                         key=lambda item: item[1],
-                                                         reverse=True)}
-            sorted_handles = list(sorted_priorities.keys())
+            priorities = prio_agent.compute_actions(observation, explore=False)
+            sorted_actions = {k: v for k, v in sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
+            sorted_handles = list(sorted_actions.keys())
 
+            priorizations = []
+
+            if remote_client.env.get_num_agents() <= 5 and EXPLORE:
+                for i in range(num_explorations):
+                    obs = observation
+                    if i != 0:
+                        priorities = prio_agent.compute_actions(obs, explore=True)
+                        sorted_actions = {k: v for k, v in
+                                          sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
+                        sorted_handles = list(sorted_actions.keys())
+                    env = deepcopy(remote_client.env)
+                    ep_return = 0
+                    done = defaultdict(lambda: False)
+
+                    print("Explore priorizations step", i + 1)
+
+                    while not done['__all__']:
+                        actions = ShortestPathAgent().compute_actions(obs, env)
+                        robust_actions = robust_env.get_robust_actions(actions, sorted_handles)
+                        obs, all_rewards, done, info = env.step(robust_actions)
+                        steps += 1
+                        ep_return += np.sum(list(all_rewards.values()))
+
+                    priorizations.append((ep_return, sorted_handles))
+
+            if len(priorizations) > 0:
+                sorted_handles = max(priorizations, key=lambda t: t[0])[1]
+
+            done = defaultdict(lambda: False)
             while True:
                 try:
                     while not done['__all__']:
-                        if remote_client.env._elapsed_steps % 10 == 0:
-                            priorities = prio_agent.compute_actions(observation)
-                            sorted_priorities = {k: v for k, v in sorted(priorities.items(),
-                                                                         key=lambda item: item[1],
-                                                                         reverse=True)}
-                            sorted_handles = list(sorted_priorities.keys())
                         rail_actions = sp_agent.compute_actions(observation, remote_client.env)
                         robust_actions = robust_env.get_robust_actions(rail_actions, sorted_handles=sorted_handles)
 

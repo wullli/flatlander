@@ -1,0 +1,31 @@
+env: flatland_meta
+num_workers: 0
+num_envs_per_worker: 0
+num_gpus: 0
+
+gamma: 0.0
+
+normalize_actions: False
+
+env_config:
+    number_of_agents: 15
+    observation: simple_meta
+
+    gym_env: robust
+
+    generator: sparse_rail_generator
+    generator_config: medium_v0
+
+    wandb:
+        project: flatland
+        entity: wullli
+        tags: ["medium_v0", "sac", "meta", "robust"]
+
+Q_model:
+    fcnet_activation: relu
+    fcnet_hiddens: [8, 8]
+
+policy_model:
+    fcnet_activation: relu
+    fcnet_hiddens: [8, 8]
+

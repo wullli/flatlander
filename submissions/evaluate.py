@@ -28,9 +28,9 @@ RENDER = False
 
 def get_env():
     n_agents = 15
-    #config, run = init_run()
+    config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
-    #trainer = get_agent(config, run)
+    trainer = get_agent(config, run)
 
     rail_generator = sparse_rail_generator(
         seed=seed,
@@ -40,8 +40,8 @@ def get_env():
         max_rails_in_city=4,
     )
 
-    #obs_builder = make_obs(config["env_config"]['observation'],
-    #                       config["env_config"].get('observation_config')).builder()
+    obs_builder = make_obs(config["env_config"]['observation'],
+                           config["env_config"].get('observation_config')).builder()
 
     params = MalfunctionParameters(malfunction_rate=1 / 250,
                                    max_duration=50,
@@ -55,12 +55,12 @@ def get_env():
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
         malfunction_generator=malfunction_generator,
-        obs_builder_object=DummyObs(),
+        obs_builder_object=obs_builder,
         remove_agents_at_target=True,
         random_seed=seed,
     )
 
-    return env, None
+    return env, trainer
 
 
 def evaluate(n_episodes):
@@ -87,7 +87,9 @@ def evaluate(n_episodes):
                                           observation_space=None,
                                           priorizer=DistToTargetPriorizer(),
                                           allow_noop=True)
-        sorted_handles = robust_env.priorizer.priorize(handles=list(obs.keys()), rail_env=env)
+        priorities = prio_agent.compute_actions(obs, explore=False)
+        sorted_actions = {k: v for k, v in sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
+        sorted_handles = list(sorted_actions.keys())
 
         while not done['__all__']:
             actions = ShortestPathAgent().compute_actions(obs, env)

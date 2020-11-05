@@ -43,7 +43,7 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
                 handles = []
             obs = {h: self.get(h) for h in handles}
             for h, o in obs.items():
-                o[-1] = len(set(agent_conflicts[h]))
+                o[-1] = len(set(agent_conflicts[h])) / self.env.get_num_agents()
 
             obs_matrix = np.array(list(obs.values()))
             obs_normed = obs_matrix / (np.max(obs_matrix, axis=0) + 1e-10)
@@ -77,7 +77,7 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         return np.array([distance / max_distance,
                          nr_agents_same_start,
                          nr_agents_same_start_and_dir,
-                         1])
+                         0])
 
     def get_position(self, handle):
         self.env: RailEnv = self.env

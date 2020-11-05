@@ -45,15 +45,15 @@ SUBMISSIONS = {
             for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
         "agent": "apex"
     },
-    "impala_priorization": {
+    "sac_meta": {
         "checkpoint_paths": {n_agents: os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         f"model_checkpoints/priorization/checkpoint_14168/checkpoint-14168"))
+                         f"model_checkpoints/meta/checkpoint_9/checkpoint-9"))
             for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
         "agent": "sac"
     }
 
 }
 
-RUN = SUBMISSIONS["impala_priorization"]
+RUN = SUBMISSIONS["sac_meta"]
 CURRENT_ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../utils/current_env.pkl'))
