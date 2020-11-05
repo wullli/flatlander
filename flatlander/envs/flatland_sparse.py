@@ -115,6 +115,7 @@ class FlatlandSparse(FlatlandBase):
 
         malfunction_generator = NoMalfunctionGen()
         if {'malfunction_rate', 'malfunction_min_duration', 'malfunction_max_duration'} <= self._config.keys():
+            print("MALFUNCTIONS POSSIBLE")
             params = MalfunctionParameters(malfunction_rate=1 / self._config['malfunction_rate'],
                                            max_duration=self._config['malfunction_max_duration'],
                                            min_duration=self._config['malfunction_min_duration'])
