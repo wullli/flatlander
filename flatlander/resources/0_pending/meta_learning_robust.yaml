@@ -14,7 +14,7 @@ meta_learning_robust_sac:
         num_gpus: 0
 
         rollout_fragment_length: 15
-        train_batch_size: 100
+        train_batch_size: 30
         min_iter_time_s: 1
 
         gamma: 0.0
