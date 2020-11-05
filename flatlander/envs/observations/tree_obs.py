@@ -43,7 +43,7 @@ class TreeObservation(Observation):
             dim += self._num_agents
         if self._concat_status:
             dim += 1
-        return gym.spaces.Box(low=-100, high=100, shape=(dim,))
+        return gym.spaces.Box(low=-1, high=1, shape=(dim,))
 
 
 class TreeObsForRailEnvRLLibWrapper(ObservationBuilder):

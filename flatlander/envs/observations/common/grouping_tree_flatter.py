@@ -93,7 +93,7 @@ class GroupingTreeFlattener(TreeFlattener):
             distance = norm_obs_clip(distance, normalize_to_range=True)
         agent_data = np.clip(agent_data, -1, 1)
         normalized_obs = np.concatenate((np.concatenate((data, distance)), agent_data))
-        return normalized_obs
+        return np.clip(normalized_obs, -1, 1)
 
     def flatten(self, root: Any, handle, concat_agent_id, concat_status, **kwargs):
 
