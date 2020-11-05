@@ -35,9 +35,17 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
             self.conflict_detector.set_env(self.env)
             self.conflict_detector.map_predictions()
 
+            positions = {h: self.get_position(h) for h in handles}
+            directions = {h: self.env.agents[h].direction for h in handles}
+            agent_conflicts, _ = self.conflict_detector.detect_conflicts(handles=handles,
+                                                                         positions=positions,
+                                                                         directions=directions)
             if handles is None:
                 handles = []
             obs = {h: self.get(h) for h in handles}
+            for h, o in obs.items():
+                o[-1] = len(set(agent_conflicts[h]))
+
             obs_matrix = np.array(list(obs.values()))
             obs_normed = obs_matrix / (np.max(obs_matrix, axis=0) + 1e-10)
             obs = {h: obs_normed[i] for i, h in enumerate(handles)}
@@ -51,18 +59,6 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         the agent and its target based on the distance to the agent, i.e. the number of time steps the
         agent needs to reach the cell, encoding the time information.
         """
-        self.env: RailEnv = self.env
-        agent = self.env.agents[handle]
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
-            agent_virtual_position = agent.initial_position
-        elif agent.status == RailAgentStatus.ACTIVE:
-            agent_virtual_position = agent.position
-        elif agent.status == RailAgentStatus.DONE:
-            agent_virtual_position = agent.target
-        else:
-            return None
-
-        handles = [a.handle for a in self.env.agents]
 
         distance_map = self.env.distance_map.get()
         nan_inf_mask = ((distance_map != np.inf) * (np.abs(np.isnan(distance_map) - 1))).astype(np.bool)
@@ -79,28 +75,23 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         distance = max_distance if (
                 distance == np.inf or np.isnan(distance)) else distance
 
-        possible_transitions = self.env.rail.get_transitions(*agent_virtual_position, agent.direction)
-        distance_map = self.env.distance_map.get()
-        possible_paths = []
-
-        for movement in range(4):
-            if possible_transitions[movement]:
-                pos = get_new_position(agent_virtual_position, movement)
-                distance = distance_map[agent.handle][pos + (movement,)]
-                distance = max_distance if (distance == np.inf or np.isnan(distance)) else distance
-
-                conflict, malf = self.conflict_detector.detect_conflicts_multi(position=pos, direction=movement,
-                                                                               handles=handles,
-                                                                               agent=self.env.agents[handle])
-
-                possible_paths.append(np.array([distance, len(set(conflict))]))
-
-        possible_steps = sorted(possible_paths, key=lambda path: path[1])
-
         return np.array([distance / max_distance,
                          nr_agents_same_start,
                          nr_agents_same_start_and_dir,
-                         possible_steps[0][1]])
+                         1])
+
+    def get_position(self, handle):
+        self.env: RailEnv = self.env
+        agent = self.env.agents[handle]
+        if agent.status == RailAgentStatus.READY_TO_DEPART:
+            agent_virtual_position = agent.initial_position
+        elif agent.status == RailAgentStatus.ACTIVE:
+            agent_virtual_position = agent.position
+        elif agent.status == RailAgentStatus.DONE:
+            agent_virtual_position = agent.target
+        else:
+            return None
+        return agent_virtual_position
 
     def set_env(self, env: Environment):
         self.env: RailEnv = env
