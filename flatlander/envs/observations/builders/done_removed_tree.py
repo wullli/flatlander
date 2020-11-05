@@ -70,4 +70,7 @@ class DoneRemovedTreeObsForRailEnv(TreeObsForRailEnv):
         return root_node_observation
 
     def _reverse_dir(self, direction):
-        return int((direction + 2) % 4) if direction is not None else None
+        if np.isnan(direction):
+            return 1
+        else:
+            return int((direction + 2) % 4) if direction is not None else None

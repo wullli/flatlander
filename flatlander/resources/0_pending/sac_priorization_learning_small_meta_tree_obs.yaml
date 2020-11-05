@@ -20,7 +20,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
             observation: combined
             observation_config:
                 tree:
-                    max_depth: 2
+                    max_depth: 1
                     shortest_path_max_depth: 30
                     predictor: custom
                 small_meta:

@@ -5,7 +5,7 @@ num_envs_per_worker: 0
 num_gpus: 0
 
 gamma: 0.9999
-normalize_actions: True
+normalize_actions: False
 
 min_iter_time_s: 10
 timesteps_per_iteration: 1000

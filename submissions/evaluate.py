@@ -10,10 +10,8 @@ from flatland.utils.rendertools import RenderTool
 from tqdm import tqdm
 
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
-from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
 from flatlander.envs.observations import make_obs
-from flatlander.envs.observations.dummy_obs import DummyObs
-from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart, DistToTargetPriorizer
+from flatlander.envs.utils.priorization.priorizer import DistToTargetPriorizer
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.submission.helper import is_done, init_run, get_agent
 
@@ -24,11 +22,11 @@ import tensorflow as tf
 
 tf.compat.v1.disable_eager_execution()
 seed = 0
-RENDER = False
+RENDER = True
 
 
 def get_env():
-    n_agents = 20
+    n_agents = 100
     config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
     trainer = get_agent(config, run)
@@ -50,8 +48,8 @@ def get_env():
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=29,
-        height=29,
+        width=42,
+        height=42,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
