@@ -2,10 +2,10 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
     run: PPO
     env: flatland_sparse
     stop:
-        timesteps_total: 15000000
-    checkpoint_freq: 1
+        timesteps_total: 30000000
+    checkpoint_freq: 2
     checkpoint_at_end: True
-    keep_checkpoints_num: 1000
+    keep_checkpoints_num: 500
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
