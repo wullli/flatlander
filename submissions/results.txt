@@ -14,3 +14,7 @@ Mean Normalized Reward : 0.61677
 
 #### RL Prio ####
 
+#### Dist to target prio: 15 agents, 35x35, medium_v0 ####
+Mean PC: 0.9526666666666667
+Mean Episode return: -0.2337550073523721
+

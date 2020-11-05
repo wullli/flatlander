@@ -33,7 +33,6 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         if self.env._elapsed_steps == 0:
             self.conflict_detector = ShortestPathConflictDetector()
             self.conflict_detector.set_env(self.env)
-            self.conflict_detector.map_predictions()
 
             positions = {h: self.get_position(h) for h in handles}
             directions = {h: self.env.agents[h].direction for h in handles}
