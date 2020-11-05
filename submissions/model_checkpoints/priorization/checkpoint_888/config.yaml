@@ -1,0 +1,27 @@
+env: flatland_sparse
+
+num_workers: 0
+num_envs_per_worker: 0
+num_gpus: 0
+
+gamma: 0.9999
+normalize_actions: False
+
+min_iter_time_s: 10
+timesteps_per_iteration: 1000
+
+env_config:
+    number_of_agents: 20
+    observation: combined
+    observation_config:
+        tree:
+            max_depth: 2
+            shortest_path_max_depth: 30
+            predictor: custom
+        small_meta:
+
+    gym_env: robust
+    priorization: True
+
+    generator: sparse_rail_generator
+    generator_config: medium_v0

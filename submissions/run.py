@@ -7,7 +7,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from collections import defaultdict
-from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatland.evaluators.client import FlatlandRemoteClient, TimeoutException
 from flatlander.envs.observations import make_obs
@@ -59,7 +58,7 @@ def evaluate(config, run):
             while True:
                 try:
                     while not done['__all__']:
-                        priorities = prio_agent.compute_actions(observation)
+                        priorities = prio_agent.compute_action(observation)
                         sorted_priorities = {k: v for k, v in sorted(priorities.items(),
                                                                      key=lambda item: item[1],
                                                                      reverse=True)}

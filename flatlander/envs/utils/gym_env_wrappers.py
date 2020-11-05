@@ -141,12 +141,31 @@ class SkipNoChoiceCellsWrapper(gym.Wrapper):
         return obs
 
 
+class NormalizeActionWrapper(gym.ActionWrapper):
+    """Rescale the action space of the environment."""
+
+    def action(self, action):
+        if not isinstance(self.env.action_space, gym.spaces.Box):
+            return action
+
+        # rescale the action
+        low, high = self.env.action_space.low, self.env.action_space.high
+        scaled_action = low + (action + 1.0) * (high - low) / 2.0
+        scaled_action = np.clip(scaled_action, low, high)
+
+        return scaled_action
+
+    def reverse_action(self, action):
+        raise NotImplementedError
+
+
 class PriorizationWrapper(gym.Wrapper):
     def __init__(self, env) -> None:
         super().__init__(env)
         print("Apply PriorizationWrapper")
         self.action_space = gym.spaces.Box(low=0, high=1, shape=(1,))  # shortest path, other direction
         self.sp_agent = ShortestPathAgent()
+        self.norm_factor = self.unwrapped.rail_env._max_episode_steps * self.unwrapped.rail_env.get_num_agents()
 
     def step(self, action_dict: Dict[int, float]) -> StepOutput:
         rail_env: RailEnv = self.unwrapped.rail_env
@@ -157,6 +176,7 @@ class PriorizationWrapper(gym.Wrapper):
 
         rail_actions = self.sp_agent.compute_actions({h: None for h in action_dict.keys()}, env=rail_env)
         o, r, d, i = self.env.step(rail_actions)
+        r = {h: rew / self.norm_factor for h, rew in r.items()}
 
         return StepOutput(o, r, d, i)
 

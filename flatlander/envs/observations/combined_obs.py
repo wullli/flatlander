@@ -47,7 +47,7 @@ class CombinedObsForRailEnv(ObservationBuilder):
             sub_obs = b.get_many(handles)
             for h in handles:
                 obs[h].append(sub_obs[h])
-        return obs
+        return {h: tuple(o) for h, o in obs.items()}
 
     def set_env(self, env):
         for b in self._builders:

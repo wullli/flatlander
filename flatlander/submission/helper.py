@@ -44,7 +44,6 @@ def init_run():
 def get_agent(config, run, n_agents=5) -> Trainer:
     agent = AGENT_MAP[run["agent"]](config=config)
     n_agents = min(18, n_agents)
-    agent.restore(run["checkpoint_paths"][n_agents])
     return agent
 
 
