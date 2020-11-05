@@ -1,4 +1,4 @@
-hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
+meta_learning_robust_sac:
     run: SAC
     env: flatland_meta
     stop:
@@ -33,7 +33,7 @@ hierarchical-flatland-sparse-small-tree_obs-robust-fc-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "apex", "tree", "robust"]
+                tags: ["medium_v0", "sac", "meta", "robust"]
 
         Q_model:
             fcnet_activation: relu
