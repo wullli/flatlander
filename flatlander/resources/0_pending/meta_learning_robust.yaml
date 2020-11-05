@@ -17,6 +17,8 @@ meta_learning_robust_sac:
         train_batch_size: 30
         min_iter_time_s: 1
 
+        timesteps_per_iteration: 30
+
         gamma: 0.0
 
         normalize_actions: False
