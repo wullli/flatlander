@@ -32,10 +32,10 @@ def get_env(config=None, rl=False):
 
     rail_generator = sparse_rail_generator(
         seed=seed,
-        max_num_cities=5,
+        max_num_cities=4,
         grid_mode=False,
         max_rails_between_cities=2,
-        max_rails_in_city=4,
+        max_rails_in_city=3,
     )
 
     if rl:

@@ -11,7 +11,7 @@ meta_learning_robust_sac:
     config:
         num_workers: 7
         num_envs_per_worker: 1
-        num_gpus: 0
+        num_gpus: 1
 
         rollout_fragment_length: 1
         train_batch_size: 5
