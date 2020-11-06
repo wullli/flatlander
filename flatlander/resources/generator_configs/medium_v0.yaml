@@ -1,6 +1,6 @@
 width: 35
 height: 35
-number_of_agents: 20
+number_of_agents: 34
 max_num_cities: 5
 grid_mode: False
 max_rails_between_cities: 2

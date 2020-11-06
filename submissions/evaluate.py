@@ -120,6 +120,6 @@ def evaluate(n_episodes, rl_prio=True):
 
 
 if __name__ == "__main__":
-    pcs, returns = evaluate(100, rl_prio=False)
+    pcs, returns = evaluate(10, rl_prio=True)
     print(f'Mean PC: {np.mean(pcs)}')
     print(f'Mean Episode return: {np.mean(returns)}')

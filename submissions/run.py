@@ -2,7 +2,7 @@ import os
 from copy import deepcopy
 
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
-from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart
+from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart, DistToTargetPriorizer
 import numpy as np
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -20,7 +20,7 @@ tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()
 
 TIME_LIMIT = 60 * 60 * 8
-EXPLORE = True
+EXPLORE = False
 
 
 def skip(done):
@@ -59,7 +59,8 @@ def evaluate(config, run):
                                               allow_noop=True)
 
             priorities = prio_agent.compute_actions(observation, explore=False)
-            sorted_actions = {k: v for k, v in sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
+            sorted_actions = {k: v for k, v in
+                              sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
             sorted_handles = list(sorted_actions.keys())
 
             priorizations = []

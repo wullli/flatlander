@@ -41,12 +41,16 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
             if handles is None:
                 handles = []
             obs = {h: self.get(h) for h in handles}
+            max_start_and_dir = max(obs.values(), key=lambda v: v[2])[2]
+            max_start = max(obs.values(), key=lambda v: v[1])[1]
             if len(agent_conflicts) < 1:
                 max_conflicts = 1e-7
             else:
                 max_conflicts = len(max(agent_conflicts.values(), key=lambda v: len(v))) + 1e-7
             for h, o in obs.items():
-                o[-2] = len(set(agent_conflicts[h])) / self.env.get_num_agents()
+                o[-4] = o[-4] / max_start
+                o[-3] = o[-3] / max_start_and_dir
+                o[-2] = len(set(agent_conflicts[h])) / max_conflicts
                 o[-1] = len(agent_conflicts[h]) / max_conflicts
             return obs
         else:
@@ -76,8 +80,8 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
                 distance == np.inf or np.isnan(distance)) else distance
 
         return np.array([distance / max_distance,
-                         nr_agents_same_start / num_agents,
-                         nr_agents_same_start_and_dir / num_agents,
+                         nr_agents_same_start,
+                         nr_agents_same_start_and_dir,
                          0, 0])
 
     def get_position(self, handle):

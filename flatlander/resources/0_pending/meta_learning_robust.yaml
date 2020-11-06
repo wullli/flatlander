@@ -9,7 +9,7 @@ meta_learning_robust_sac:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 15
+        num_workers: 7
         num_envs_per_worker: 1
         num_gpus: 1
 
@@ -19,20 +19,20 @@ meta_learning_robust_sac:
         num_sgd_iter: 10
         min_iter_time_s: 0
 
-        vf_share_layers: True
+        vf_share_layers: False
 
         timesteps_per_iteration: 5
 
         gamma: 0.0
 
         env_config:
-            number_of_agents: 15
+            number_of_agents: 43
             observation: simple_meta
 
             gym_env: robust
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: medium_v0
 
             wandb:
                 project: flatland
