@@ -21,6 +21,8 @@ meta_learning_robust_sac:
 
         gamma: 0.0
 
+        initial_alpha: 0.2
+
         normalize_actions: False
 
         env_config:
