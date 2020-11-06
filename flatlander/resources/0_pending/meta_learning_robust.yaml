@@ -1,4 +1,4 @@
-meta_learning_robust_sac:
+meta_learning_robust_ppo:
     run: PPO
     env: flatland_meta
     stop:
@@ -36,7 +36,7 @@ meta_learning_robust_sac:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["medium_v0", "sac", "meta", "robust"]
+                tags: ["medium_v0", "ppo", "meta", "robust"]
 
         optimization:
             actor_learning_rate: 0.005
