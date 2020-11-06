@@ -1,5 +1,5 @@
 meta_learning_robust_sac:
-    run: SAC
+    run: PPO
     env: flatland_meta
     stop:
         timesteps_total: 15000000
