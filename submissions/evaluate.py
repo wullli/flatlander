@@ -2,7 +2,7 @@ import os
 from collections import defaultdict
 
 import numpy as np
-from flatland.envs.malfunction_generators import MalfunctionParameters, ParamMalfunctionGen
+from flatland.envs.malfunction_generators import MalfunctionParameters, ParamMalfunctionGen, NoMalfunctionGen
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
@@ -50,12 +50,12 @@ def get_env(config=None, rl=False):
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=35,
-        height=35,
+        width=25,
+        height=25,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
-        malfunction_generator=malfunction_generator,
+        malfunction_generator=NoMalfunctionGen(),
         obs_builder_object=obs_builder,
         remove_agents_at_target=True,
         random_seed=seed,
@@ -120,9 +120,6 @@ def evaluate(n_episodes, rl_prio=True):
 
 
 if __name__ == "__main__":
-    rl_pcs, rl_returns = evaluate(200, rl_prio=True)
-    print(f'Mean RL PC: {np.mean(rl_pcs)}')
-    print(f'Mean RL Episode return: {np.mean(rl_returns)}')
-    pcs, returns = evaluate(200, rl_prio=False)
+    pcs, returns = evaluate(100, rl_prio=False)
     print(f'Mean PC: {np.mean(pcs)}')
     print(f'Mean Episode return: {np.mean(returns)}')
