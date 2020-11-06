@@ -27,7 +27,7 @@ RENDER = True
 
 
 def get_env(config=None, rl=False):
-    n_agents = 43
+    n_agents = 34
     schedule_generator = sparse_schedule_generator(None)
 
     rail_generator = sparse_rail_generator(
@@ -44,7 +44,7 @@ def get_env(config=None, rl=False):
     else:
         obs_builder = DummyObs()
 
-    params = MalfunctionParameters(malfunction_rate=1 / 1000,
+    params = MalfunctionParameters(malfunction_rate=1 / 190,
                                    max_duration=50,
                                    min_duration=20)
     malfunction_generator = ParamMalfunctionGen(params)
@@ -121,5 +121,9 @@ def evaluate(n_episodes, rl_prio=True):
 
 if __name__ == "__main__":
     pcs, returns = evaluate(20, rl_prio=True)
+    print(f'Mean RL PC: {np.mean(pcs)}')
+    print(f'Mean RL Episode return: {np.mean(returns)}')
+
+    pcs, returns = evaluate(20, rl_prio=False)
     print(f'Mean RL PC: {np.mean(pcs)}')
     print(f'Mean RL Episode return: {np.mean(returns)}')

@@ -84,8 +84,8 @@ class PathObservationBuilder(ObservationBuilder):
                         and agent.status != RailAgentStatus.READY_TO_DEPART:
                     conflict, malf = self.conflict_detector.detect_conflicts_multi(position=pos, direction=movement,
                                                                                    handles=self._relevant_handles,
-                                                                                   break_after_first=True,
-                                                                                   only_branch=True,
+                                                                                   break_after_first=False,
+                                                                                   only_branch=False,
                                                                                    agent=self.env.agents[handle])
                     malf = np.max(malf) if len(malf) > 0 else 0
                 else:
