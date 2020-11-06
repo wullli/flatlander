@@ -14,13 +14,14 @@ meta_learning_robust_sac:
         num_gpus: 1
 
         rollout_fragment_length: 1
-        train_batch_size: 5
-        sgd_minibatch_size: 5
+        train_batch_size: 500
+        sgd_minibatch_size: 50
+        num_sgd_iter: 10
         min_iter_time_s: 0
 
         vf_share_layers: True
 
-        timesteps_per_iteration: 5
+        timesteps_per_iteration: 10
 
         gamma: 0.0
 
@@ -38,7 +39,7 @@ meta_learning_robust_sac:
                 entity: wullli
                 tags: ["medium_v0", "ppo", "meta", "robust"]
 
-        lr: 0.005
+        lr: 0.001
 
         model:
             fcnet_activation: relu
