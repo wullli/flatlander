@@ -12,7 +12,7 @@ from tqdm import tqdm
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs.observations import make_obs
 from flatlander.envs.observations.dummy_obs import DummyObs
-from flatlander.envs.utils.priorization.priorizer import DistToTargetPriorizer
+from flatlander.envs.utils.priorization.priorizer import DistToTargetPriorizer, NrAgentsSameStart
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.submission.helper import is_done, init_run, get_agent
 
@@ -92,7 +92,7 @@ def evaluate(n_episodes, rl_prio=True):
         robust_env = RobustFlatlandGymEnv(rail_env=env,
                                           max_nr_active_agents=200,
                                           observation_space=None,
-                                          priorizer=DistToTargetPriorizer(),
+                                          priorizer=NrAgentsSameStart(),
                                           allow_noop=True)
         if rl_prio:
             priorities = prio_agent.compute_actions(obs, explore=False)

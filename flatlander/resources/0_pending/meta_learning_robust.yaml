@@ -9,9 +9,9 @@ meta_learning_robust_sac:
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
-        num_workers: 15
+        num_workers: 7
         num_envs_per_worker: 1
-        num_gpus: 1
+        num_gpus: 0
 
         rollout_fragment_length: 1
         train_batch_size: 5
@@ -22,7 +22,6 @@ meta_learning_robust_sac:
         gamma: 0.0
 
         initial_alpha: 0.2
-
         normalize_actions: False
 
         env_config:
@@ -32,7 +31,7 @@ meta_learning_robust_sac:
             gym_env: robust
 
             generator: sparse_rail_generator
-            generator_config: small_v0
+            generator_config: 1
 
             wandb:
                 project: flatland
@@ -44,13 +43,13 @@ meta_learning_robust_sac:
             critic_learning_rate: 0.005
             entropy_learning_rate: 0.005
 
-        learning_starts: 100
+        learning_starts: 30
 
         Q_model:
             fcnet_activation: relu
-            fcnet_hiddens: [8, 8]
+            fcnet_hiddens: [32, 32]
 
         policy_model:
             fcnet_activation: relu
-            fcnet_hiddens: [8, 8]
+            fcnet_hiddens: [32, 32]
 

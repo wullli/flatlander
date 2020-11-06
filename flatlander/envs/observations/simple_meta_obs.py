@@ -5,7 +5,6 @@ import numpy as np
 
 from flatland.core.env import Environment
 from flatland.core.env_observation_builder import ObservationBuilder
-from flatland.core.grid.grid4_utils import get_new_position
 from flatland.envs.agent_utils import RailAgentStatus
 from flatland.envs.rail_env import RailEnv
 from flatlander.envs.observations import Observation, register_obs
@@ -23,7 +22,7 @@ class SimpleMetaObservation(Observation):
         return self._builder
 
     def observation_space(self) -> gym.Space:
-        return gym.spaces.Box(low=0, high=1, shape=(4,),
+        return gym.spaces.Box(low=0, high=1, shape=(5,),
                               dtype=np.float32)  # own distance to target & nr agents at start
 
 
@@ -42,12 +41,10 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
             if handles is None:
                 handles = []
             obs = {h: self.get(h) for h in handles}
+            max_conflicts = max(agent_conflicts.values())
             for h, o in obs.items():
-                o[-1] = len(set(agent_conflicts[h])) / self.env.get_num_agents()
-
-            obs_matrix = np.array(list(obs.values()))
-            obs_normed = obs_matrix / (np.max(obs_matrix, axis=0) + 1e-10)
-            obs = {h: obs_normed[i] for i, h in enumerate(handles)}
+                o[-2] = len(set(agent_conflicts[h])) / self.env.get_num_agents()
+                o[-1] = len(agent_conflicts[h]) / max_conflicts
             return obs
         else:
             return {h: [] for h in handles}
@@ -59,6 +56,7 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
         agent needs to reach the cell, encoding the time information.
         """
 
+        num_agents = self.env.get_num_agents()
         distance_map = self.env.distance_map.get()
         nan_inf_mask = ((distance_map != np.inf) * (np.abs(np.isnan(distance_map) - 1))).astype(np.bool)
         max_distance = np.max(distance_map[nan_inf_mask])
@@ -75,9 +73,9 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
                 distance == np.inf or np.isnan(distance)) else distance
 
         return np.array([distance / max_distance,
-                         nr_agents_same_start,
-                         nr_agents_same_start_and_dir,
-                         0])
+                         nr_agents_same_start / num_agents,
+                         nr_agents_same_start_and_dir / num_agents,
+                         0, 0])
 
     def get_position(self, handle):
         self.env: RailEnv = self.env
