@@ -14,9 +14,9 @@ meta_learning_robust_sac:
         num_gpus: 1
 
         rollout_fragment_length: 1
-        train_batch_size: 500
-        sgd_minibatch_size: 50
-        num_sgd_iter: 30
+        train_batch_size: 100
+        sgd_minibatch_size: 10
+        num_sgd_iter: 10
         min_iter_time_s: 0
 
         vf_share_layers: True
