@@ -5,19 +5,19 @@ meta_learning_robust_sac:
         timesteps_total: 15000000
     checkpoint_freq: 1
     checkpoint_at_end: True
-    keep_checkpoints_num: 20
+    keep_checkpoints_num: 100
     checkpoint_score_attr: episode_reward_mean
     num_samples: 1
     config:
         num_workers: 7
         num_envs_per_worker: 1
-        num_gpus: 0
+        num_gpus: 1
 
-        rollout_fragment_length: 15
-        train_batch_size: 30
-        min_iter_time_s: 1
+        rollout_fragment_length: 1
+        train_batch_size: 5
+        min_iter_time_s: 0
 
-        timesteps_per_iteration: 30
+        timesteps_per_iteration: 5
 
         gamma: 0.0
 
@@ -36,6 +36,11 @@ meta_learning_robust_sac:
                 project: flatland
                 entity: wullli
                 tags: ["medium_v0", "sac", "meta", "robust"]
+
+        actor_learning_rate: 0.005
+        critic_learning_rate: 0.005
+        entropy_learning_rate: 0.005
+        learning_starts: 100
 
         Q_model:
             fcnet_activation: relu

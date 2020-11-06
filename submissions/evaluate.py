@@ -26,11 +26,9 @@ seed = 0
 RENDER = False
 
 
-def get_env():
+def get_env(config=None, rl=False):
     n_agents = 15
-    config, run = init_run()
     schedule_generator = sparse_schedule_generator(None)
-    trainer = get_agent(config, run)
 
     rail_generator = sparse_rail_generator(
         seed=seed,
@@ -40,10 +38,13 @@ def get_env():
         max_rails_in_city=4,
     )
 
-    obs_builder = make_obs(config["env_config"]['observation'],
-                           config["env_config"].get('observation_config')).builder()
+    if rl:
+        obs_builder = make_obs(config["env_config"]['observation'],
+                               config["env_config"].get('observation_config')).builder()
+    else:
+        obs_builder = DummyObs()
 
-    params = MalfunctionParameters(malfunction_rate=1 / 250,
+    params = MalfunctionParameters(malfunction_rate=1 / 10000000,
                                    max_duration=50,
                                    min_duration=20)
     malfunction_generator = ParamMalfunctionGen(params)
@@ -60,11 +61,17 @@ def get_env():
         random_seed=seed,
     )
 
-    return env, trainer
+    return env
 
 
-def evaluate(n_episodes):
-    env, prio_agent = get_env()
+def evaluate(n_episodes, rl_prio=True):
+    prio_agent = None
+    if rl_prio:
+        config, run = init_run()
+        prio_agent = get_agent(config, run)
+        env = get_env(config, rl=True)
+    else:
+        env = get_env(rl=False)
     env_renderer = RenderTool(env)
     returns = []
     pcs = []
@@ -87,9 +94,12 @@ def evaluate(n_episodes):
                                           observation_space=None,
                                           priorizer=DistToTargetPriorizer(),
                                           allow_noop=True)
-        priorities = prio_agent.compute_actions(obs, explore=False)
-        sorted_actions = {k: v for k, v in sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
-        sorted_handles = list(sorted_actions.keys())
+        if rl_prio:
+            priorities = prio_agent.compute_actions(obs, explore=False)
+            sorted_actions = {k: v for k, v in sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
+            sorted_handles = list(sorted_actions.keys())
+        else:
+            sorted_handles = robust_env.priorizer.priorize(handles=list(obs.keys()), rail_env=env)
 
         while not done['__all__']:
             actions = ShortestPathAgent().compute_actions(obs, env)
@@ -110,6 +120,9 @@ def evaluate(n_episodes):
 
 
 if __name__ == "__main__":
-    pcs, returns = evaluate(100)
+    rl_pcs, rl_returns = evaluate(200, rl_prio=True)
+    print(f'Mean RL PC: {np.mean(rl_pcs)}')
+    print(f'Mean RL Episode return: {np.mean(rl_returns)}')
+    pcs, returns = evaluate(200, rl_prio=False)
     print(f'Mean PC: {np.mean(pcs)}')
     print(f'Mean Episode return: {np.mean(returns)}')
