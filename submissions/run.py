@@ -20,7 +20,7 @@ tf.compat.v1.disable_eager_execution()
 remote_client = FlatlandRemoteClient()
 
 TIME_LIMIT = 60 * 60 * 8
-EXPLORE = False
+EXPLORE = True
 
 
 def skip(done):
