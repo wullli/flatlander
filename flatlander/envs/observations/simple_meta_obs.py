@@ -41,7 +41,10 @@ class SimpleMetaObservationBuilder(ObservationBuilder):
             if handles is None:
                 handles = []
             obs = {h: self.get(h) for h in handles}
-            max_conflicts = len(max(agent_conflicts.values(), key=lambda v: len(v))) + 1e-7
+            if len(agent_conflicts) < 1:
+                max_conflicts = 1e-7
+            else:
+                max_conflicts = len(max(agent_conflicts.values(), key=lambda v: len(v))) + 1e-7
             for h, o in obs.items():
                 o[-2] = len(set(agent_conflicts[h])) / self.env.get_num_agents()
                 o[-1] = len(agent_conflicts[h]) / max_conflicts
