@@ -1,4 +1,4 @@
-meta_learning_robust_ppo:
+meta_learning_robust_sac:
     run: PPO
     env: flatland_meta
     stop:
@@ -11,18 +11,18 @@ meta_learning_robust_ppo:
     config:
         num_workers: 7
         num_envs_per_worker: 1
-        num_gpus: 1
+        num_gpus: 0
 
         rollout_fragment_length: 1
         train_batch_size: 5
+        sgd_minibatch_size: 5
         min_iter_time_s: 0
+
+        vf_share_layers: True
 
         timesteps_per_iteration: 5
 
         gamma: 0.0
-
-        initial_alpha: 0.2
-        normalize_actions: False
 
         env_config:
             number_of_agents: 15
@@ -38,18 +38,8 @@ meta_learning_robust_ppo:
                 entity: wullli
                 tags: ["medium_v0", "ppo", "meta", "robust"]
 
-        optimization:
-            actor_learning_rate: 0.005
-            critic_learning_rate: 0.005
-            entropy_learning_rate: 0.005
+        lr: 0.005
 
-        learning_starts: 30
-
-        Q_model:
+        model:
             fcnet_activation: relu
             fcnet_hiddens: [32, 32]
-
-        policy_model:
-            fcnet_activation: relu
-            fcnet_hiddens: [32, 32]
-
