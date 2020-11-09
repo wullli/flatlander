@@ -23,16 +23,16 @@ import tensorflow as tf
 
 tf.compat.v1.disable_eager_execution()
 seed = 0
-RENDER = False
+RENDER = True
 
 
 def get_env(config=None, rl=False):
-    n_agents = 15
+    n_agents = 34
     schedule_generator = sparse_schedule_generator(None)
 
     rail_generator = sparse_rail_generator(
         seed=seed,
-        max_num_cities=4,
+        max_num_cities=5,
         grid_mode=False,
         max_rails_between_cities=2,
         max_rails_in_city=3,
@@ -44,18 +44,18 @@ def get_env(config=None, rl=False):
     else:
         obs_builder = DummyObs()
 
-    params = MalfunctionParameters(malfunction_rate=1 / 10000000,
+    params = MalfunctionParameters(malfunction_rate=1 / 190,
                                    max_duration=50,
                                    min_duration=20)
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=25,
-        height=25,
+        width=35,
+        height=35,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
-        malfunction_generator=NoMalfunctionGen(),
+        malfunction_generator=malfunction_generator,
         obs_builder_object=obs_builder,
         remove_agents_at_target=True,
         random_seed=seed,
@@ -120,6 +120,10 @@ def evaluate(n_episodes, rl_prio=True):
 
 
 if __name__ == "__main__":
-    pcs, returns = evaluate(10, rl_prio=True)
-    print(f'Mean PC: {np.mean(pcs)}')
-    print(f'Mean Episode return: {np.mean(returns)}')
+    pcs, returns = evaluate(20, rl_prio=True)
+    print(f'Mean RL PC: {np.mean(pcs)}')
+    print(f'Mean RL Episode return: {np.mean(returns)}')
+
+    pcs, returns = evaluate(20, rl_prio=False)
+    print(f'Mean RL PC: {np.mean(pcs)}')
+    print(f'Mean RL Episode return: {np.mean(returns)}')
