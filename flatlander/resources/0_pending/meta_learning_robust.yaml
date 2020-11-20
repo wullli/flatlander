@@ -39,7 +39,7 @@ meta_learning_robust_sac:
                 entity: wullli
                 tags: ["medium_v0", "ppo", "meta", "robust"]
 
-        lr: 0.001
+        lr: 0.00001
 
         model:
             fcnet_activation: relu
