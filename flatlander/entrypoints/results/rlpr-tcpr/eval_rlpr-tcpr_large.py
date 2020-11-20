@@ -1,12 +1,11 @@
 import os
 from collections import defaultdict
-from time import sleep
-import pandas as pd
 
 import numpy as np
-from flatland.envs.malfunction_generators import MalfunctionParameters, ParamMalfunctionGen, NoMalfunctionGen
+import pandas as pd
+from flatland.envs.malfunction_generators import MalfunctionParameters, ParamMalfunctionGen
 from flatland.envs.rail_env import RailEnv
-from flatland.envs.rail_generators import sparse_rail_generator, rail_from_manual_specifications_generator
+from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatland.utils.rendertools import RenderTool
 from tqdm import tqdm
@@ -15,9 +14,9 @@ from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs.observations import make_obs
 from flatlander.envs.observations.dummy_obs import DummyObs
 from flatlander.envs.utils.cpr_gym_env import CprFlatlandGymEnv
-from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart
-from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
+from flatlander.envs.utils.priorization.priorizer import DistToTargetPriorizer
 from flatlander.submission.helper import is_done, init_run, get_agent
+from flatlander.submission.submissions import SUBMISSIONS
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -28,16 +27,16 @@ tf.compat.v1.disable_eager_execution()
 seed = 0
 RENDER = False
 
-EVAL_NAME = "SPA-CPR"
+EVAL_NAME = "SPA-TCPR-large"
 
 
 def get_env(config=None, rl=False):
-    n_agents = 26
+    n_agents = 64
     schedule_generator = sparse_schedule_generator(None)
 
     rail_generator = sparse_rail_generator(
         seed=seed,
-        max_num_cities=4,
+        max_num_cities=6,
         grid_mode=False,
         max_rails_between_cities=2,
         max_rails_in_city=4,
@@ -55,8 +54,8 @@ def get_env(config=None, rl=False):
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=32,
-        height=32,
+        width=48,
+        height=48,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
@@ -69,14 +68,11 @@ def get_env(config=None, rl=False):
     return env
 
 
-def evaluate(n_episodes, rl_prio=True):
-    agent = None
-    if rl_prio:
-        config, run = init_run()
-        agent = get_agent(config, run)
-        env = get_env(config, rl=True)
-    else:
-        env = get_env(rl=False)
+def evaluate(n_episodes):
+    run = SUBMISSIONS["ppo_meta"]
+    config, run = init_run(run)
+    prio_agent = get_agent(config, run)
+    env = get_env(config, rl=True)
     env_renderer = RenderTool(env, screen_width=8800)
     returns = []
     pcs = []
@@ -98,14 +94,11 @@ def evaluate(n_episodes, rl_prio=True):
         robust_env = CprFlatlandGymEnv(rail_env=env,
                                        max_nr_active_agents=200,
                                        observation_space=None,
-                                       priorizer=NrAgentsSameStart(),
+                                       priorizer=DistToTargetPriorizer(),
                                        allow_noop=True)
-        # if rl_prio:
-        #     priorities = prio_agent.compute_actions(obs, explore=False)
-        #     sorted_actions = {k: v for k, v in sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
-        #     sorted_handles = list(sorted_actions.keys())
-        # else:
-        sorted_handles = robust_env.priorizer.priorize(handles=list(obs.keys()), rail_env=env)
+        priorities = prio_agent.compute_actions(obs, explore=False)
+        sorted_actions = {k: v for k, v in sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
+        sorted_handles = list(sorted_actions.keys())
 
         while not done['__all__']:
             actions = ShortestPathAgent().compute_actions(obs, env)
@@ -127,9 +120,9 @@ def evaluate(n_episodes, rl_prio=True):
 
 
 if __name__ == "__main__":
-    episodes = 2
-    pcs, returns, malfs = evaluate(episodes, rl_prio=True)
+    episodes = 200
+    pcs, returns, malfs = evaluate(episodes)
     df = pd.DataFrame(data={"pc": pcs, "returns": returns, 'malfs': malfs})
-    df.to_csv(os.path.join('.', f'{EVAL_NAME}_{episodes}-episodes.csv'))
+    df.to_csv(os.path.join('..', f'{EVAL_NAME}_{episodes}-episodes.csv'))
     print(f'Mean PC: {np.mean(pcs)}')
     print(f'Mean Episode return: {np.mean(returns)}')

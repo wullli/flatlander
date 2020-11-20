@@ -55,5 +55,5 @@ SUBMISSIONS = {
 
 }
 
-RUN = SUBMISSIONS["ppo_meta"]
+RUN = SUBMISSIONS["apex_dqn_1"]
 CURRENT_ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../utils/current_env.pkl'))

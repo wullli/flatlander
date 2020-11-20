@@ -28,16 +28,16 @@ tf.compat.v1.disable_eager_execution()
 seed = 0
 RENDER = False
 
-EVAL_NAME = "SPA-CPR"
+EVAL_NAME = "SPA-TCPR-small"
 
 
 def get_env(config=None, rl=False):
-    n_agents = 26
+    n_agents = 16
     schedule_generator = sparse_schedule_generator(None)
 
     rail_generator = sparse_rail_generator(
         seed=seed,
-        max_num_cities=4,
+        max_num_cities=3,
         grid_mode=False,
         max_rails_between_cities=2,
         max_rails_in_city=4,
@@ -55,8 +55,8 @@ def get_env(config=None, rl=False):
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=32,
-        height=32,
+        width=28,
+        height=28,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
@@ -127,9 +127,9 @@ def evaluate(n_episodes, rl_prio=True):
 
 
 if __name__ == "__main__":
-    episodes = 2
+    episodes = 200
     pcs, returns, malfs = evaluate(episodes, rl_prio=True)
     df = pd.DataFrame(data={"pc": pcs, "returns": returns, 'malfs': malfs})
-    df.to_csv(os.path.join('.', f'{EVAL_NAME}_{episodes}-episodes.csv'))
+    df.to_csv(os.path.join('..', f'{EVAL_NAME}_{episodes}-episodes.csv'))
     print(f'Mean PC: {np.mean(pcs)}')
     print(f'Mean Episode return: {np.mean(returns)}')

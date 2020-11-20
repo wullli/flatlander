@@ -28,11 +28,11 @@ tf.compat.v1.disable_eager_execution()
 seed = 0
 RENDER = False
 
-EVAL_NAME = "SPA-CPR"
+EVAL_NAME = "SPA-TCPR-medium"
 
 
 def get_env(config=None, rl=False):
-    n_agents = 26
+    n_agents = 32
     schedule_generator = sparse_schedule_generator(None)
 
     rail_generator = sparse_rail_generator(
@@ -127,9 +127,9 @@ def evaluate(n_episodes, rl_prio=True):
 
 
 if __name__ == "__main__":
-    episodes = 2
+    episodes = 1000
     pcs, returns, malfs = evaluate(episodes, rl_prio=True)
     df = pd.DataFrame(data={"pc": pcs, "returns": returns, 'malfs': malfs})
-    df.to_csv(os.path.join('.', f'{EVAL_NAME}_{episodes}-episodes.csv'))
+    df.to_csv(os.path.join('..', f'{EVAL_NAME}_{episodes}-episodes.csv'))
     print(f'Mean PC: {np.mean(pcs)}')
     print(f'Mean Episode return: {np.mean(returns)}')

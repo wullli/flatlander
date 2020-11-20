@@ -20,9 +20,12 @@ n_cpu = multiprocessing.cpu_count()
 print("***** NUM CPUS AVAILABLE:", n_cpu, "*****")
 
 
-def get_parameters():
-    run = RUN
-    print("RUNNING", RUN)
+def get_parameters(run=None):
+    if run is None:
+        run = RUN
+        print("RUNNING", RUN)
+    else:
+        print("RUNNING", run)
 
     with open(os.path.join(os.path.dirname(run["checkpoint_paths"][1]), "config.yaml")) as f:
         config = yaml.safe_load(f)
@@ -30,8 +33,9 @@ def get_parameters():
     return run, config
 
 
-def init_run():
-    run, config = get_parameters()
+def init_run(run=None):
+    run, config = get_parameters(run)
+
     load_envs(os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../runner")))
     load_models(os.path.abspath(
