@@ -2,7 +2,7 @@ meta_learning_robust_sac:
     run: PPO
     env: flatland_meta
     stop:
-        timesteps_total: 15000000
+        timesteps_total: 1500
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 100

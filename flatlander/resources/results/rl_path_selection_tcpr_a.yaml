@@ -2,7 +2,7 @@ SUBMISSON_TRAINING_flatland-sparse-small-tree_obs-robust-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 15000000
+        timesteps_total: 10000000
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 100

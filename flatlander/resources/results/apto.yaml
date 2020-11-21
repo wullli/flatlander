@@ -1,12 +1,12 @@
-flatland-sparse-small-malf-priority_tree_obs-fc-apex:
+0_RESULT_flatland-sparse-small-priority_tree_obs-fc-apex:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 15000000
+        timesteps_total: 10000000
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 100
-    checkpoint_score_attr: episode_reward_mean
+    checkpoint_score_attr: episode_reward_min
     num_samples: 1
     config:
         num_workers: 7
@@ -14,6 +14,13 @@ flatland-sparse-small-malf-priority_tree_obs-fc-apex:
         num_gpus: 1
 
         lr: 0.0001
+        buffer_size: 200000
+
+        exploration_config:
+            type: PerWorkerEpsilonGreedy
+            initial_epsilon: 1.0
+            final_epsilon: 0.02
+            epsilon_timesteps: 50000
 
         env_config:
             observation: priority_tree
@@ -28,7 +35,7 @@ flatland-sparse-small-malf-priority_tree_obs-fc-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "apex", "priority_tree_obs", "skip", "malfunctions"]
+                tags: ["small_v0", "apex", "priority_tree_obs", "skip"]
 
         model:
             fcnet_activation: relu
