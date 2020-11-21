@@ -26,7 +26,7 @@ meta_learning_robust_sac:
         gamma: 0.0
 
         env_config:
-            number_of_agents: 43
+            number_of_agents: 32
             observation: simple_meta
 
             gym_env: robust
