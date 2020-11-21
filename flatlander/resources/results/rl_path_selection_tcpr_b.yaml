@@ -1,0 +1,42 @@
+SUBMISSON_TRAINING_flatland-sparse-small-tree_obs-robust-fc-apex:
+    run: APEX
+    env: flatland_sparse
+    stop:
+        timesteps_total: 15000000
+    checkpoint_freq: 1
+    checkpoint_at_end: True
+    keep_checkpoints_num: 100
+    checkpoint_score_attr: episode_reward_mean
+    num_samples: 1
+    config:
+        num_workers: 7
+        num_envs_per_worker: 5
+        num_gpus: 1
+
+        buffer_size: 200000
+
+        exploration_config:
+            type: PerWorkerEpsilonGreedy
+            initial_epsilon: 1.0
+            final_epsilon: 0.02
+            epsilon_timesteps: 50000
+
+        env_config:
+            observation: nr_conflicts_path
+
+            gym_env: robust
+
+            generator: sparse_rail_generator
+            generator_config: eval_medium_complexity
+
+            wandb:
+                project: flatland
+                entity: wullli
+                tags: ["small_v0", "apex", "tree", "robust"]
+
+        model:
+            fcnet_activation: relu
+            fcnet_hiddens: [32, 32]
+            vf_share_layers: True  # False
+
+

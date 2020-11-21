@@ -12,12 +12,14 @@ from flatland.utils.rendertools import RenderTool
 from tqdm import tqdm
 
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
+from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
 from flatlander.envs.observations import make_obs
 from flatlander.envs.observations.dummy_obs import DummyObs
 from flatlander.envs.utils.cpr_gym_env import CprFlatlandGymEnv
 from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart, DistToTargetPriorizer
 from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.submission.helper import is_done, init_run, get_agent
+from flatlander.submission.submissions import SUBMISSIONS
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -28,7 +30,7 @@ tf.compat.v1.disable_eager_execution()
 seed = 0
 RENDER = False
 
-EVAL_NAME = "SPA-TCPR-large"
+EVAL_NAME = "RLPS-TCPR-large"
 
 
 def get_env(config=None, rl=False):
@@ -69,14 +71,11 @@ def get_env(config=None, rl=False):
     return env
 
 
-def evaluate(n_episodes, rl_prio=True):
-    agent = None
-    if rl_prio:
-        config, run = init_run()
-        agent = get_agent(config, run)
-        env = get_env(config, rl=True)
-    else:
-        env = get_env(rl=False)
+def evaluate(n_episodes):
+    run = SUBMISSIONS["rlps-tcpr"]
+    config, run = init_run(run)
+    agent = ShortestPathRllibAgent(get_agent(config, run))
+    env = get_env(config, rl=True)
     env_renderer = RenderTool(env, screen_width=8800)
     returns = []
     pcs = []
@@ -95,20 +94,16 @@ def evaluate(n_episodes, rl_prio=True):
         steps = 0
         ep_return = 0
         done = defaultdict(lambda: False)
-        robust_env = CprFlatlandGymEnv(rail_env=env,
-                                       max_nr_active_agents=200,
-                                       observation_space=None,
-                                       priorizer=DistToTargetPriorizer(),
-                                       allow_noop=True)
-        # if rl_prio:
-        #     priorities = prio_agent.compute_actions(obs, explore=False)
-        #     sorted_actions = {k: v for k, v in sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
-        #     sorted_handles = list(sorted_actions.keys())
-        # else:
+        robust_env = RobustFlatlandGymEnv(rail_env=env,
+                                          max_nr_active_agents=200,
+                                          observation_space=None,
+                                          priorizer=DistToTargetPriorizer(),
+                                          allow_noop=True)
+
         sorted_handles = robust_env.priorizer.priorize(handles=list(obs.keys()), rail_env=env)
 
         while not done['__all__']:
-            actions = ShortestPathAgent().compute_actions(obs, env)
+            actions = agent.compute_actions(obs, env)
             robust_actions = robust_env.get_robust_actions(actions, sorted_handles)
             obs, all_rewards, done, info = env.step(robust_actions)
             if RENDER:
@@ -128,7 +123,7 @@ def evaluate(n_episodes, rl_prio=True):
 
 if __name__ == "__main__":
     episodes = 200
-    pcs, returns, malfs = evaluate(episodes, rl_prio=True)
+    pcs, returns, malfs = evaluate(episodes)
     df = pd.DataFrame(data={"pc": pcs, "returns": returns, 'malfs': malfs})
     df.to_csv(os.path.join('..', f'{EVAL_NAME}_{episodes}-episodes.csv'))
     print(f'Mean PC: {np.mean(pcs)}')

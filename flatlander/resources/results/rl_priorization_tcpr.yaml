@@ -32,7 +32,7 @@ meta_learning_robust_sac:
             gym_env: robust
 
             generator: sparse_rail_generator
-            generator_config: medium_v0
+            generator_config: eval_medium_complexity
 
             wandb:
                 project: flatland

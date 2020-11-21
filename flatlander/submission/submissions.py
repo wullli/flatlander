@@ -31,29 +31,39 @@ AGENT_MAP = {"sac": sac.SACTrainer,
              "apex": dqn.ApexTrainer}
 
 SUBMISSIONS = {
-    "apex_dqn_1": {
-        "checkpoint_paths": {n_agents: os.path.abspath(
+    "ato": {
+        "checkpoint_paths": os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         f"model_checkpoints/apex_dqn_small_v0/{n_agents}_agents/checkpoint_119/checkpoint-119"))
-            for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
+                         f"model_checkpoints/ato_baseline/checkpoint_119/checkpoint-119")),
         "agent": "apex"
     },
-    "apex_dqn_robust": {
-        "checkpoint_paths": {n_agents: os.path.abspath(
+    "apto": {
+        "checkpoint_paths": os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         f"model_checkpoints/apex_dqn_robust/checkpoint_27/checkpoint-27"))
-            for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
+                         f"model_checkpoints/apto/checkpoint_119/checkpoint-119")),
         "agent": "apex"
     },
-    "ppo_meta": {
-        "checkpoint_paths": {n_agents: os.path.abspath(
+    "rlps-tcpr": {
+        "checkpoint_paths": os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         f"model_checkpoints/meta/checkpoint_76/checkpoint-76"))
-            for n_agents in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18]},
+                         f"model_checkpoints/rlps-tcpr/checkpoint_27/checkpoint-27")),
+
+        "agent": "apex"
+    },
+    "rlps-tcpr-2": {
+        "checkpoint_paths": os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
+                         f"model_checkpoints/rlps-tcpr/checkpoint_385/checkpoint-385")),
+        "agent": "apex"
+    },
+    "rlpr-tcpr": {
+        "checkpoint_paths": os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
+                         f"model_checkpoints/rlpr-tcpr/checkpoint_76/checkpoint-76")),
         "agent": "ppo"
     }
 
 }
 
-RUN = SUBMISSIONS["apex_dqn_1"]
+RUN = SUBMISSIONS["rlpr-tcpr"]
 CURRENT_ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../utils/current_env.pkl'))

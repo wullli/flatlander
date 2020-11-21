@@ -69,7 +69,7 @@ def get_env(config=None, rl=False):
 
 
 def evaluate(n_episodes):
-    run = SUBMISSIONS["ppo_meta"]
+    run = SUBMISSIONS["rlpr-tcpr"]
     config, run = init_run(run)
     prio_agent = get_agent(config, run)
     env = get_env(config, rl=True)

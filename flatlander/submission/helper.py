@@ -27,7 +27,7 @@ def get_parameters(run=None):
     else:
         print("RUNNING", run)
 
-    with open(os.path.join(os.path.dirname(run["checkpoint_paths"][1]), "config.yaml")) as f:
+    with open(os.path.join(os.path.dirname(run["checkpoint_paths"]), "config.yaml")) as f:
         config = yaml.safe_load(f)
 
     return run, config
@@ -45,10 +45,9 @@ def init_run(run=None):
     return config, run
 
 
-def get_agent(config, run, n_agents=5) -> Trainer:
+def get_agent(config, run) -> Trainer:
     agent = AGENT_MAP[run["agent"]](config=config)
-    n_agents = min(18, n_agents)
-    agent.restore(run["checkpoint_paths"][n_agents])
+    agent.restore(run["checkpoint_paths"])
     return agent
 
 
