@@ -23,11 +23,10 @@ SUBMISSON_TRAINING_flatland-sparse-small-tree_obs-robust-fc-apex:
 
         env_config:
             observation: nr_conflicts_path
-
+            number_of_agents: 10
             gym_env: robust
-
             generator: sparse_rail_generator
-            generator_config: eval_medium_complexity
+            generator_config: small_v0_malf
 
             wandb:
                 project: flatland

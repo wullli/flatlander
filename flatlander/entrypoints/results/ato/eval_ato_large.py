@@ -71,7 +71,7 @@ def get_env(config=None, rl=False):
 
 
 def evaluate(n_episodes):
-    run = SUBMISSIONS["apex_dqn_1"]
+    run = SUBMISSIONS["ato"]
     config, run = init_run(run)
     agent = get_agent(config, run)
     env = get_env(config, rl=True)

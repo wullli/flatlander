@@ -94,9 +94,21 @@ def evaluate(n_episodes):
         ep_return = 0
         done = defaultdict(lambda: False)
 
+        action_template = {handle: RailEnvActions.STOP_MOVING for handle in obs.keys()}
+
         while not done['__all__']:
-            actions = agent.compute_actions(obs, explore=False)
-            obs, all_rewards, done, info = env.step(actions)
+
+            local_env = deepcopy(env)
+
+            real_actions = {}
+            for handle in obs.keys():
+                actions = action_template.copy()
+                actions[handle] = agent.compute_action(obs[handle], explore=False)
+                observation, _, _, _ = local_env.step(actions)
+                real_actions[handle] = actions[handle]
+
+            obs, all_rewards, done, info = env.step(real_actions)
+
             if RENDER:
                 env_renderer.render_env(show=True, frames=True, show_observations=False)
             print('.', end='', flush=True)

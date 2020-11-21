@@ -1,22 +1,18 @@
 import os
 from collections import defaultdict
-from time import sleep
-import pandas as pd
+from copy import deepcopy
 
 import numpy as np
-from flatland.envs.malfunction_generators import MalfunctionParameters, ParamMalfunctionGen, NoMalfunctionGen
-from flatland.envs.rail_env import RailEnv
-from flatland.envs.rail_generators import sparse_rail_generator, rail_from_manual_specifications_generator
+import pandas as pd
+from flatland.envs.malfunction_generators import MalfunctionParameters, ParamMalfunctionGen
+from flatland.envs.rail_env import RailEnv, RailEnvActions
+from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.schedule_generators import sparse_schedule_generator
 from flatland.utils.rendertools import RenderTool
 from tqdm import tqdm
 
-from flatlander.agents.shortest_path_agent import ShortestPathAgent
 from flatlander.envs.observations import make_obs
 from flatlander.envs.observations.dummy_obs import DummyObs
-from flatlander.envs.utils.cpr_gym_env import CprFlatlandGymEnv
-from flatlander.envs.utils.priorization.priorizer import NrAgentsSameStart
-from flatlander.envs.utils.robust_gym_env import RobustFlatlandGymEnv
 from flatlander.submission.helper import is_done, init_run, get_agent
 from flatlander.submission.submissions import SUBMISSIONS
 
@@ -29,16 +25,16 @@ tf.compat.v1.disable_eager_execution()
 seed = 0
 RENDER = False
 
-EVAL_NAME = "ATO-medium"
+EVAL_NAME = "ATO-small"
 
 
 def get_env(config=None, rl=False):
-    n_agents = 32
+    n_agents = 16
     schedule_generator = sparse_schedule_generator(None)
 
     rail_generator = sparse_rail_generator(
         seed=seed,
-        max_num_cities=4,
+        max_num_cities=3,
         grid_mode=False,
         max_rails_between_cities=2,
         max_rails_in_city=4,
@@ -56,8 +52,8 @@ def get_env(config=None, rl=False):
     malfunction_generator = ParamMalfunctionGen(params)
 
     env = RailEnv(
-        width=32,
-        height=32,
+        width=28,
+        height=28,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
@@ -94,9 +90,21 @@ def evaluate(n_episodes):
         ep_return = 0
         done = defaultdict(lambda: False)
 
+        action_template = {handle: RailEnvActions.STOP_MOVING for handle in obs.keys()}
+
         while not done['__all__']:
-            actions = agent.compute_actions(obs, explore=False)
-            obs, all_rewards, done, info = env.step(actions)
+
+            local_env = deepcopy(env)
+
+            real_actions = {}
+            for handle in obs.keys():
+                actions = action_template.copy()
+                actions[handle] = agent.compute_action(obs[handle], explore=False)
+                observation, _, _, _ = local_env.step(actions)
+                real_actions[handle] = actions[handle]
+
+            obs, all_rewards, done, info = env.step(real_actions)
+
             if RENDER:
                 env_renderer.render_env(show=True, frames=True, show_observations=False)
             print('.', end='', flush=True)
@@ -113,7 +121,7 @@ def evaluate(n_episodes):
 
 
 if __name__ == "__main__":
-    episodes = 1000
+    episodes = 20
     pcs, returns, malfs = evaluate(episodes)
     df = pd.DataFrame(data={"pc": pcs, "returns": returns, 'malfs': malfs})
     df.to_csv(os.path.join('..', f'{EVAL_NAME}_{episodes}-episodes.csv'))
