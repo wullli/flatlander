@@ -27,7 +27,7 @@ tf.compat.v1.disable_eager_execution()
 seed = 0
 RENDER = False
 
-EVAL_NAME = "SPA-TCPR-large"
+EVAL_NAME = "RLPR-TCPR-large"
 
 
 def get_env(config=None, rl=False):
