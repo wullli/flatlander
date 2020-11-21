@@ -27,7 +27,6 @@
             observation_config:
                 max_depth: 2
                 shortest_path_max_depth: 30
-                predictor: custom
 
             generator: sparse_rail_generator
             generator_config: small_v0_malf
