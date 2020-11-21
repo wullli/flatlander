@@ -32,7 +32,7 @@ SUBMISSON_TRAINING_flatland-sparse-small-tree_obs-robust-fc-apex:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "apex", "tree", "robust"]
+                tags: ["eval_medium_complexity", "apex", "tree", "robust", "vm_result"]
 
         model:
             fcnet_activation: relu

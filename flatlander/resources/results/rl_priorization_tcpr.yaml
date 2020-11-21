@@ -37,7 +37,7 @@ meta_learning_robust_sac:
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["medium_v0", "ppo", "meta", "robust"]
+                tags: ["medium_v0", "ppo", "meta", "robust", "vm_result"]
 
         lr: 0.00001
 

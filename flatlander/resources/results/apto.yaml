@@ -34,7 +34,7 @@
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "apex", "priority_tree_obs", "skip"]
+                tags: ["small_v0_malf", "apex", "priority_tree_obs", "vm_result"]
 
         model:
             fcnet_activation: relu
