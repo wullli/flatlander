@@ -2,7 +2,7 @@ apex-tree-obs-small-v0-malf:
     run: APEX
     env: flatland_sparse
     stop:
-        timesteps_total: 15000000  # 1.5e7
+        timesteps_total: 10000000
     checkpoint_freq: 1
     checkpoint_at_end: True
     keep_checkpoints_num: 1
@@ -13,8 +13,6 @@ apex-tree-obs-small-v0-malf:
         num_envs_per_worker: 5
         num_gpus: 1
 
-        buffer_size: 100000
-
         env_config:
             observation: tree
             observation_config:
@@ -22,12 +20,12 @@ apex-tree-obs-small-v0-malf:
                 shortest_path_max_depth: 30
 
             generator: sparse_rail_generator
-            generator_config: small_v0_malf
+            generator_config: small_v0
 
             wandb:
                 project: flatland
                 entity: wullli
-                tags: ["small_v0", "tree_obs", "apex", "malf_baseline"] # TODO should be set programmatically
+                tags: ["small_v0", "tree_obs", "apex", "ato" "baseline"]
 
         model:
             fcnet_activation: relu
