@@ -27,7 +27,7 @@ tf.compat.v1.disable_eager_execution()
 seed = 0
 RENDER = False
 
-EVAL_NAME = "RLPS-TCPR-small"
+EVAL_NAME = "RETRAINED_RLPS-TCPR-small"
 
 
 def get_env(config=None, rl=False):
@@ -69,7 +69,7 @@ def get_env(config=None, rl=False):
 
 
 def evaluate(n_episodes):
-    run = SUBMISSIONS["rlps-tcpr-2"]
+    run = SUBMISSIONS["rlps-tcpr"]
     config, run = init_run(run)
     agent = ShortestPathRllibAgent(get_agent(config, run))
     env = get_env(config, rl=True)
@@ -77,6 +77,7 @@ def evaluate(n_episodes):
     returns = []
     pcs = []
     malfs = []
+    avg_nonsp_actions = []
 
     for _ in tqdm(range(n_episodes)):
 
@@ -90,6 +91,7 @@ def evaluate(n_episodes):
 
         steps = 0
         ep_return = 0
+        nonsp_count = 0
         done = defaultdict(lambda: False)
         robust_env = RobustFlatlandGymEnv(rail_env=env,
                                           max_nr_active_agents=200,
@@ -101,6 +103,12 @@ def evaluate(n_episodes):
 
         while not done['__all__']:
             actions = agent.compute_actions(obs, env)
+            for h, a in actions.items():
+                if a == 1:
+                    cell_transitions = env.rail.get_transitions(*env.agents[h].position, env.agents[h].direction)
+                    if np.count_nonzero(cell_transitions) > 1:
+                        nonsp_count += 1
+                        print("NON SP ACTION TAKEN, HURRAY!")
             robust_actions = robust_env.get_robust_actions(actions, sorted_handles)
             obs, all_rewards, done, info = env.step(robust_actions)
             if RENDER:
@@ -115,13 +123,16 @@ def evaluate(n_episodes):
         pcs.append(pc)
         returns.append(ep_return / (env._max_episode_steps * env.get_num_agents()))
         malfs.append(np.sum([a.malfunction_data['nr_malfunctions'] for a in env.agents]))
-    return pcs, returns, malfs
+        avg_nonsp_actions.append(nonsp_count / steps)
+
+    return pcs, returns, malfs, avg_nonsp_actions
 
 
 if __name__ == "__main__":
-    episodes = 20
-    pcs, returns, malfs = evaluate(episodes)
+    episodes = 10
+    pcs, returns, malfs, nonsp_actions = evaluate(episodes)
     df = pd.DataFrame(data={"pc": pcs, "returns": returns, 'malfs': malfs})
     df.to_csv(os.path.join('..', f'{EVAL_NAME}_{episodes}-episodes.csv'))
     print(f'Mean PC: {np.mean(pcs)}')
     print(f'Mean Episode return: {np.mean(returns)}')
+    print(f'Mean nonsp actions per step: {np.mean(nonsp_actions)}')

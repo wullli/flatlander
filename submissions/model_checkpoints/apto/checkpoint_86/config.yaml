@@ -1,0 +1,35 @@
+env: flatland_sparse
+
+num_workers: 0
+num_envs_per_worker: 0
+num_gpus: 0
+
+lr: 0.0001
+buffer_size: 200000
+
+exploration_config:
+    type: PerWorkerEpsilonGreedy
+    initial_epsilon: 1.0
+    final_epsilon: 0.02
+    epsilon_timesteps: 50000
+
+env_config:
+    observation: priority_tree
+    observation_config:
+        max_depth: 2
+        shortest_path_max_depth: 30
+
+    generator: sparse_rail_generator
+    generator_config: small_v0_malf
+
+    wandb:
+        project: flatland
+        entity: wullli
+        tags: ["small_v0_malf", "apex", "priority_tree_obs", "vm_result"]
+
+model:
+    fcnet_activation: relu
+    fcnet_hiddens: [256, 256, 256]
+    vf_share_layers: True  # False
+
+

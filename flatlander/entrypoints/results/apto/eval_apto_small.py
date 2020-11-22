@@ -71,7 +71,7 @@ def get_env(config=None, rl=False):
 
 
 def evaluate(n_episodes):
-    run = SUBMISSIONS["apex_dqn_1"]
+    run = SUBMISSIONS["apto"]
     config, run = init_run(run)
     agent = get_agent(config, run)
     env = get_env(config, rl=True)
@@ -113,7 +113,7 @@ def evaluate(n_episodes):
 
 
 if __name__ == "__main__":
-    episodes = 200
+    episodes = 1000
     pcs, returns, malfs = evaluate(episodes)
     df = pd.DataFrame(data={"pc": pcs, "returns": returns, 'malfs': malfs})
     df.to_csv(os.path.join('..', f'{EVAL_NAME}_{episodes}-episodes.csv'))

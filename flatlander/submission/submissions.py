@@ -40,7 +40,7 @@ SUBMISSIONS = {
     "apto": {
         "checkpoint_paths": os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         f"model_checkpoints/apto/checkpoint_119/checkpoint-119")),
+                         f"model_checkpoints/apto/checkpoint_86/checkpoint-86")),
         "agent": "apex"
     },
     "rlps-tcpr": {
@@ -53,7 +53,7 @@ SUBMISSIONS = {
     "rlps-tcpr-2": {
         "checkpoint_paths": os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
-                         f"model_checkpoints/rlps-tcpr/checkpoint_385/checkpoint-385")),
+                         f"model_checkpoints/rlps-tcpr/retrained/checkpoint-291")),
         "agent": "apex"
     },
     "rlpr-tcpr": {
