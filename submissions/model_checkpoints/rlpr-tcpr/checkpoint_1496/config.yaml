@@ -1,0 +1,36 @@
+env: flatland_meta
+num_workers: 0
+num_envs_per_worker: 0
+num_gpus: 0
+
+rollout_fragment_length: 1
+train_batch_size: 100
+sgd_minibatch_size: 10
+num_sgd_iter: 10
+min_iter_time_s: 0
+
+vf_share_layers: False
+
+timesteps_per_iteration: 5
+
+gamma: 0.0
+
+env_config:
+    number_of_agents: 32
+    observation: simple_meta
+
+    gym_env: robust
+
+    generator: sparse_rail_generator
+    generator_config: eval_medium_complexity
+
+    wandb:
+        project: flatland
+        entity: wullli
+        tags: ["medium_v0", "ppo", "meta", "robust"]
+
+lr: 0.001
+
+model:
+    fcnet_activation: relu
+    fcnet_hiddens: [32, 32]

@@ -19,6 +19,7 @@ from flatlander.submission.submissions import RUN, CURRENT_ENV_PATH, get_tune_ti
 n_cpu = multiprocessing.cpu_count()
 print("***** NUM CPUS AVAILABLE:", n_cpu, "*****")
 
+RAY_INITIALIZED = False
 
 def get_parameters(run=None):
     if run is None:
@@ -33,7 +34,15 @@ def get_parameters(run=None):
     return run, config
 
 
+def init_ray():
+    global RAY_INITIALIZED
+    if not RAY_INITIALIZED:
+        ray.init(local_mode=True, num_cpus=n_cpu)
+        RAY_INITIALIZED = True
+
+
 def init_run(run=None):
+    init_ray()
     run, config = get_parameters(run)
 
     load_envs(os.path.abspath(
@@ -41,7 +50,6 @@ def init_run(run=None):
     load_models(os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../runner")))
 
-    ray.init(local_mode=True, num_cpus=n_cpu)
     return config, run
 
 

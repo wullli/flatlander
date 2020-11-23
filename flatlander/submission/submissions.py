@@ -61,6 +61,12 @@ SUBMISSIONS = {
             os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
                          f"model_checkpoints/rlpr-tcpr/checkpoint_76/checkpoint-76")),
         "agent": "ppo"
+    },
+    "rlpr-tcpr-2": {
+        "checkpoint_paths": os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "submissions",
+                         f"model_checkpoints/rlpr-tcpr/checkpoint_1496/checkpoint-1496")),
+        "agent": "ppo"
     }
 
 }

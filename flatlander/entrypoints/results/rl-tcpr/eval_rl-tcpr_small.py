@@ -11,6 +11,7 @@ from flatland.utils.rendertools import RenderTool
 from tqdm import tqdm
 
 from flatlander.agents.shortest_path_agent import ShortestPathAgent
+from flatlander.agents.shortest_path_rllib_agent import ShortestPathRllibAgent
 from flatlander.envs.observations import make_obs
 from flatlander.envs.observations.dummy_obs import DummyObs
 from flatlander.envs.utils.cpr_gym_env import CprFlatlandGymEnv
@@ -25,9 +26,9 @@ import tensorflow as tf
 
 tf.compat.v1.disable_eager_execution()
 seed = 0
-RENDER = True
+RENDER = False
 
-EVAL_NAME = "RLPR-TCPR-small"
+EVAL_NAME = "RL-TCPR-small"
 
 
 def get_env(config=None, rl=False):
@@ -43,8 +44,7 @@ def get_env(config=None, rl=False):
     )
 
     if rl:
-        obs_builder = make_obs(config["env_config"]['observation'],
-                               config["env_config"].get('observation_config')).builder()
+        obs_builder = make_obs("combined", {"path": None, "simple_meta": None}).builder()
     else:
         obs_builder = DummyObs()
 
@@ -55,7 +55,7 @@ def get_env(config=None, rl=False):
 
     env = RailEnv(
         width=28,
-        height=21,
+        height=28,
         rail_generator=rail_generator,
         schedule_generator=schedule_generator,
         number_of_agents=n_agents,
@@ -69,10 +69,15 @@ def get_env(config=None, rl=False):
 
 
 def evaluate(n_episodes):
-    run = SUBMISSIONS["rlpr-tcpr-2"]
+    run = SUBMISSIONS["rlpr-tcpr"]
     config, run = init_run(run)
     prio_agent = get_agent(config, run)
-    env = get_env(config, rl=True)
+
+    run = SUBMISSIONS["rlps-tcpr"]
+    config, run = init_run(run)
+    step_agent = ShortestPathRllibAgent(get_agent(config, run), explore=False)
+
+    env = get_env(None, rl=True)
     env_renderer = RenderTool(env, screen_width=8800)
     returns = []
     pcs = []
@@ -96,12 +101,14 @@ def evaluate(n_episodes):
                                        observation_space=None,
                                        priorizer=DistToTargetPriorizer(),
                                        allow_noop=True)
-        priorities = prio_agent.compute_actions(obs, explore=False)
+        meta_obs = {h: o[1] for h, o in obs.items()}
+        priorities = prio_agent.compute_actions(meta_obs, explore=False)
         sorted_actions = {k: v for k, v in sorted(priorities.items(), key=lambda item: item[1], reverse=True)}
         sorted_handles = list(sorted_actions.keys())
 
         while not done['__all__']:
-            actions = ShortestPathAgent().compute_actions(obs, env)
+            agent_obs = {h: o[0] for h, o in obs.items()}
+            actions = step_agent.compute_actions(agent_obs, env)
             robust_actions = robust_env.get_robust_actions(actions, sorted_handles)
             obs, all_rewards, done, info = env.step(robust_actions)
             if RENDER:
@@ -120,7 +127,7 @@ def evaluate(n_episodes):
 
 
 if __name__ == "__main__":
-    episodes = 20
+    episodes = 1000
     pcs, returns, malfs = evaluate(episodes)
     df = pd.DataFrame(data={"pc": pcs, "returns": returns, 'malfs': malfs})
     df.to_csv(os.path.join('..', f'{EVAL_NAME}_{episodes}-episodes.csv'))
