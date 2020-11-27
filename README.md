@@ -1,10 +1,11 @@
 # RL robust to deadlocks for the Flatland Challenge 2020
 
-Contains the source-code flatland challenge 2020 (VM1). 
+Contains approaches for the Flatland-Challenge 2020: https://www.aicrowd.com/challenges/neurips-2020-flatland-challenge
 
 Included are implementations and evaluations of path-reservation algorithms combined with RL-agents and compared to baselines.
 
 Author: Pascal Wullschleger
+
 
 ## References
 
