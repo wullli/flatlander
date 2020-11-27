@@ -1,4 +1,4 @@
-# Reinforcement learning robust to deadlocks
+# RL robust to deadlocks for the Flatland Challenge 2020
 
 Contains the source-code flatland challenge 2020 (VM1). 
 
