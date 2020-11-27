@@ -2,7 +2,7 @@
 
 Contains approaches for the Flatland-Challenge 2020: https://www.aicrowd.com/challenges/neurips-2020-flatland-challenge
 
-Included are implementations and evaluations of path-reservation algorithms combined with RL-agents and compared to baselines.
+Included are implementations and evaluations of path-reservation algorithms combined with RL-agents compared to baselines.
 
 ![Alt Text](render.gif)
 
