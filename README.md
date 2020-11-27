@@ -4,8 +4,6 @@ Contains approaches for the Flatland-Challenge 2020: https://www.aicrowd.com/cha
 
 Included are implementations and evaluations of path-reservation algorithms combined with RL-agents and compared to baselines.
 
-Author: Pascal Wullschleger
-
 ![Alt Text](render.gif)
 
 ## References
